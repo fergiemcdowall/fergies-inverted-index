@@ -1,0 +1,26 @@
+{
+  "name": "naturaldb",
+  "version": "0.0.1",
+  "description": "A database that scales naturally",
+  "main": "index.js",
+  "scripts": {
+    "test": "tape"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fergiemcdowall/naturaldb.git"
+  },
+  "keywords": [
+    "database",
+    "db",
+    "natural",
+    "scalability",
+    "browser"
+  ],
+  "author": "Fergus McDowall",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/fergiemcdowall/naturaldb/issues"
+  },
+  "homepage": "https://github.com/fergiemcdowall/naturaldb#readme"
+}
