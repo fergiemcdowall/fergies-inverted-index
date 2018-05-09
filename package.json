@@ -17,7 +17,7 @@
     "world-bank-dataset": "^1.0.0"
   },
   "scripts": {
-    "test": "rm -rf test/sandbox/* && tape test/*-test.js"
+    "test": "rm -rf test/sandbox && mkdir test/sandbox && tape test/*-test.js"
   },
   "repository": {
     "type": "git",
