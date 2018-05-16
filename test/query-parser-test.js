@@ -85,9 +85,6 @@ test('can do some searches', t => {
 test('can do some searches', t => {
   t.plan(2)
   var dataSize = 50
-  // this doesnt work because 'Tertiary education' is at position 3 in source Array
-  // can probably be made position agnostic by swapping out array index with placeholder
-  // suach as "_Array"
   wb.get({
     select: {
       sector_namecode: [
@@ -97,47 +94,9 @@ test('can do some searches', t => {
       ]
     }
   }).then(result => {
-    /* console.log(JSON.stringify(result, null, 2))*/
     t.equal(result.length, 1)
     t.equal(result[0]._id, 1)
   })
 })
 
 
-
-/* test('simple query parse', t => {
- *   t.plan(1)
- *   t.looseEquals(
- *     qp.parse({
- *       totalcommamt: {
- *         _AND: ['big', 'jugs'],
- *         _NOT: ['bazookas']
- *       },
- *       mojo: {
- *         rising: {
- *           _AND: [ 'very', 'big' ]
- *         },
- *         jim: 'morrison'
- *       }
- *     }), {
- *     "totalcommamt": {
- *       _AND: [
- *         "big",
- *         "jugs"
- *       ],
- *       _NOT: [
- *         "bazookas"
- *       ]
- *     },
- *     "mojo.rising": {
- *       _AND: [
- *         "very",
- *         "big"
- *       ]
- *     },
- *     "mojo.jim": {
- *       _AND: "morrison"
- *     }
- *     })
- * })
- * */
