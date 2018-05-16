@@ -10,6 +10,8 @@
   "dependencies": {
     "encoding-down": "^4.0.0",
     "level-out": "^1.0.0",
+    "lodash": "^4.17.10",
+    "lodash.intersection": "^4.4.0",
     "tape": "^4.9.0",
     "traverse": "^0.6.6"
   },
