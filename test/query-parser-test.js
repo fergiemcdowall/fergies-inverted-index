@@ -101,21 +101,22 @@ test('can do some searches (nested array)', t => {
 
 
 test('can do some searches (ORing)', t => {
-  t.plan(2)
+  t.plan(3)
   var dataSize = 50
   wb.get({
     select: {
-      sector_namecode: [
+      mjsector_namecode: [
         {
           name: {
-            _OR: ['Tertiary education', 'Transportation']
+            _OR: ['Finance', 'Education']
           }
         }
       ]
     }
   }).then(result => {
-    t.equal(result.length, 1)
-    t.equal(result[0]._id, 1)
+    t.equal(result.length, 2)
+    t.equal(result[0]._id, '52b213b38594d8a2be17c784')
+    t.equal(result[1]._id, '52b213b38594d8a2be17c780')
   })
 })
 
