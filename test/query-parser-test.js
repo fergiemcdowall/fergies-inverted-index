@@ -20,7 +20,7 @@ test('create a little world bank index', t => {
 test('can add some worldbank data', t => {
   var dataSize = 10
   const data = wbd.slice(0, dataSize).map(item => {
-    delete item._id
+    item._id = item._id.$oid
     item.sectorcode = item.sectorcode.split(',')
     return item
   })
@@ -42,7 +42,7 @@ test('can do some searches', t => {
     }
   }).then(result => {
     t.equal(result.length, 1)
-    t.equal(result[0]._id, 2)
+    t.equal(result[0]._id, '52b213b38594d8a2be17c781')
   })
 })
 
@@ -55,8 +55,8 @@ test('can do some searches', t => {
     }
   }).then(result => {
     t.equal(result.length, 2)
-    t.equal(result[0]._id, 2)
-    t.equal(result[1]._id, 10)
+    t.equal(result[0]._id, '52b213b38594d8a2be17c781')
+    t.equal(result[1]._id, '52b213b38594d8a2be17c789')
   })
 })
 
@@ -75,14 +75,14 @@ test('can do some searches', t => {
     }
   }).then(result => {
     t.equal(result.length, 3)
-    t.equal(result[0]._id, 3)
-    t.equal(result[1]._id, 7)
-    t.equal(result[2]._id, 9)
+    t.equal(result[0]._id, '52b213b38594d8a2be17c782')
+    t.equal(result[1]._id, '52b213b38594d8a2be17c786')
+    t.equal(result[2]._id, '52b213b38594d8a2be17c788')
   })
 })
 
 
-test('can do some searches', t => {
+test('can do some searches (nested array)', t => {
   t.plan(2)
   var dataSize = 50
   wb.get({
@@ -95,8 +95,27 @@ test('can do some searches', t => {
     }
   }).then(result => {
     t.equal(result.length, 1)
-    t.equal(result[0]._id, 1)
+    t.equal(result[0]._id, '52b213b38594d8a2be17c780')
   })
 })
 
+
+test('can do some searches (ORing)', t => {
+  t.plan(2)
+  var dataSize = 50
+  wb.get({
+    select: {
+      sector_namecode: [
+        {
+          name: {
+            _OR: ['Tertiary education', 'Transportation']
+          }
+        }
+      ]
+    }
+  }).then(result => {
+    t.equal(result.length, 1)
+    t.equal(result[0]._id, 1)
+  })
+})
 
