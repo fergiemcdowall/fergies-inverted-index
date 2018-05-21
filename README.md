@@ -24,7 +24,7 @@ options
   * by indexed field
   * can use gte, lte
   * can provide a .js sort function (maybe make some )
-  * can reverence object paths using js notation("parent.daugheter.someArray[3]")
+  * can reference object paths using js notation("parent.daugheter.someArray[3]")
 
 ### del
 
