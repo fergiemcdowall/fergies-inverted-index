@@ -1,5 +1,4 @@
 const ndb = require('../lib/ndb-core.js')
-const qp = require('../lib/queryParser.js')('ssss')
 const sandbox = 'test/sandbox/'
 const test = require('tape')
 const wbd = require('world-bank-dataset')
