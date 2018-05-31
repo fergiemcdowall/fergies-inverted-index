@@ -3,8 +3,9 @@
 
 NaturalDB (NDB) is a datastore that talks javascript and is really easy to use.
 
- * can index unstructured js documents
- * can retrieve docs by 
+ * it can store js objects
+ * it can retrieve objects by value
+ 
 
 ## API
 
