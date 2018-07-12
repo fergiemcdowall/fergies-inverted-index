@@ -7,10 +7,7 @@ const wbd = require('world-bank-dataset')
 
 // ndb.doc.map.ALL
 // ndb.doc.map.ANY
-// ndb.doc.map.RAN (range)
-// ndb.doc.map.MAX
-// ndb.doc.map.MIN
-
+// ndb.doc.map.RAN (range) <- make embeddable
 
 // ndb.key.map.RAN (range- can do gte and lte)
 // ndb.key.map.MAX
@@ -19,8 +16,7 @@ const wbd = require('world-bank-dataset')
 
 // REDUCERS
 
-// ndb.r.ID
-// ndb.r.FIELD(fieldName)
+// ndb.doc.reduce.NOT
 
 // MAPPERS
 
