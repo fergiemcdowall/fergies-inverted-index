@@ -4,37 +4,6 @@ const test = require('tape')
 const wbd = require('world-bank-dataset')
 
 
-// THOUGHTS
-
-// use property/object (prop/obj?) instead of key/doc
-// possibly just focus on boolean AND/OR
-
-
-// QUERIES
-
-// ndb.doc.map.ALL
-// ndb.doc.map.ANY
-// ndb.doc.map.RAN (range) <- make embeddable
-
-// ndb.key.map.RAN (range- can do gte and lte)
-// ndb.key.map.MAX
-// ndb.key.map.MIN
-
-
-// REDUCERS
-
-// ndb.doc.reduce.NOT
-
-
-// MAPPERS
-
-// ndb.m.DOC
-// ndb.m.FIELDS(fieldNames)
-
-
-// SORTERS
-
-// ndb.s.ID
 
 var wb
 
@@ -63,7 +32,13 @@ test('can add some worldbank data', t => {
       totalamt: item.totalamt
     }
   })
-  console.log(JSON.stringify(data.map(item => item.totalamt), null, 2))
+  console.log(JSON.stringify(data.map(item => {
+    return {
+      _id: item._id,
+      board_approval_month: item.board_approval_month,
+      sectorcode: item.sectorcode
+    }
+  }), null, 2))
   t.plan(dataSize)
   wb.bat(data, progress => {
     t.pass(JSON.stringify(progress))
@@ -76,18 +51,18 @@ test('can add some worldbank data', t => {
 test('can do some ALL searches', t => {
   t.plan(2)
 
-// this should maybe be wb.obj.ALL
+  // this should maybe be wb.obj.ALL
   
   wb.getObjectIds.AND([
     'sectorcode.BS',
     'sectorcode.BZ',
     'board_approval_month.November'
   ])
-    .then(wb.getFullObjects)
-    .then(result => {
-      t.equal(result.length, 1)
-      t.equal(result.shift()._id, '52b213b38594d8a2be17c781')
-    })
+   .then(wb.getFullObjects)
+   .then(result => {
+     t.equal(result.length, 1)
+     t.equal(result.shift()._id, '52b213b38594d8a2be17c781')
+   })
 })
 
 test('can do some ANY searches', t => {
@@ -97,81 +72,191 @@ test('can do some ANY searches', t => {
     'sectorcode.BZ',
     'board_approval_month.November'
   ])
-    .then(wb.getFullObjects)
-    .then(result => {
-      t.equal(result.length, 4)
-      t.equal(result.shift()._id, '52b213b38594d8a2be17c780')
-      t.equal(result.shift()._id, '52b213b38594d8a2be17c781')
-      t.equal(result.shift()._id, '52b213b38594d8a2be17c789')
-      t.equal(result.shift()._id, '52b213b38594d8a2be17c782')
-    })
+   .then(wb.getFullObjects)
+   .then(result => {
+     t.equal(result.length, 4)
+     t.equal(result.shift()._id, '52b213b38594d8a2be17c780')
+     t.equal(result.shift()._id, '52b213b38594d8a2be17c781')
+     t.equal(result.shift()._id, '52b213b38594d8a2be17c789')
+     t.equal(result.shift()._id, '52b213b38594d8a2be17c782')
+   })
+})
+
+
+test('can do ALL with embedded ANY search', t => {
+  t.plan(3)
+  wb.getObjectIds.AND([
+    'board_approval_month.November',
+    wb.getObjectIds.OR(['sectorcode.BZ', 'sectorcode.TI'])
+  ])
+   .then(wb.getFullObjects)
+   .then(result => {
+     t.equal(result.length, 2)
+     t.equal(result.shift()._id, '52b213b38594d8a2be17c781')
+     t.equal(result.shift()._id, '52b213b38594d8a2be17c782')
+   })
 })
 
 test('can do ALL with embedded ANY search', t => {
-  t.plan(4)
+  t.plan(3)
   wb.getObjectIds.AND([
-    'board_approval_month.November',
-    wb.getObjectIds.OR(['sectorcode.BS', 'sectorcode.TI'])
+    'board_approval_month.October',
+    wb.getObjectIds.OR([
+      'sectorcode.LR',
+      wb.getObjectIds.AND(['sectorcode.BC', 'sectorcode.BM'])
+    ])
   ])
-    .then(wb.getFullObjects)
-    .then(result => {
-      t.equal(result.length, 3)
-      t.equal(result.shift()._id, '52b213b38594d8a2be17c780')
-      t.equal(result.shift()._id, '52b213b38594d8a2be17c781')
-      t.equal(result.shift()._id, '52b213b38594d8a2be17c782')
-    })
+   .then(wb.getFullObjects)
+   .then(result => {
+     t.equal(result.length, 2)
+     t.equal(result.shift()._id, '52b213b38594d8a2be17c787')
+     t.equal(result.shift()._id, '52b213b38594d8a2be17c789')
+   })
 })
+
 
 test('can get highest value of totalamt (MAX)', t => {
   t.plan(1)
   wb.getProperties.MAX('totalamt')
-    .then(result => {
-      t.equal(result, 'totalamt.6060000')
-    })
+   .then(result => {
+     t.equal(result, 'totalamt.6060000')
+   })
 })
 
 test('can get lowest value of totalamt (MIN)', t => {
   t.plan(1)
   wb.getProperties.MIN('totalamt')
-    .then(result => {
-      t.equal(result, 'totalamt.0')
-    })
+   .then(result => {
+     t.equal(result, 'totalamt.0')
+   })
 })
 
 test('can get all values of totalamt (DIST)', t => {
   t.plan(1)
-  wb.getProperties.DIST('totalamt')
-    .then(result => {
-      t.looseEqual(result, [ 'totalamt.0',
-                             'totalamt.10000000',
-                             'totalamt.130000000',
-                             'totalamt.13100000',
-                             'totalamt.160000000',
-                             'totalamt.200000000',
-                             'totalamt.500000000',
-                             'totalamt.6060000' ])
-    })
+  wb.getProperties.DISTINCT('totalamt')
+   .then(result => {
+     t.looseEqual(result, [ 'totalamt.0',
+                            'totalamt.10000000',
+                            'totalamt.130000000',
+                            'totalamt.13100000',
+                            'totalamt.160000000',
+                            'totalamt.200000000',
+                            'totalamt.500000000',
+                            'totalamt.6060000' ])
+   })
 })
 
 
 test('can aggregate totalamt', t => {
   t.plan(1)
-  wb.getProperties.DIST('totalamt').then(result => {
-    wb.getObjectIds.EACH(result).then(result => {
-      t.looseEqual( result, [
-        { property: 'totalamt.0', objectIds: [ '52b213b38594d8a2be17c781', '52b213b38594d8a2be17c783', '52b213b38594d8a2be17c787' ] },
-        { property: 'totalamt.10000000', objectIds: [ '52b213b38594d8a2be17c785' ] },
-        { property: 'totalamt.130000000', objectIds: [ '52b213b38594d8a2be17c780' ] },
-        { property: 'totalamt.13100000', objectIds: [ '52b213b38594d8a2be17c784' ] },
-        { property: 'totalamt.160000000', objectIds: [ '52b213b38594d8a2be17c788' ] },
-        { property: 'totalamt.200000000', objectIds: [ '52b213b38594d8a2be17c789' ] },
-        { property: 'totalamt.500000000', objectIds: [ '52b213b38594d8a2be17c786' ] },
-        { property: 'totalamt.6060000', objectIds: [ '52b213b38594d8a2be17c782' ] }
-      ])
-    })
+  wb.getProperties.DISTINCT('totalamt')
+   .then(result => wb.getObjectIds.EACH(result))
+   .then(result => {
+     t.looseEqual( result, [
+       { property: 'totalamt.0', objectIds: [ '52b213b38594d8a2be17c781', '52b213b38594d8a2be17c783', '52b213b38594d8a2be17c787' ] },
+       { property: 'totalamt.10000000', objectIds: [ '52b213b38594d8a2be17c785' ] },
+       { property: 'totalamt.130000000', objectIds: [ '52b213b38594d8a2be17c780' ] },
+       { property: 'totalamt.13100000', objectIds: [ '52b213b38594d8a2be17c784' ] },
+       { property: 'totalamt.160000000', objectIds: [ '52b213b38594d8a2be17c788' ] },
+       { property: 'totalamt.200000000', objectIds: [ '52b213b38594d8a2be17c789' ] },
+       { property: 'totalamt.500000000', objectIds: [ '52b213b38594d8a2be17c786' ] },
+       { property: 'totalamt.6060000', objectIds: [ '52b213b38594d8a2be17c782' ] }
+     ])
+   })
+})
+
+
+test('can aggregate totalamt (showing ID count)', t => {
+  t.plan(1)
+  wb.getProperties.DISTINCT('totalamt')
+   .then(result => wb.getObjectIds.EACH(result))
+   .then(result => {      
+     t.looseEqual( result.map(item => {
+       return {
+         property: item.property,
+         count: item.objectIds.length
+       }
+     }), [
+       { property: 'totalamt.0', count: 3 },
+       { property: 'totalamt.10000000', count: 1 },
+       { property: 'totalamt.130000000', count: 1 },
+       { property: 'totalamt.13100000', count: 1 },
+       { property: 'totalamt.160000000', count: 1 },
+       { property: 'totalamt.200000000', count: 1 },
+       { property: 'totalamt.500000000', count: 1 },
+       { property: 'totalamt.6060000', count: 1 }
+     ])
+   })
+})
+
+
+test('can aggregate totalamt (showing ID count)', t => {
+  t.plan(1)
+  new Promise ((resolve, reject) => {
+    //wb.QUERY ((resolve, reject) => {
+    wb.getProperties.DISTINCT('totalamt', {
+      gte: 1,
+      lte: 4
+    }).then(result => wb.getObjectIds.EACH(result))
+      .then(result => resolve(
+        result.map(item => {
+          return {
+            property: item.property,
+            count: item.objectIds.length
+          }
+        })
+      ))
+  }).then(result => {
+    t.looseEqual(result, [
+      { property: 'totalamt.10000000', count: 1 },
+      { property: 'totalamt.130000000', count: 1 },
+      { property: 'totalamt.13100000', count: 1 },
+      { property: 'totalamt.160000000', count: 1 },
+      { property: 'totalamt.200000000', count: 1 },
+    ])
   })
 })
 
+test('can get documents with properties in a range', t => {
+  t.plan(1)
+  wb.getObjectIds.RANGE({
+    gte: 'totalamt.1',
+    lte: 'totalamt.4'
+  }).then(result => {
+    t.looseEqual(result, [
+      { _id: '52b213b38594d8a2be17c785', match: [ 'totalamt.10000000' ] },
+      { _id: '52b213b38594d8a2be17c780', match: [ 'totalamt.130000000' ] },
+      { _id: '52b213b38594d8a2be17c784', match: [ 'totalamt.13100000' ] },
+      { _id: '52b213b38594d8a2be17c788', match: [ 'totalamt.160000000' ] },
+      { _id: '52b213b38594d8a2be17c789', match: [ 'totalamt.200000000' ] } ])
+  })
+})
+
+
+test('can get documents with properties in a range', t => {
+  t.plan(1)
+  wb.getObjectIds.RANGE({
+    gte: 'sectorcode.A',
+    lte: 'sectorcode.G'
+  }).then(result => {
+    t.looseEqual(result, [
+      { _id: '52b213b38594d8a2be17c789', match: [
+        'sectorcode.BC',
+        'sectorcode.BM',
+        'sectorcode.BZ' ] },
+      { _id: '52b213b38594d8a2be17c780', match: [
+        'sectorcode.BS',
+        'sectorcode.EP',
+        'sectorcode.ES',
+        'sectorcode.ET' ] },
+      { _id: '52b213b38594d8a2be17c781', match: [
+        'sectorcode.BS',
+        'sectorcode.BZ' ] },
+      { _id: '52b213b38594d8a2be17c784', match: [
+        'sectorcode.FH' ] }
+    ])
+  })
+})
 
 
 
