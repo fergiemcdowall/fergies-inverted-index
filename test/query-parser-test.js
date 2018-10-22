@@ -84,21 +84,21 @@ test('can do some ANY searches', t => {
 
 
 test('can do ALL with embedded ANY search', t => {
-  t.plan(3)
+  t.plan(1)
   wb.getObjectIds.AND([
     'board_approval_month.November',
     wb.getObjectIds.OR(['sectorcode.BZ', 'sectorcode.TI'])
   ])
    .then(wb.getFullObjects)
    .then(result => {
-     t.equal(result.length, 2)
-     t.equal(result.shift()._id, '52b213b38594d8a2be17c781')
-     t.equal(result.shift()._id, '52b213b38594d8a2be17c782')
+     t.looseEqual(result, [
+       { _id: '52b213b38594d8a2be17c781', sectorcode: [ 'BZ', 'BS' ], board_approval_month: 'November', impagency: 'MINISTRY OF FINANCE', majorsector_percent: [ { Name: 'Public Administration, Law, and Justice', Percent: 70 }, { Name: 'Public Administration, Law, and Justice', Percent: 30 } ], mjsector_namecode: [ { name: 'Public Administration, Law, and Justice', code: 'BX' }, { name: 'Public Administration, Law, and Justice', code: 'BX' } ], sector_namecode: [ { name: 'Public administration- Other social services', code: 'BS' }, { name: 'General public administration sector', code: 'BZ' } ], totalamt: 0 }, { _id: '52b213b38594d8a2be17c782', sectorcode: [ 'TI' ], board_approval_month: 'November', impagency: 'MINISTRY OF TRANSPORT AND COMMUNICATIONS', majorsector_percent: [ { Name: 'Transportation', Percent: 100 } ], mjsector_namecode: [ { name: 'Transportation', code: 'TX' } ], sector_namecode: [ { name: 'Rural and Inter-Urban Roads and Highways', code: 'TI' } ], totalamt: 6060000 } 
+     ])       
    })
 })
 
 test('can do ALL with embedded ANY search', t => {
-  t.plan(3)
+  t.plan(1)
   wb.getObjectIds.AND([
     'board_approval_month.October',
     wb.getObjectIds.OR([
@@ -108,9 +108,10 @@ test('can do ALL with embedded ANY search', t => {
   ])
    .then(wb.getFullObjects)
    .then(result => {
-     t.equal(result.length, 2)
-     t.equal(result.shift()._id, '52b213b38594d8a2be17c787')
-     t.equal(result.shift()._id, '52b213b38594d8a2be17c789')
+     t.looseEqual(result, [
+       { _id: '52b213b38594d8a2be17c787', sectorcode: [ 'LR' ], board_approval_month: 'October', impagency: 'NATIONAL ENERGY ADMINISTRATION', majorsector_percent: [ { Name: 'Energy and mining', Percent: 100 } ], mjsector_namecode: [ { name: 'Energy and mining', code: 'LX' } ], sector_namecode: [ { name: 'Other Renewable Energy', code: 'LR' } ], totalamt: 0 },
+       { _id: '52b213b38594d8a2be17c789', sectorcode: [ 'BM', 'BC', 'BZ' ], board_approval_month: 'October', impagency: 'MINISTRY OF FINANCE', majorsector_percent: [ { Name: 'Public Administration, Law, and Justice', Percent: 34 }, { Name: 'Public Administration, Law, and Justice', Percent: 33 }, { Name: 'Public Administration, Law, and Justice', Percent: 33 } ], mjsector_namecode: [ { name: 'Public Administration, Law, and Justice', code: 'BX' }, { name: 'Public Administration, Law, and Justice', code: 'BX' }, { name: 'Public Administration, Law, and Justice', code: 'BX' } ], sector_namecode: [ { name: 'General public administration sector', code: 'BZ' }, { name: 'Central government administration', code: 'BC' }, { name: 'Public administration- Information and communications', code: 'BM' } ], totalamt: 200000000 }
+     ])
    })
 })
 
