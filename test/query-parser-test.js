@@ -47,37 +47,37 @@ test('can add some worldbank data', t => {
   })
 })
 
-// test('can GET', t => {
-//   t.plan(1)
-//   wb.getObjectIds.GET([
-//     'board_approval_month.November'
-//   ])
-//    .then(result => {
-//      t.looseEqual(result, [
-//        { _id: '52b213b38594d8a2be17c780', prop: [ 'board_approval_month.November' ] },
-//        { _id: '52b213b38594d8a2be17c781', prop: [ 'board_approval_month.November' ] },
-//        { _id: '52b213b38594d8a2be17c782', prop: [ 'board_approval_month.November' ] }
-//      ])      
-//    })
-// })
+test('can GET', t => {
+  t.plan(1)
+  wb.getObjectIds.GET([
+    'board_approval_month.November'
+  ])
+   .then(result => {
+     t.looseEqual(result, [
+       { _id: '52b213b38594d8a2be17c780', prop: [ 'board_approval_month.November' ] },
+       { _id: '52b213b38594d8a2be17c781', prop: [ 'board_approval_month.November' ] },
+       { _id: '52b213b38594d8a2be17c782', prop: [ 'board_approval_month.November' ] }
+     ])      
+   })
+})
 
 
-// test('can do some AND searches', t => {
-//   t.plan(1)
-//   wb.getObjectIds.AND([
-//     'sectorcode.BS',
-//     'sectorcode.BZ',
-//     'board_approval_month.November'
-//   ])
-//    .then(result => {
-//      t.looseEqual(result, [
-//        {
-//          _id: '52b213b38594d8a2be17c781',
-//          prop: [ [ 'sectorcode.BS' ], [ 'sectorcode.BZ' ], [ 'board_approval_month.November' ] ]
-//        }
-//      ])      
-//    })
-// })
+test('can do some AND searches', t => {
+  t.plan(1)
+  wb.getObjectIds.AND([
+    'sectorcode.BS',
+    'sectorcode.BZ',
+    'board_approval_month.November'
+  ])
+   .then(result => {
+     t.looseEqual(result, [
+       {
+         _id: '52b213b38594d8a2be17c781',
+         prop: [ [ 'sectorcode.BS' ], [ 'sectorcode.BZ' ], [ 'board_approval_month.November' ] ]
+       }
+     ])      
+   })
+})
 
 test('can do some OR searches', t => {
   t.plan(1)
@@ -337,6 +337,44 @@ test('can get documents with properties in a range', t => {
   })
 })
 
+
+test('can get documents with properties in a range and the NOT some out', t => {
+  t.plan(1)
+  wb.getObjectIds.NOT(
+    wb.getObjectIds.RANGE({
+      gte: 'sectorcode.A',
+      lte: 'sectorcode.G'
+    }),
+    'sectorcode.YZ'
+  ).then(result => {
+    t.looseEqual(result, [
+      { _id: '52b213b38594d8a2be17c789', prop: [
+        'sectorcode.BC',
+        'sectorcode.BM',
+        'sectorcode.BZ' ] },
+      { _id: '52b213b38594d8a2be17c780', prop: [
+        'sectorcode.BS',
+        'sectorcode.EP',
+        'sectorcode.ES',
+        'sectorcode.ET' ] },
+      { _id: '52b213b38594d8a2be17c781', prop: [
+        'sectorcode.BS',
+        'sectorcode.BZ' ] }
+    ])
+  })
+})
+
+test('can get documents with properties in a range and the NOT some out', t => {
+  t.plan(1)
+  wb.getObjectIds.NOT(
+    'sectorcode.BS',
+    'sectorcode.ET',
+  ).then(result => {
+    t.looseEqual(result, [
+      { _id: '52b213b38594d8a2be17c781', prop: [ 'sectorcode.BS' ] }
+    ])
+  })
+})
 
 
 
