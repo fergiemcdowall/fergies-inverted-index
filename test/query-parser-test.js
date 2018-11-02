@@ -1,9 +1,7 @@
-const ndb = require('../lib/ndb-core.js')
+const ndb = require('../lib/index.js')
 const sandbox = 'test/sandbox/'
 const test = require('tape')
 const wbd = require('world-bank-dataset')
-
-
 
 var wb
 
