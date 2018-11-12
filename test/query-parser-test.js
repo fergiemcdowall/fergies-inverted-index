@@ -37,12 +37,8 @@ test('can add some worldbank data', t => {
       sectorcode: item.sectorcode
     }
   }), null, 2))
-  t.plan(dataSize)
-  wb.write.PUT(data, progress => {
-    t.pass(JSON.stringify(progress))
-  }, () => {
-    t.pass('done')
-  })
+  t.plan(1)
+  wb.write.PUT(data).then(t.pass)
 })
 
 test('can GET', t => {
