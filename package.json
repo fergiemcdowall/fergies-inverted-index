@@ -16,10 +16,12 @@
     "traverse": "^0.6.6"
   },
   "devDependencies": {
+    "standard": "^12.0.1",
     "world-bank-dataset": "^1.0.0"
   },
   "scripts": {
-    "test": "rm -rf test/sandbox && mkdir test/sandbox && tape test/*-test.js"
+    "test": "rm -rf test/sandbox && mkdir test/sandbox && tape test/*-test.js",
+    "lint": "standard --fix test lib"
   },
   "repository": {
     "type": "git",

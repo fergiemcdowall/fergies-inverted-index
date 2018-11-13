@@ -38,12 +38,12 @@ test('can add some worldbank data', t => {
     }
   }), null, 2))
   t.plan(1)
-  wb.write.PUT(data).then(t.pass)
+  wb.PUT(data).then(t.pass)
 })
 
 test('can GET with string', t => {
   t.plan(1)
-  wb.ids.GET('board_approval_month.November')
+  wb.GET('board_approval_month.November')
    .then(result => {
      t.looseEqual(result, [
        { _id: '52b213b38594d8a2be17c780', prop: [ 'board_approval_month.November' ] },
@@ -55,7 +55,7 @@ test('can GET with string', t => {
 
 test('can GET with object', t => {
   t.plan(1)
-  wb.ids.GET({
+  wb.GET({
     gte: 'board_approval_month.November',
     lte: 'board_approval_month.November'
   })
@@ -71,7 +71,7 @@ test('can GET with object', t => {
 
 test('can do some AND searches', t => {
   t.plan(1)
-  wb.ids.AND([
+  wb.AND([
     'sectorcode.BS',
     'sectorcode.BZ',
     'board_approval_month.November'
@@ -88,7 +88,7 @@ test('can do some AND searches', t => {
 
 test('can do some OR searches', t => {
   t.plan(1)
-  wb.ids.OR([
+  wb.OR([
     'sectorcode.BS',
     'sectorcode.BZ',
     'board_approval_month.November'
@@ -107,7 +107,7 @@ test('can do some OR searches', t => {
 
 test('can do some OR searches', t => {
   t.plan(1)
-  wb.ids.OR([
+  wb.OR([
     'sectorcode.BZ',
     'sectorcode.TI'
   ])
@@ -125,9 +125,9 @@ test('can do some OR searches', t => {
 
 test('can do AND with embedded OR', t => {
   t.plan(1)
-  wb.ids.AND([
+  wb.AND([
     'board_approval_month.November',
-    wb.ids.OR(['sectorcode.BZ', 'sectorcode.TI'])
+    wb.OR(['sectorcode.BZ', 'sectorcode.TI'])
   ])
    .then(result => {
      t.looseEqual(result, [
@@ -141,10 +141,10 @@ test('can do AND with embedded OR', t => {
 
 test('can do AND with embedded AND', t => {
   t.plan(1)
-  wb.ids.AND([
+  wb.AND([
     'board_approval_month.October',
-    wb.ids.OR([
-      wb.ids.AND([ 'sectorcode.BZ', 'sectorcode.BC' ]),
+    wb.OR([
+      wb.AND([ 'sectorcode.BZ', 'sectorcode.BC' ]),
       'sectorcode.TI'
     ])
   ])
@@ -170,9 +170,9 @@ test('can do AND with embedded AND', t => {
 
 test('can do AND', t => {
   t.plan(1)
-  wb.ids.AND([
+  wb.AND([
     'board_approval_month.November',
-    wb.ids.OR(['sectorcode.BZ', 'sectorcode.TI'])
+    wb.OR(['sectorcode.BZ', 'sectorcode.TI'])
   ])
    .then(wb.OBJECT)
    .then(result => {
@@ -184,11 +184,11 @@ test('can do AND', t => {
 
 test('can do AND with embedded OR search', t => {
   t.plan(1)
-  wb.ids.AND([
+  wb.AND([
     'board_approval_month.October',
-    wb.ids.OR([
+    wb.OR([
       'sectorcode.LR',
-      wb.ids.AND(['sectorcode.BC', 'sectorcode.BM'])
+      wb.AND(['sectorcode.BC', 'sectorcode.BM'])
     ])
   ])
    .then(wb.OBJECT)
@@ -203,7 +203,7 @@ test('can do AND with embedded OR search', t => {
 
 test('can get highest value of totalamt (MAX)', t => {
   t.plan(1)
-  wb.properties.MAX('totalamt')
+  wb.MAX('totalamt')
    .then(result => {
      t.equal(result, 'totalamt.6060000')
    })
@@ -211,7 +211,7 @@ test('can get highest value of totalamt (MAX)', t => {
 
 test('can get lowest value of totalamt (MIN)', t => {
   t.plan(1)
-  wb.properties.MIN('totalamt')
+  wb.MIN('totalamt')
    .then(result => {
      t.equal(result, 'totalamt.0')
    })
@@ -219,7 +219,7 @@ test('can get lowest value of totalamt (MIN)', t => {
 
 test('can get all values of totalamt (DIST)', t => {
   t.plan(1)
-  wb.properties.DISTINCT('totalamt')
+  wb.DISTINCT('totalamt')
    .then(result => {
      t.looseEqual(result, [ 'totalamt.0',
                             'totalamt.10000000',
@@ -235,8 +235,8 @@ test('can get all values of totalamt (DIST)', t => {
 
 test('can aggregate totalamt', t => {
   t.plan(1)
-  wb.properties.DISTINCT('totalamt')
-   .then(result => wb.ids.EACH(result))
+  wb.DISTINCT('totalamt')
+   .then(result => wb.EACH(result))
    .then(result => {
      t.looseEqual( result, [
        { prop: 'totalamt.0', _id: [ '52b213b38594d8a2be17c781', '52b213b38594d8a2be17c783', '52b213b38594d8a2be17c787' ] },
@@ -254,8 +254,8 @@ test('can aggregate totalamt', t => {
 
 test('can aggregate totalamt (showing ID count)', t => {
   t.plan(1)
-  wb.properties.DISTINCT('totalamt')
-   .then(result => wb.ids.EACH(result))
+  wb.DISTINCT('totalamt')
+   .then(result => wb.EACH(result))
    .then(result => {      
      t.looseEqual( result.map(item => {
        return {
@@ -280,10 +280,10 @@ test('can aggregate totalamt (showing ID count)', t => {
   t.plan(1)
   new Promise ((resolve, reject) => {
     //wb.QUERY ((resolve, reject) => {
-    wb.properties.DISTINCT('totalamt', {
+    wb.DISTINCT('totalamt', {
       gte: 1,
       lte: 4
-    }).then(result => wb.ids.EACH(result))
+    }).then(result => wb.EACH(result))
       .then(result => resolve(
         result.map(item => {
           return {
@@ -305,7 +305,7 @@ test('can aggregate totalamt (showing ID count)', t => {
 
 test('can get documents with properties in a range', t => {
   t.plan(1)
-  wb.ids.GET({
+  wb.GET({
     gte: 'totalamt.1',
     lte: 'totalamt.4'
   }).then(result => {
@@ -321,7 +321,7 @@ test('can get documents with properties in a range', t => {
 
 test('can get documents with properties in a range', t => {
   t.plan(1)
-  wb.ids.GET({
+  wb.GET({
     gte: 'sectorcode.A',
     lte: 'sectorcode.G'
   }).then(result => {
@@ -347,8 +347,8 @@ test('can get documents with properties in a range', t => {
 
 test('can get documents with properties in a range and the NOT some out', t => {
   t.plan(1)
-  wb.ids.NOT(
-    wb.ids.GET({
+  wb.NOT(
+    wb.GET({
       gte: 'sectorcode.A',
       lte: 'sectorcode.G'
     }),
@@ -373,7 +373,7 @@ test('can get documents with properties in a range and the NOT some out', t => {
 
 test('can get documents with properties in a range and the NOT some out', t => {
   t.plan(1)
-  wb.ids.NOT(
+  wb.NOT(
     'sectorcode.BS',
     'sectorcode.ET',
   ).then(result => {
