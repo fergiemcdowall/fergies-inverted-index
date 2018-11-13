@@ -50,13 +50,13 @@ test('can add some worldbank data', t => {
 test('can GET with string', t => {
   t.plan(1)
   wb.GET('board_approval_month.November')
-   .then(result => {
-     t.looseEqual(result, [
-       { _id: '52b213b38594d8a2be17c780', prop: [ 'board_approval_month.November' ] },
-       { _id: '52b213b38594d8a2be17c781', prop: [ 'board_approval_month.November' ] },
-       { _id: '52b213b38594d8a2be17c782', prop: [ 'board_approval_month.November' ] }
-     ])      
-   })
+    .then(result => {
+      t.looseEqual(result, [
+        { _id: '52b213b38594d8a2be17c780', prop: [ 'board_approval_month.November' ] },
+        { _id: '52b213b38594d8a2be17c781', prop: [ 'board_approval_month.November' ] },
+        { _id: '52b213b38594d8a2be17c782', prop: [ 'board_approval_month.November' ] }
+      ])
+    })
 })
 
 test('can DELETE', t => {
@@ -75,9 +75,9 @@ test('can GET with object', t => {
     gte: 'board_approval_month.November',
     lte: 'board_approval_month.November'
   })
-   .then(result => {
-     t.looseEqual(result, [
-       { _id: '52b213b38594d8a2be17c780', prop: [ 'board_approval_month.November' ] }
-     ])      
-   })
+    .then(result => {
+      t.looseEqual(result, [
+        { _id: '52b213b38594d8a2be17c780', prop: [ 'board_approval_month.November' ] }
+      ])
+    })
 })

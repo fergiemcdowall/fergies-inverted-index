@@ -21,7 +21,7 @@
   },
   "scripts": {
     "test": "rm -rf test/sandbox && mkdir test/sandbox && tape test/*-test.js",
-    "lint": "standard --fix test lib"
+    "lint": "standard --fix test/* lib/*"
   },
   "repository": {
     "type": "git",
