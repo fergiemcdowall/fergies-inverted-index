@@ -6,17 +6,17 @@ NaturalDB (NDB) is a database that talks javascript and is really easy to use.
 
 ## API
 
-| Command | Accepts    | Returns    | Writes | Description |
-| ---     | ---        | ---        | ---    | ---         |
-| AND     | properties | ids        | no     | d |
-| DELETE  | ids        | ids        | yes    | d |
-| DISTINCT| properties | properties | no     | d |
-| EACH    | properties | ids        | no     | d |
-| GET     | properties | ids        | no     | d |
-| MAX     | properties | properties | no     | d |
-| MIN     | properties | properties | no     | d |
-| NOT     | ids        | ids        | no     | d |
-| OBJECT  | ids        | objects    | no     | d |
-| OR      | properties | ids        | no     | d | 
-| PUT     | objects    | ids        | yes    | d |
+Command | Accepts    | Returns    | Writes | Description
+------------- | ------------- | ------------- | ------------- | -------------
+AND     | properties | ids        | no     |
+DELETE  | ids        | ids        | yes    |
+DISTINCT| properties | properties | no     |
+EACH    | properties | ids        | no     |
+GET     | properties | ids        | no     |
+MAX     | properties | properties | no     |
+MIN     | properties | properties | no     |
+NOT     | ids        | ids        | no     |
+OBJECT  | ids        | objects    | no     |
+OR      | properties | ids        | no     |
+PUT     | objects    | ids        | yes    |
 
