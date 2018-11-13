@@ -41,11 +41,24 @@ test('can add some worldbank data', t => {
   wb.write.PUT(data).then(t.pass)
 })
 
-test('can GET', t => {
+test('can GET with string', t => {
   t.plan(1)
-  wb.ids.GET([
-    'board_approval_month.November'
-  ])
+  wb.ids.GET('board_approval_month.November')
+   .then(result => {
+     t.looseEqual(result, [
+       { _id: '52b213b38594d8a2be17c780', prop: [ 'board_approval_month.November' ] },
+       { _id: '52b213b38594d8a2be17c781', prop: [ 'board_approval_month.November' ] },
+       { _id: '52b213b38594d8a2be17c782', prop: [ 'board_approval_month.November' ] }
+     ])      
+   })
+})
+
+test('can GET with object', t => {
+  t.plan(1)
+  wb.ids.GET({
+    gte: 'board_approval_month.November',
+    lte: 'board_approval_month.November'
+  })
    .then(result => {
      t.looseEqual(result, [
        { _id: '52b213b38594d8a2be17c780', prop: [ 'board_approval_month.November' ] },
@@ -161,7 +174,7 @@ test('can do AND', t => {
     'board_approval_month.November',
     wb.ids.OR(['sectorcode.BZ', 'sectorcode.TI'])
   ])
-   .then(wb.objects)
+   .then(wb.OBJECT)
    .then(result => {
      t.looseEqual(result, [
        { _id: '52b213b38594d8a2be17c781', sectorcode: [ 'BZ', 'BS' ], board_approval_month: 'November', impagency: 'MINISTRY OF FINANCE', majorsector_percent: [ { Name: 'Public Administration, Law, and Justice', Percent: 70 }, { Name: 'Public Administration, Law, and Justice', Percent: 30 } ], mjsector_namecode: [ { name: 'Public Administration, Law, and Justice', code: 'BX' }, { name: 'Public Administration, Law, and Justice', code: 'BX' } ], sector_namecode: [ { name: 'Public administration- Other social services', code: 'BS' }, { name: 'General public administration sector', code: 'BZ' } ], totalamt: 0 }, { _id: '52b213b38594d8a2be17c782', sectorcode: [ 'TI' ], board_approval_month: 'November', impagency: 'MINISTRY OF TRANSPORT AND COMMUNICATIONS', majorsector_percent: [ { Name: 'Transportation', Percent: 100 } ], mjsector_namecode: [ { name: 'Transportation', code: 'TX' } ], sector_namecode: [ { name: 'Rural and Inter-Urban Roads and Highways', code: 'TI' } ], totalamt: 6060000 } 
@@ -178,7 +191,7 @@ test('can do AND with embedded OR search', t => {
       wb.ids.AND(['sectorcode.BC', 'sectorcode.BM'])
     ])
   ])
-   .then(wb.objects)
+   .then(wb.OBJECT)
    .then(result => {
      t.looseEqual(result, [
        { _id: '52b213b38594d8a2be17c787', sectorcode: [ 'LR' ], board_approval_month: 'October', impagency: 'NATIONAL ENERGY ADMINISTRATION', majorsector_percent: [ { Name: 'Energy and mining', Percent: 100 } ], mjsector_namecode: [ { name: 'Energy and mining', code: 'LX' } ], sector_namecode: [ { name: 'Other Renewable Energy', code: 'LR' } ], totalamt: 0 },
@@ -292,7 +305,7 @@ test('can aggregate totalamt (showing ID count)', t => {
 
 test('can get documents with properties in a range', t => {
   t.plan(1)
-  wb.ids.RANGE({
+  wb.ids.GET({
     gte: 'totalamt.1',
     lte: 'totalamt.4'
   }).then(result => {
@@ -308,7 +321,7 @@ test('can get documents with properties in a range', t => {
 
 test('can get documents with properties in a range', t => {
   t.plan(1)
-  wb.ids.RANGE({
+  wb.ids.GET({
     gte: 'sectorcode.A',
     lte: 'sectorcode.G'
   }).then(result => {
@@ -335,7 +348,7 @@ test('can get documents with properties in a range', t => {
 test('can get documents with properties in a range and the NOT some out', t => {
   t.plan(1)
   wb.ids.NOT(
-    wb.ids.RANGE({
+    wb.ids.GET({
       gte: 'sectorcode.A',
       lte: 'sectorcode.G'
     }),
