@@ -1,7 +1,7 @@
 {
-  "name": "naturaldb",
+  "name": "fergies-inverted-index",
   "version": "0.0.1",
-  "description": "an multi-indexed datastore that talks javascript and is really easy to use",
+  "description": "An inverted index that allows javascript objects to be easily serialised and retrieved using promises and map-reduce",
   "main": "lib/index.js",
   "directories": {
     "lib": "lib",
