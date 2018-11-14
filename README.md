@@ -1,4 +1,4 @@
-# Fergie's Reverse Index
+# Fergie's Inverted Index
 #### This is my inverted index library. There are many like it, but this one is mine.
 
 Throw JavaScript objects at the index and they will become retrievable by their properties using promises and map-reduce (see examples)
