@@ -1,7 +1,7 @@
-# Naturaldb
-#### A database that feels natural
+# Fergie's Reverse Index
+#### This is my reverse index library. There are many like it, but this one is mine.
 
-NaturalDB (NDB) is a database that talks javascript and is really easy to use.
+Throw JavaScript objects at the index. They will be normalised and become retrievable by their properties.
 
 
 ## API
