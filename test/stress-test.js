@@ -18,7 +18,7 @@ test('create a little world bank index', t => {
 test('can add some worldbank data in a reasonable amount of time', t => {
   t.plan(2)
   const start = Date.now()
-  const timeLimit = 2000
+  const timeLimit = 5000
   wb.PUT(wbd).then(result => {
     const elapsedTime = Date.now() - start
     t.equal(result.length, 500)
