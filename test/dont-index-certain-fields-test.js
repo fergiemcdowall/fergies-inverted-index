@@ -8,7 +8,7 @@ var wb
 test('create a little world bank index', t => {
   t.plan(1)
   ndb({
-    name: sandbox + 'stress-test'
+    name: sandbox + 'non-searchable-fields-test'
   }).then(db => {
     wb = db
     t.pass('db created')
