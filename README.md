@@ -19,4 +19,4 @@ NOT     | ids        | ids        | no     |
 OBJECT  | ids        | objects    | no     |
 OR      | properties | ids        | no     |
 PUT     | objects    | ids        | yes    |
-
+STORE   | levelup    | levelup    | both   |
