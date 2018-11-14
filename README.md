@@ -1,9 +1,7 @@
 # Fergie's Reverse Index
 #### This is my reverse index library. There are many like it, but this one is mine.
 
-Throw JavaScript objects at the index and they will become retrievable by their properties.
-
-Retrieve objects using promises and map-reduce (see examples)
+Throw JavaScript objects at the index and they will become retrievable by their properties using promises and map-reduce (see examples)
 
 
 ## API
