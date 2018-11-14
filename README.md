@@ -1,22 +1,22 @@
-# Naturaldb
-#### A database that feels natural
+# Fergie's Reverse Index
+#### This is my reverse index library. There are many like it, but this one is mine.
 
-NaturalDB (NDB) is a database that talks javascript and is really easy to use.
+Throw JavaScript objects at the index and they will become retrievable by their properties using promises and map-reduce (see examples)
 
 
 ## API
 
-Command | Options | Accepts    | Returns    | Writes | Description
-------- | ------- | ---------- | ---------- | ------ | -----------
-AND     |         | properties | ids        | no     |
-DELETE  |         | ids        | ids        | yes    |
-DISTINCT|         | properties | properties | no     |
-EACH    |         | properties | ids        | no     |
-GET     |         | properties | ids        | no     |
-MAX     |         | properties | properties | no     |
-MIN     |         | properties | properties | no     |
-NOT     |         | ids        | ids        | no     |
-OBJECT  |         | ids        | objects    | no     |
-OR      |         | properties | ids        | no     |
-PUT     |         | objects    | ids        | yes    |
-STORE   |         | levelup    | levelup    | both   |
+Command   | Options      | Accepts    | Returns    | Writes | Description
+--------- | ------------ | ---------- | ---------- | ------ | -----------
+`AND`     |              | properties | ids        | no     |
+`DELETE`  |              | ids        | ids        | yes    |
+`DISTINCT`|              | properties | properties | no     |
+`EACH`    |              | properties | ids        | no     |
+`GET`     | `gte`, `lte` | properties | ids        | no     |
+`MAX`     |              | properties | properties | no     |
+`MIN`     |              | properties | properties | no     |
+`NOT`     |              | ids        | ids        | no     |
+`OBJECT`  |              | ids        | objects    | no     |
+`OR`      |              | properties | ids        | no     |
+`PUT`     |              | objects    | ids        | yes    |
+`STORE`   |              | levelup    | levelup    | both   |
