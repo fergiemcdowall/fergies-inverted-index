@@ -58,5 +58,6 @@ myIndex.AND([
 // Get max price
 myIndex.MAX('price').then(result)
 
-
 ```
+
+See the [tests](https://github.com/fergiemcdowall/fergies-inverted-index/tree/master/test) for more examples
