@@ -20,3 +20,18 @@ Command   | Options      | Accepts    | Returns    | Writes | Description
 `OR`      |              | properties | ids        | no     | Boolean OR. Return IDs of objects that have either prop.A OR prop.b
 `PUT`     |              | objects    | ids        | yes    | Add objects to index
 `STORE`   |              | levelup    | levelup    | both   | Get the underlying [levelup](https://github.com/Level/levelup) store.
+
+
+## Getting started
+
+### Initialise and populate an index
+
+```javascript
+const fin = require('fergies-inverted-index')
+
+// Make a new index, or open an existing one with this name
+fin({ name: 'myIndex' }).then(myIndex => {
+  myIndex.PUT([ /* my array of objects */ ]).then(doStuff)
+})
+
+```
