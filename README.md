@@ -35,3 +35,28 @@ fin({ name: 'myIndex' }).then(myIndex => {
 })
 
 ```
+
+### Query the index
+
+```javascript
+
+// get all object IDs where land=SCOTLAND and colour=GREEN
+myIndex.AND([ 'land.SCOTLAND', 'colour.GREEN' ]).then(result)
+
+// as above, but return whole objects
+myIndex.AND([ 'land.SCOTLAND', 'colour.GREEN' ]).then(myIndex.OBJECT).then(result)
+
+// Get all object IDs where land=SCOTLAND, and those where land=IRELAND
+myIndex.OR([ 'land.SCOTLAND', 'land.IRELAND' ]).then(result)
+
+// queries can be embedded within each other
+myIndex.AND([
+  'land.SCOTLAND',
+  myIndex.OR([ 'colour.GREEN', 'colour.BLUE' ])
+]).then(result)
+
+// Get max price
+myIndex.MAX('price').then(result)
+
+
+```
