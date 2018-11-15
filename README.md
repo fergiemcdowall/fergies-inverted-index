@@ -46,6 +46,12 @@ myIndex.AND([ 'land.SCOTLAND', 'colour.GREEN' ]).then(result)
 // as above, but return whole objects
 myIndex.AND([ 'land.SCOTLAND', 'colour.GREEN' ]).then(myIndex.OBJECT).then(result)
 
+// get all object IDs where land=SCOTLAND and colour is NOT GREEN
+myIndex.NOT([
+  myIndex.GET('land.SCOTLAND'),
+  myIndex.GET('colour.GREEN')
+]).then(result)
+
 // Get all object IDs where land=SCOTLAND, and those where land=IRELAND
 myIndex.OR([ 'land.SCOTLAND', 'land.IRELAND' ]).then(result)
 
