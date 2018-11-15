@@ -13,8 +13,8 @@ Command   | Options      | Accepts    | Returns    | Writes | Description
 `DISTINCT`| `gte`, `lte` | properties | properties | no     | Return all properties in a range.
 `EACH`    |              | properties | ids        | no     | For each property provided, get IDs of objects that contain it (use with DISTINCT, MAX and MIN)
 `GET`     | `gte`, `lte` | properties | ids        | no     | Get the IDs of objects with a property in the given range
-`MAX`     |              | properties | properties | no     | Get the highest property in this namespace
-`MIN`     |              | properties | properties | no     | Get the lowest property in this namespace
+`MAX`     |  `limit`     | properties | properties | no     | Get the highest property in this namespace
+`MIN`     |  `limit`     | properties | properties | no     | Get the lowest property in this namespace
 `NOT`     |              | ids        | ids        | no     | Get all IDs of objects in set A that are not in set B
 `OBJECT`  |              | ids        | objects    | no     | Get an object by its ID
 `OR`      |              | properties | ids        | no     | Boolean OR. Return IDs of objects that have either prop.A OR prop.b
