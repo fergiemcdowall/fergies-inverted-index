@@ -584,3 +584,4 @@ test('can get documents with properties in a range and the NOT some out', t => {
 //     t.equal(result[1]._id, '52b213b38594d8a2be17c780')
 //   })
 // })
+

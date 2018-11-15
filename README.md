@@ -30,8 +30,8 @@ Command   | Options      | Accepts    | Returns    | Writes | Description
 const fin = require('fergies-inverted-index')
 
 // Make a new index, or open an existing one with this name
-fin({ name: 'myIndex' }).then(myIndex => {
-  myIndex.PUT([ /* my array of objects */ ]).then(doStuff)
+fin({ name: 'idx' }).then(idx => {
+  idx.PUT([ /* my array of objects */ ]).then(doStuff)
 })
 
 ```
@@ -41,28 +41,28 @@ fin({ name: 'myIndex' }).then(myIndex => {
 ```javascript
 
 // get all object IDs where land=SCOTLAND and colour=GREEN
-myIndex.AND([ 'land.SCOTLAND', 'colour.GREEN' ]).then(result)
+idx.AND([ 'land.SCOTLAND', 'colour.GREEN' ]).then(result)
 
 // as above, but return whole objects
-myIndex.AND([ 'land.SCOTLAND', 'colour.GREEN' ]).then(myIndex.OBJECT).then(result)
+idx.AND([ 'land.SCOTLAND', 'colour.GREEN' ]).then(idx.OBJECT).then(result)
 
 // Get all object IDs where land=SCOTLAND, and those where land=IRELAND
-myIndex.OR([ 'land.SCOTLAND', 'land.IRELAND' ]).then(result)
+idx.OR([ 'land.SCOTLAND', 'land.IRELAND' ]).then(result)
 
 // queries can be embedded within each other
-myIndex.AND([
+idx.AND([
   'land.SCOTLAND',
-  myIndex.OR([ 'colour.GREEN', 'colour.BLUE' ])
+  idx.OR([ 'colour.GREEN', 'colour.BLUE' ])
 ]).then(result)
 
 // get all object IDs where land=SCOTLAND and colour is NOT GREEN
-myIndex.NOT([
-  myIndex.GET('land.SCOTLAND'),
-  myIndex.GET('colour.GREEN')
+idx.NOT([
+  idx.GET('land.SCOTLAND'),
+  idx.GET('colour.GREEN')
 ]).then(result)
 
 // Get max price
-myIndex.MAX('price').then(result)
+idx.MAX('price').then(result)
 
 ```
 
