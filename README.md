@@ -40,6 +40,8 @@ fin({ name: 'idx' }).then(idx => {
 
 ```javascript
 
+// (given objects that containn: { land: <land>, colour: <colour>, ... })
+
 // get all object IDs where land=SCOTLAND and colour=GREEN
 idx.AND([ 'land.SCOTLAND', 'colour.GREEN' ]).then(result)
 
