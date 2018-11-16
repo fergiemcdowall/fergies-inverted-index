@@ -40,6 +40,8 @@ fin({ name: 'idx' }).then(idx => {
 
 ```javascript
 
+// (given objects that containn: { land: <land>, colour: <colour>, ... })
+
 // get all object IDs where land=SCOTLAND and colour=GREEN
 idx.AND([ 'land.SCOTLAND', 'colour.GREEN' ]).then(result)
 
@@ -56,10 +58,10 @@ idx.AND([
 ]).then(result)
 
 // get all object IDs where land=SCOTLAND and colour is NOT GREEN
-idx.NOT([
-  idx.GET('land.SCOTLAND'),
-  idx.GET('colour.GREEN')
-]).then(result)
+idx.NOT(
+  idx.GET('land.SCOTLAND'),   // everything in this set
+  idx.GET('colour.GREEN') .   // minus everything in this set
+).then(result)
 
 // Get max price
 idx.MAX('price').then(result)
