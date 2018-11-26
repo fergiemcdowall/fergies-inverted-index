@@ -37,11 +37,11 @@ test('can GET with string', t => {
       value: { land: 'SCOTLAND', colour: 'GREEN', _id: 0 } },
     { key: '!DOC￮1￮',
       value: { land: 'IRELAND', colour: 'GREEN', _id: 1 } },
-    { key: '_id.0', value: [ 3 ] },
-    { key: '_id.1', value: [ 1 ] },
-    { key: 'colour.GREEN', value: [ 1, 3 ] },
-    { key: 'land.IRELAND', value: [ 1 ] },
-    { key: 'land.SCOTLAND', value: [ 3 ] }
+    { key: '_id:0', value: [ 3 ] },
+    { key: '_id:1', value: [ 1 ] },
+    { key: 'colour:GREEN', value: [ 1, 3 ] },
+    { key: 'land:IRELAND', value: [ 1 ] },
+    { key: 'land:SCOTLAND', value: [ 3 ] }
   ]
   idx.STORE.createReadStream()
    .on('data', d => t.looseEqual(d, result.shift()))
