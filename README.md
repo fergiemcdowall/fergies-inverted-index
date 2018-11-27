@@ -40,31 +40,31 @@ fin({ name: 'idx' }).then(idx => {
 
 ```javascript
 
-// (given objects that contain: { land: <land>, colour: <colour>, ... })
+// (given objects that contain: { land: <land>, colour: <colour>, population: <number> ... })
 
 // get all object IDs where land=SCOTLAND and colour=GREEN
-idx.AND([ 'land:SCOTLAND', 'colour:GREEN' ]).then(result)
+idx.AND('land:SCOTLAND', 'colour:GREEN').then(result)
 
 // as above, but return whole objects
-idx.AND([ 'land:SCOTLAND', 'colour:GREEN' ]).then(idx.OBJECT).then(result)
+idx.AND('land:SCOTLAND', 'colour:GREEN').then(idx.OBJECT).then(result)
 
 // Get all object IDs where land=SCOTLAND, and those where land=IRELAND
-idx.OR([ 'land:SCOTLAND', 'land:IRELAND' ]).then(result)
+idx.OR('land:SCOTLAND', 'land:IRELAND').then(result)
 
 // queries can be embedded within each other
-idx.AND([
+idx.AND(
   'land:SCOTLAND',
-  idx.OR([ 'colour:GREEN', 'colour:BLUE' ])
-]).then(result)
+  idx.OR('colour:GREEN', 'colour:BLUE')
+).then(result)
 
 // get all object IDs where land=SCOTLAND and colour is NOT GREEN
 idx.NOT(
-  idx.GET('land:SCOTLAND'),   // everything in this set
-  idx.GET('colour:GREEN').    // minus everything in this set
+  idx.GET('land:SCOTLAND'),                 // everything in this set
+  idx.GET('colour:GREEN', 'colour:RED').    // minus everything in this set
 ).then(result)
 
-// Get max price
-idx.MAX('price').then(result)
+// Get max population
+idx.MAX('population').then(result)
 
 ```
 

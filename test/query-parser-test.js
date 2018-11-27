@@ -69,11 +69,11 @@ test('can GET with object', t => {
 
 test('can do some AND searches', t => {
   t.plan(1)
-  wb.AND([
+  wb.AND(
     'sectorcode:BS',
     'sectorcode:BZ',
     'board_approval_month:November'
-  ])
+  )
    .then(result => {
      t.looseEqual(result, [
        {
@@ -86,112 +86,105 @@ test('can do some AND searches', t => {
 
 test('can do some OR searches', t => {
   t.plan(1)
-  wb.OR([
+  wb.OR(
     'sectorcode:BS',
     'sectorcode:BZ',
     'board_approval_month:November'
-  ])
-   .then(result => {
-     t.looseEqual(result, [
-       { _id: '52b213b38594d8a2be17c780', prop: [ [ 'sectorcode:BS' ], [ 'board_approval_month:November' ] ] },
-       { _id: '52b213b38594d8a2be17c781', prop: [ [ 'sectorcode:BS' ], [ 'sectorcode:BZ' ], [ 'board_approval_month:November' ] ] },
-       { _id: '52b213b38594d8a2be17c789', prop: [ [ 'sectorcode:BZ' ] ] },
-       { _id: '52b213b38594d8a2be17c782', prop: [ [ 'board_approval_month:November' ] ] }
-       
-     ])
-   })
+  ).then(result => {
+    t.looseEqual(result, [
+      { _id: '52b213b38594d8a2be17c780', prop: [ [ 'sectorcode:BS' ], [ 'board_approval_month:November' ] ] },
+      { _id: '52b213b38594d8a2be17c781', prop: [ [ 'sectorcode:BS' ], [ 'sectorcode:BZ' ], [ 'board_approval_month:November' ] ] },
+      { _id: '52b213b38594d8a2be17c789', prop: [ [ 'sectorcode:BZ' ] ] },
+      { _id: '52b213b38594d8a2be17c782', prop: [ [ 'board_approval_month:November' ] ] }       
+    ])
+  })
 })
 
 test('can do some OR searches', t => {
   t.plan(1)
-  wb.OR([
+  wb.OR(
     'sectorcode:BZ',
     'sectorcode:TI'
-  ])
-   .then(result => {
-     t.looseEqual(result, [
-       { _id: '52b213b38594d8a2be17c781', prop: [ [ 'sectorcode:BZ' ] ] },
-       { _id: '52b213b38594d8a2be17c789', prop: [ [ 'sectorcode:BZ' ] ] },
-       { _id: '52b213b38594d8a2be17c782', prop: [ [ 'sectorcode:TI' ] ] },
-       { _id: '52b213b38594d8a2be17c786', prop: [ [ 'sectorcode:TI' ] ] },
-       { _id: '52b213b38594d8a2be17c788', prop: [ [ 'sectorcode:TI' ] ] }
-     ])
-   })
+  ).then(result => {
+    t.looseEqual(result, [
+      { _id: '52b213b38594d8a2be17c781', prop: [ [ 'sectorcode:BZ' ] ] },
+      { _id: '52b213b38594d8a2be17c789', prop: [ [ 'sectorcode:BZ' ] ] },
+      { _id: '52b213b38594d8a2be17c782', prop: [ [ 'sectorcode:TI' ] ] },
+      { _id: '52b213b38594d8a2be17c786', prop: [ [ 'sectorcode:TI' ] ] },
+      { _id: '52b213b38594d8a2be17c788', prop: [ [ 'sectorcode:TI' ] ] }
+    ])
+  })
 })
 
 test('can do AND with embedded OR', t => {
   t.plan(1)
-  wb.AND([
+  wb.AND(
     'board_approval_month:November',
-    wb.OR(['sectorcode:BZ', 'sectorcode:TI'])
-  ])
-   .then(result => {
-     t.looseEqual(result, [
-       { _id: '52b213b38594d8a2be17c781',
-         prop: [ [ 'board_approval_month:November' ], [ [ 'sectorcode:BZ' ] ] ] },
-       { _id: '52b213b38594d8a2be17c782',
-         prop: [ [ 'board_approval_month:November' ], [ [ 'sectorcode:TI' ] ] ] }
-     ])
-   })
+    wb.OR('sectorcode:BZ', 'sectorcode:TI')
+  ).then(result => {
+    t.looseEqual(result, [
+      { _id: '52b213b38594d8a2be17c781',
+        prop: [ [ 'board_approval_month:November' ], [ [ 'sectorcode:BZ' ] ] ] },
+      { _id: '52b213b38594d8a2be17c782',
+        prop: [ [ 'board_approval_month:November' ], [ [ 'sectorcode:TI' ] ] ] }
+    ])
+  })
 })
 
 test('can do AND with embedded AND', t => {
   t.plan(1)
-  wb.AND([
+  wb.AND(
     'board_approval_month:October',
-    wb.OR([
-      wb.AND([ 'sectorcode:BZ', 'sectorcode:BC' ]),
+    wb.OR(
+      wb.AND( 'sectorcode:BZ', 'sectorcode:BC' ),
       'sectorcode:TI'
+    )
+  ).then(result => {
+    t.looseEqual(result, [
+      {
+        _id: '52b213b38594d8a2be17c786',
+        prop: [ [ 'board_approval_month:October' ], [ [ 'sectorcode:TI' ] ] ]
+      },
+      {
+        _id: '52b213b38594d8a2be17c788',
+        prop: [ [ 'board_approval_month:October' ], [ [ 'sectorcode:TI' ] ] ]
+      },
+      {
+        _id: '52b213b38594d8a2be17c789',
+        prop: [ [ 'board_approval_month:October' ], [ [ [ 'sectorcode:BZ' ], [ 'sectorcode:BC' ] ] ] ]
+      }
     ])
-  ])
-   .then(result => {
-     t.looseEqual(result, [
-       {
-         _id: '52b213b38594d8a2be17c786',
-         prop: [ [ 'board_approval_month:October' ], [ [ 'sectorcode:TI' ] ] ]
-       },
-       {
-         _id: '52b213b38594d8a2be17c788',
-         prop: [ [ 'board_approval_month:October' ], [ [ 'sectorcode:TI' ] ] ]
-       },
-       {
-         _id: '52b213b38594d8a2be17c789',
-         prop: [ [ 'board_approval_month:October' ], [ [ [ 'sectorcode:BZ' ], [ 'sectorcode:BC' ] ] ] ]
-       }
-     ])
-   })
+  })
 })
 
 test('can do AND', t => {
   t.plan(1)
-  wb.AND([
+  wb.AND(
     'board_approval_month:November',
-    wb.OR(['sectorcode:BZ', 'sectorcode:TI'])
-  ])
-   .then(wb.OBJECT)
-   .then(result => {
-     t.looseEqual(result, [
-       { _id: '52b213b38594d8a2be17c781', sectorcode: [ 'BZ', 'BS' ], board_approval_month: 'November', impagency: 'MINISTRY OF FINANCE', majorsector_percent: [ { Name: 'Public Administration, Law, and Justice', Percent: 70 }, { Name: 'Public Administration, Law, and Justice', Percent: 30 } ], mjsector_namecode: [ { name: 'Public Administration, Law, and Justice', code: 'BX' }, { name: 'Public Administration, Law, and Justice', code: 'BX' } ], sector_namecode: [ { name: 'Public administration- Other social services', code: 'BS' }, { name: 'General public administration sector', code: 'BZ' } ], totalamt: 0 }, { _id: '52b213b38594d8a2be17c782', sectorcode: [ 'TI' ], board_approval_month: 'November', impagency: 'MINISTRY OF TRANSPORT AND COMMUNICATIONS', majorsector_percent: [ { Name: 'Transportation', Percent: 100 } ], mjsector_namecode: [ { name: 'Transportation', code: 'TX' } ], sector_namecode: [ { name: 'Rural and Inter-Urban Roads and Highways', code: 'TI' } ], totalamt: 6060000 }
-     ])
-   })
+    wb.OR('sectorcode:BZ', 'sectorcode:TI')
+  ).then(wb.OBJECT)
+    .then(result => {
+      t.looseEqual(result, [
+        { _id: '52b213b38594d8a2be17c781', sectorcode: [ 'BZ', 'BS' ], board_approval_month: 'November', impagency: 'MINISTRY OF FINANCE', majorsector_percent: [ { Name: 'Public Administration, Law, and Justice', Percent: 70 }, { Name: 'Public Administration, Law, and Justice', Percent: 30 } ], mjsector_namecode: [ { name: 'Public Administration, Law, and Justice', code: 'BX' }, { name: 'Public Administration, Law, and Justice', code: 'BX' } ], sector_namecode: [ { name: 'Public administration- Other social services', code: 'BS' }, { name: 'General public administration sector', code: 'BZ' } ], totalamt: 0 }, { _id: '52b213b38594d8a2be17c782', sectorcode: [ 'TI' ], board_approval_month: 'November', impagency: 'MINISTRY OF TRANSPORT AND COMMUNICATIONS', majorsector_percent: [ { Name: 'Transportation', Percent: 100 } ], mjsector_namecode: [ { name: 'Transportation', code: 'TX' } ], sector_namecode: [ { name: 'Rural and Inter-Urban Roads and Highways', code: 'TI' } ], totalamt: 6060000 }
+      ])
+    })
 })
 
 test('can do AND with embedded OR search', t => {
   t.plan(1)
-  wb.AND([
+  wb.AND(
     'board_approval_month:October',
-    wb.OR([
+    wb.OR(
       'sectorcode:LR',
-      wb.AND(['sectorcode:BC', 'sectorcode:BM'])
-    ])
-  ])
-   .then(wb.OBJECT)
-   .then(result => {
-     t.looseEqual(result, [
-       { _id: '52b213b38594d8a2be17c787', sectorcode: [ 'LR' ], board_approval_month: 'October', impagency: 'NATIONAL ENERGY ADMINISTRATION', majorsector_percent: [ { Name: 'Energy and mining', Percent: 100 } ], mjsector_namecode: [ { name: 'Energy and mining', code: 'LX' } ], sector_namecode: [ { name: 'Other Renewable Energy', code: 'LR' } ], totalamt: 0 },
-       { _id: '52b213b38594d8a2be17c789', sectorcode: [ 'BM', 'BC', 'BZ' ], board_approval_month: 'October', impagency: 'MINISTRY OF FINANCE', majorsector_percent: [ { Name: 'Public Administration, Law, and Justice', Percent: 34 }, { Name: 'Public Administration, Law, and Justice', Percent: 33 }, { Name: 'Public Administration, Law, and Justice', Percent: 33 } ], mjsector_namecode: [ { name: 'Public Administration, Law, and Justice', code: 'BX' }, { name: 'Public Administration, Law, and Justice', code: 'BX' }, { name: 'Public Administration, Law, and Justice', code: 'BX' } ], sector_namecode: [ { name: 'General public administration sector', code: 'BZ' }, { name: 'Central government administration', code: 'BC' }, { name: 'Public administration- Information and communications', code: 'BM' } ], totalamt: 200000000 }
-     ])
-   })
+      wb.AND('sectorcode:BC', 'sectorcode:BM')
+    )
+  ).then(wb.OBJECT)
+    .then(result => {
+      t.looseEqual(result, [
+        { _id: '52b213b38594d8a2be17c787', sectorcode: [ 'LR' ], board_approval_month: 'October', impagency: 'NATIONAL ENERGY ADMINISTRATION', majorsector_percent: [ { Name: 'Energy and mining', Percent: 100 } ], mjsector_namecode: [ { name: 'Energy and mining', code: 'LX' } ], sector_namecode: [ { name: 'Other Renewable Energy', code: 'LR' } ], totalamt: 0 },
+        { _id: '52b213b38594d8a2be17c789', sectorcode: [ 'BM', 'BC', 'BZ' ], board_approval_month: 'October', impagency: 'MINISTRY OF FINANCE', majorsector_percent: [ { Name: 'Public Administration, Law, and Justice', Percent: 34 }, { Name: 'Public Administration, Law, and Justice', Percent: 33 }, { Name: 'Public Administration, Law, and Justice', Percent: 33 } ], mjsector_namecode: [ { name: 'Public Administration, Law, and Justice', code: 'BX' }, { name: 'Public Administration, Law, and Justice', code: 'BX' }, { name: 'Public Administration, Law, and Justice', code: 'BX' } ], sector_namecode: [ { name: 'General public administration sector', code: 'BZ' }, { name: 'Central government administration', code: 'BC' }, { name: 'Public administration- Information and communications', code: 'BM' } ], totalamt: 200000000 }
+      ])
+    })
 })
 
 test('can get highest value of totalamt (MAX)', t => {

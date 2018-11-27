@@ -54,12 +54,6 @@ test('analyse index', t => {
       { _id: '52b213b38594d8a2be17c782',
         '!board_approval_month': 'November',
         impagency: 'MINISTRY OF TRANSPORT AND COMMUNICATIONS' } },
-    { key: '_id:52b213b38594d8a2be17c780',
-      value: [ '52b213b38594d8a2be17c780' ] },
-    { key: '_id:52b213b38594d8a2be17c781',
-      value: [ '52b213b38594d8a2be17c781' ] },
-    { key: '_id:52b213b38594d8a2be17c782',
-      value: [ '52b213b38594d8a2be17c782' ] },
     { key: 'impagency:MINISTRY OF EDUCATION',
       value: [ '52b213b38594d8a2be17c780' ] },
     { key: 'impagency:MINISTRY OF FINANCE',
@@ -70,7 +64,5 @@ test('analyse index', t => {
   t.plan(storeState.length)
   
   r = wb.STORE.createReadStream()
-  r.on('data', d => {
-    t.looseEquals(d, storeState.shift())
-  })
+  r.on('data', d => t.looseEquals(d, storeState.shift()))
 })
