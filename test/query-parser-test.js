@@ -58,13 +58,13 @@ test('can GET with object', t => {
     gte: 'board_approval_month:November',
     lte: 'board_approval_month:November'
   })
-   .then(result => {
-     t.looseEqual(result, [
-       { _id: '52b213b38594d8a2be17c780', prop: [ 'board_approval_month:November' ] },
-       { _id: '52b213b38594d8a2be17c781', prop: [ 'board_approval_month:November' ] },
-       { _id: '52b213b38594d8a2be17c782', prop: [ 'board_approval_month:November' ] }
-     ])
-   })
+    .then(result => {
+      t.looseEqual(result, [
+        { _id: '52b213b38594d8a2be17c780', prop: [ 'board_approval_month:November' ] },
+        { _id: '52b213b38594d8a2be17c781', prop: [ 'board_approval_month:November' ] },
+        { _id: '52b213b38594d8a2be17c782', prop: [ 'board_approval_month:November' ] }
+      ])
+    })
 })
 
 test('can do some AND searches', t => {
@@ -74,14 +74,14 @@ test('can do some AND searches', t => {
     'sectorcode:BZ',
     'board_approval_month:November'
   )
-   .then(result => {
-     t.looseEqual(result, [
-       {
-         _id: '52b213b38594d8a2be17c781',
-         prop: [ [ 'sectorcode:BS' ], [ 'sectorcode:BZ' ], [ 'board_approval_month:November' ] ]
-       }
-     ])
-   })
+    .then(result => {
+      t.looseEqual(result, [
+        {
+          _id: '52b213b38594d8a2be17c781',
+          prop: [ [ 'sectorcode:BS' ], [ 'sectorcode:BZ' ], [ 'board_approval_month:November' ] ]
+        }
+      ])
+    })
 })
 
 test('can do some OR searches', t => {
@@ -190,79 +190,78 @@ test('can do AND with embedded OR search', t => {
 test('can get highest value of totalamt (MAX)', t => {
   t.plan(1)
   wb.MAX('totalamt')
-   .then(result => {
-     t.equal(result, 'totalamt:6060000')
-   })
+    .then(result => {
+      t.equal(result, 'totalamt:6060000')
+    })
 })
 
 test('can get lowest value of totalamt (MIN)', t => {
   t.plan(1)
   wb.MIN('totalamt')
-   .then(result => {
-     t.equal(result, 'totalamt:0')
-   })
+    .then(result => {
+      t.equal(result, 'totalamt:0')
+    })
 })
 
 test('can get all values of totalamt (DIST)', t => {
   t.plan(1)
   wb.DISTINCT('totalamt')
-   .then(result => {
-     t.looseEqual(result, [ 'totalamt:0',
-                            'totalamt:10000000',
-                            'totalamt:130000000',
-                            'totalamt:13100000',
-                            'totalamt:160000000',
-                            'totalamt:200000000',
-                            'totalamt:500000000',
-                            'totalamt:6060000' ])
-   })
+    .then(result => {
+      t.looseEqual(result, [ 'totalamt:0',
+                             'totalamt:10000000',
+                             'totalamt:130000000',
+                             'totalamt:13100000',
+                             'totalamt:160000000',
+                             'totalamt:200000000',
+                             'totalamt:500000000',
+                             'totalamt:6060000' ])
+    })
 })
 
 test('can aggregate totalamt', t => {
   t.plan(1)
   wb.DISTINCT('totalamt')
-   .then(result => wb.EACH(result))
-   .then(result => {
-     t.looseEqual(result, [
-       { prop: 'totalamt:0', _id: [ '52b213b38594d8a2be17c781', '52b213b38594d8a2be17c783', '52b213b38594d8a2be17c787' ] },
-       { prop: 'totalamt:10000000', _id: [ '52b213b38594d8a2be17c785' ] },
-       { prop: 'totalamt:130000000', _id: [ '52b213b38594d8a2be17c780' ] },
-       { prop: 'totalamt:13100000', _id: [ '52b213b38594d8a2be17c784' ] },
-       { prop: 'totalamt:160000000', _id: [ '52b213b38594d8a2be17c788' ] },
-       { prop: 'totalamt:200000000', _id: [ '52b213b38594d8a2be17c789' ] },
-       { prop: 'totalamt:500000000', _id: [ '52b213b38594d8a2be17c786' ] },
-       { prop: 'totalamt:6060000', _id: [ '52b213b38594d8a2be17c782' ] }
-     ])
-   })
+    .then(result => wb.EACH(result))
+    .then(result => {
+      t.looseEqual(result, [
+        { prop: 'totalamt:0', _id: [ '52b213b38594d8a2be17c781', '52b213b38594d8a2be17c783', '52b213b38594d8a2be17c787' ] },
+        { prop: 'totalamt:10000000', _id: [ '52b213b38594d8a2be17c785' ] },
+        { prop: 'totalamt:130000000', _id: [ '52b213b38594d8a2be17c780' ] },
+        { prop: 'totalamt:13100000', _id: [ '52b213b38594d8a2be17c784' ] },
+        { prop: 'totalamt:160000000', _id: [ '52b213b38594d8a2be17c788' ] },
+        { prop: 'totalamt:200000000', _id: [ '52b213b38594d8a2be17c789' ] },
+        { prop: 'totalamt:500000000', _id: [ '52b213b38594d8a2be17c786' ] },
+        { prop: 'totalamt:6060000', _id: [ '52b213b38594d8a2be17c782' ] }
+      ])
+    })
 })
 
 test('can aggregate totalamt (showing ID count)', t => {
   t.plan(1)
   wb.DISTINCT('totalamt')
-   .then(result => wb.EACH(result))
-   .then(result => {
-     t.looseEqual(result.map(item => {
-       return {
-         prop: item.prop,
-         count: item._id.length
-       }
-     }), [
-       { prop: 'totalamt:0', count: 3 },
-       { prop: 'totalamt:10000000', count: 1 },
-       { prop: 'totalamt:130000000', count: 1 },
-       { prop: 'totalamt:13100000', count: 1 },
-       { prop: 'totalamt:160000000', count: 1 },
-       { prop: 'totalamt:200000000', count: 1 },
-       { prop: 'totalamt:500000000', count: 1 },
-       { prop: 'totalamt:6060000', count: 1 }
-     ])
-   })
+    .then(result => wb.EACH(result))
+    .then(result => {
+      t.looseEqual(result.map(item => {
+        return {
+          prop: item.prop,
+          count: item._id.length
+        }
+      }), [
+        { prop: 'totalamt:0', count: 3 },
+        { prop: 'totalamt:10000000', count: 1 },
+        { prop: 'totalamt:130000000', count: 1 },
+        { prop: 'totalamt:13100000', count: 1 },
+        { prop: 'totalamt:160000000', count: 1 },
+        { prop: 'totalamt:200000000', count: 1 },
+        { prop: 'totalamt:500000000', count: 1 },
+        { prop: 'totalamt:6060000', count: 1 }
+      ])
+    })
 })
 
 test('can aggregate totalamt (showing ID count)', t => {
   t.plan(1)
   new Promise((resolve, reject) => {
-    // wb.QUERY ((resolve, reject) => {
     wb.DISTINCT('totalamt', {
       gte: 1,
       lte: 4
