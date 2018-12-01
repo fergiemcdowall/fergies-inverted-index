@@ -116,7 +116,7 @@ test('can do some OR searches', t => {
   })
 })
 
-test('can do AND with embedded OR', t => {
+test('can do AND with nested OR', t => {
   t.plan(1)
   wb.AND(
     'board_approval_month:November',
