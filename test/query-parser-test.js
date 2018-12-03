@@ -220,7 +220,10 @@ test('can get all values of totalamt (DIST)', t => {
 
 test('can aggregate totalamt', t => {
   t.plan(1)
-  wb.DISTINCT('totalamt')
+  wb.DISTINCT({
+    gte: 'totalamt:',
+    lte: 'totalamt:~'
+  })
     .then(result => wb.EACH(result))
     .then(result => {
       t.looseEqual(result, [
@@ -238,8 +241,10 @@ test('can aggregate totalamt', t => {
 
 test('can aggregate totalamt (showing ID count)', t => {
   t.plan(1)
-  wb.DISTINCT('totalamt')
-    .then(result => wb.EACH(result))
+  wb.DISTINCT({
+    gte: 'totalamt:',
+    lte: 'totalamt:~'
+  }).then(result => wb.EACH(result))
     .then(result => {
       t.looseEqual(result.map(item => {
         return {
@@ -261,28 +266,26 @@ test('can aggregate totalamt (showing ID count)', t => {
 
 test('can aggregate totalamt (showing ID count)', t => {
   t.plan(1)
-  new Promise((resolve, reject) => {
-    wb.DISTINCT('totalamt', {
-      gte: 1,
-      lte: 4
-    }).then(result => wb.EACH(result))
-      .then(result => resolve(
-        result.map(item => {
-          return {
-            prop: item.prop,
-            count: item._id.length
-          }
-        })
-      ))
-  }).then(result => {
-    t.looseEqual(result, [
-      { prop: 'totalamt:10000000', count: 1 },
-      { prop: 'totalamt:130000000', count: 1 },
-      { prop: 'totalamt:13100000', count: 1 },
-      { prop: 'totalamt:160000000', count: 1 },
-      { prop: 'totalamt:200000000', count: 1 }
-    ])
-  })
+  wb.DISTINCT({
+    gte: 'totalamt:1',
+    lte: 'totalamt:4'
+  }).then(
+    result => wb.EACH(result)
+  ).then(result =>
+    t.looseEqual(
+      result.map(item => {
+        return {
+          prop: item.prop,
+          count: item._id.length
+        }
+      }), [
+        { prop: 'totalamt:10000000', count: 1 },
+        { prop: 'totalamt:130000000', count: 1 },
+        { prop: 'totalamt:13100000', count: 1 },
+        { prop: 'totalamt:160000000', count: 1 },
+        { prop: 'totalamt:200000000', count: 1 }
+      ]
+    ))
 })
 
 test('can get documents with properties in a range', t => {
