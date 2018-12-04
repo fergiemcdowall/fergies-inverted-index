@@ -45,9 +45,9 @@ test('can GET with string', t => {
   wb.GET('board_approval_month:November')
     .then(result => {
       t.looseEqual(result, [
-        { _id: '52b213b38594d8a2be17c780', prop: [ 'board_approval_month:November' ] },
-        { _id: '52b213b38594d8a2be17c781', prop: [ 'board_approval_month:November' ] },
-        { _id: '52b213b38594d8a2be17c782', prop: [ 'board_approval_month:November' ] }
+        { _id: '52b213b38594d8a2be17c780', match: [ 'board_approval_month:November' ] },
+        { _id: '52b213b38594d8a2be17c781', match: [ 'board_approval_month:November' ] },
+        { _id: '52b213b38594d8a2be17c782', match: [ 'board_approval_month:November' ] }
       ])
     })
 })
@@ -60,9 +60,9 @@ test('can GET with object', t => {
   })
     .then(result => {
       t.looseEqual(result, [
-        { _id: '52b213b38594d8a2be17c780', prop: [ 'board_approval_month:November' ] },
-        { _id: '52b213b38594d8a2be17c781', prop: [ 'board_approval_month:November' ] },
-        { _id: '52b213b38594d8a2be17c782', prop: [ 'board_approval_month:November' ] }
+        { _id: '52b213b38594d8a2be17c780', match: [ 'board_approval_month:November' ] },
+        { _id: '52b213b38594d8a2be17c781', match: [ 'board_approval_month:November' ] },
+        { _id: '52b213b38594d8a2be17c782', match: [ 'board_approval_month:November' ] }
       ])
     })
 })
@@ -78,7 +78,7 @@ test('can do some AND searches', t => {
       t.looseEqual(result, [
         {
           _id: '52b213b38594d8a2be17c781',
-          prop: [ [ 'sectorcode:BS' ], [ 'sectorcode:BZ' ], [ 'board_approval_month:November' ] ]
+          match: [ [ 'sectorcode:BS' ], [ 'sectorcode:BZ' ], [ 'board_approval_month:November' ] ]
         }
       ])
     })
@@ -92,10 +92,10 @@ test('can do some OR searches', t => {
     'board_approval_month:November'
   ).then(result => {
     t.looseEqual(result, [
-      { _id: '52b213b38594d8a2be17c780', prop: [ [ 'sectorcode:BS' ], [ 'board_approval_month:November' ] ] },
-      { _id: '52b213b38594d8a2be17c781', prop: [ [ 'sectorcode:BS' ], [ 'sectorcode:BZ' ], [ 'board_approval_month:November' ] ] },
-      { _id: '52b213b38594d8a2be17c789', prop: [ [ 'sectorcode:BZ' ] ] },
-      { _id: '52b213b38594d8a2be17c782', prop: [ [ 'board_approval_month:November' ] ] }       
+      { _id: '52b213b38594d8a2be17c780', match: [ [ 'sectorcode:BS' ], [ 'board_approval_month:November' ] ] },
+      { _id: '52b213b38594d8a2be17c781', match: [ [ 'sectorcode:BS' ], [ 'sectorcode:BZ' ], [ 'board_approval_month:November' ] ] },
+      { _id: '52b213b38594d8a2be17c789', match: [ [ 'sectorcode:BZ' ] ] },
+      { _id: '52b213b38594d8a2be17c782', match: [ [ 'board_approval_month:November' ] ] }       
     ])
   })
 })
@@ -107,11 +107,11 @@ test('can do some OR searches', t => {
     'sectorcode:TI'
   ).then(result => {
     t.looseEqual(result, [
-      { _id: '52b213b38594d8a2be17c781', prop: [ [ 'sectorcode:BZ' ] ] },
-      { _id: '52b213b38594d8a2be17c789', prop: [ [ 'sectorcode:BZ' ] ] },
-      { _id: '52b213b38594d8a2be17c782', prop: [ [ 'sectorcode:TI' ] ] },
-      { _id: '52b213b38594d8a2be17c786', prop: [ [ 'sectorcode:TI' ] ] },
-      { _id: '52b213b38594d8a2be17c788', prop: [ [ 'sectorcode:TI' ] ] }
+      { _id: '52b213b38594d8a2be17c781', match: [ [ 'sectorcode:BZ' ] ] },
+      { _id: '52b213b38594d8a2be17c789', match: [ [ 'sectorcode:BZ' ] ] },
+      { _id: '52b213b38594d8a2be17c782', match: [ [ 'sectorcode:TI' ] ] },
+      { _id: '52b213b38594d8a2be17c786', match: [ [ 'sectorcode:TI' ] ] },
+      { _id: '52b213b38594d8a2be17c788', match: [ [ 'sectorcode:TI' ] ] }
     ])
   })
 })
@@ -124,9 +124,9 @@ test('can do AND with nested OR', t => {
   ).then(result => {
     t.looseEqual(result, [
       { _id: '52b213b38594d8a2be17c781',
-        prop: [ [ 'board_approval_month:November' ], [ [ 'sectorcode:BZ' ] ] ] },
+        match: [ [ 'board_approval_month:November' ], [ [ 'sectorcode:BZ' ] ] ] },
       { _id: '52b213b38594d8a2be17c782',
-        prop: [ [ 'board_approval_month:November' ], [ [ 'sectorcode:TI' ] ] ] }
+        match: [ [ 'board_approval_month:November' ], [ [ 'sectorcode:TI' ] ] ] }
     ])
   })
 })
@@ -143,15 +143,15 @@ test('can do AND with embedded AND', t => {
     t.looseEqual(result, [
       {
         _id: '52b213b38594d8a2be17c786',
-        prop: [ [ 'board_approval_month:October' ], [ [ 'sectorcode:TI' ] ] ]
+        match: [ [ 'board_approval_month:October' ], [ [ 'sectorcode:TI' ] ] ]
       },
       {
         _id: '52b213b38594d8a2be17c788',
-        prop: [ [ 'board_approval_month:October' ], [ [ 'sectorcode:TI' ] ] ]
+        match: [ [ 'board_approval_month:October' ], [ [ 'sectorcode:TI' ] ] ]
       },
       {
         _id: '52b213b38594d8a2be17c789',
-        prop: [ [ 'board_approval_month:October' ], [ [ [ 'sectorcode:BZ' ], [ 'sectorcode:BC' ] ] ] ]
+        match: [ [ 'board_approval_month:October' ], [ [ [ 'sectorcode:BZ' ], [ 'sectorcode:BC' ] ] ] ]
       }
     ])
   })
@@ -227,14 +227,14 @@ test('can aggregate totalamt', t => {
     .then(result => wb.EACH(result))
     .then(result => {
       t.looseEqual(result, [
-        { prop: 'totalamt:0', _id: [ '52b213b38594d8a2be17c781', '52b213b38594d8a2be17c783', '52b213b38594d8a2be17c787' ] },
-        { prop: 'totalamt:10000000', _id: [ '52b213b38594d8a2be17c785' ] },
-        { prop: 'totalamt:130000000', _id: [ '52b213b38594d8a2be17c780' ] },
-        { prop: 'totalamt:13100000', _id: [ '52b213b38594d8a2be17c784' ] },
-        { prop: 'totalamt:160000000', _id: [ '52b213b38594d8a2be17c788' ] },
-        { prop: 'totalamt:200000000', _id: [ '52b213b38594d8a2be17c789' ] },
-        { prop: 'totalamt:500000000', _id: [ '52b213b38594d8a2be17c786' ] },
-        { prop: 'totalamt:6060000', _id: [ '52b213b38594d8a2be17c782' ] }
+        { match: 'totalamt:0', _id: [ '52b213b38594d8a2be17c781', '52b213b38594d8a2be17c783', '52b213b38594d8a2be17c787' ] },
+        { match: 'totalamt:10000000', _id: [ '52b213b38594d8a2be17c785' ] },
+        { match: 'totalamt:130000000', _id: [ '52b213b38594d8a2be17c780' ] },
+        { match: 'totalamt:13100000', _id: [ '52b213b38594d8a2be17c784' ] },
+        { match: 'totalamt:160000000', _id: [ '52b213b38594d8a2be17c788' ] },
+        { match: 'totalamt:200000000', _id: [ '52b213b38594d8a2be17c789' ] },
+        { match: 'totalamt:500000000', _id: [ '52b213b38594d8a2be17c786' ] },
+        { match: 'totalamt:6060000', _id: [ '52b213b38594d8a2be17c782' ] }
       ])
     })
 })
@@ -248,18 +248,18 @@ test('can aggregate totalamt (showing ID count)', t => {
     .then(result => {
       t.looseEqual(result.map(item => {
         return {
-          prop: item.prop,
+          match: item.match,
           count: item._id.length
         }
       }), [
-        { prop: 'totalamt:0', count: 3 },
-        { prop: 'totalamt:10000000', count: 1 },
-        { prop: 'totalamt:130000000', count: 1 },
-        { prop: 'totalamt:13100000', count: 1 },
-        { prop: 'totalamt:160000000', count: 1 },
-        { prop: 'totalamt:200000000', count: 1 },
-        { prop: 'totalamt:500000000', count: 1 },
-        { prop: 'totalamt:6060000', count: 1 }
+        { match: 'totalamt:0', count: 3 },
+        { match: 'totalamt:10000000', count: 1 },
+        { match: 'totalamt:130000000', count: 1 },
+        { match: 'totalamt:13100000', count: 1 },
+        { match: 'totalamt:160000000', count: 1 },
+        { match: 'totalamt:200000000', count: 1 },
+        { match: 'totalamt:500000000', count: 1 },
+        { match: 'totalamt:6060000', count: 1 }
       ])
     })
 })
@@ -275,15 +275,15 @@ test('can aggregate totalamt (showing ID count)', t => {
     t.looseEqual(
       result.map(item => {
         return {
-          prop: item.prop,
+          match: item.match,
           count: item._id.length
         }
       }), [
-        { prop: 'totalamt:10000000', count: 1 },
-        { prop: 'totalamt:130000000', count: 1 },
-        { prop: 'totalamt:13100000', count: 1 },
-        { prop: 'totalamt:160000000', count: 1 },
-        { prop: 'totalamt:200000000', count: 1 }
+        { match: 'totalamt:10000000', count: 1 },
+        { match: 'totalamt:130000000', count: 1 },
+        { match: 'totalamt:13100000', count: 1 },
+        { match: 'totalamt:160000000', count: 1 },
+        { match: 'totalamt:200000000', count: 1 }
       ]
     ))
 })
@@ -295,11 +295,11 @@ test('can get documents with properties in a range', t => {
     lte: 'totalamt:4'
   }).then(result => {
     t.looseEqual(result, [
-      { _id: '52b213b38594d8a2be17c785', prop: [ 'totalamt:10000000' ] },
-      { _id: '52b213b38594d8a2be17c780', prop: [ 'totalamt:130000000' ] },
-      { _id: '52b213b38594d8a2be17c784', prop: [ 'totalamt:13100000' ] },
-      { _id: '52b213b38594d8a2be17c788', prop: [ 'totalamt:160000000' ] },
-      { _id: '52b213b38594d8a2be17c789', prop: [ 'totalamt:200000000' ] } ])
+      { _id: '52b213b38594d8a2be17c785', match: [ 'totalamt:10000000' ] },
+      { _id: '52b213b38594d8a2be17c780', match: [ 'totalamt:130000000' ] },
+      { _id: '52b213b38594d8a2be17c784', match: [ 'totalamt:13100000' ] },
+      { _id: '52b213b38594d8a2be17c788', match: [ 'totalamt:160000000' ] },
+      { _id: '52b213b38594d8a2be17c789', match: [ 'totalamt:200000000' ] } ])
   })
 })
 
@@ -311,22 +311,22 @@ test('can get documents with properties in a range', t => {
   }).then(result => {
     t.looseEqual(result, [
       { _id: '52b213b38594d8a2be17c789',
-        prop: [
+        match: [
           'sectorcode:BC',
           'sectorcode:BM',
           'sectorcode:BZ' ] },
       { _id: '52b213b38594d8a2be17c780',
-        prop: [
+        match: [
           'sectorcode:BS',
           'sectorcode:EP',
           'sectorcode:ES',
           'sectorcode:ET' ] },
       { _id: '52b213b38594d8a2be17c781',
-        prop: [
+        match: [
           'sectorcode:BS',
           'sectorcode:BZ' ] },
       { _id: '52b213b38594d8a2be17c784',
-        prop: [
+        match: [
           'sectorcode:FH' ] }
     ])
   })
@@ -343,18 +343,18 @@ test('can get documents with properties in a range and the NOT some out', t => {
   ).then(result => {
     t.looseEqual(result, [
       { _id: '52b213b38594d8a2be17c789',
-        prop: [
+        match: [
           'sectorcode:BC',
           'sectorcode:BM',
           'sectorcode:BZ' ] },
       { _id: '52b213b38594d8a2be17c780',
-        prop: [
+        match: [
           'sectorcode:BS',
           'sectorcode:EP',
           'sectorcode:ES',
           'sectorcode:ET' ] },
       { _id: '52b213b38594d8a2be17c781',
-        prop: [
+        match: [
           'sectorcode:BS',
           'sectorcode:BZ' ] }
     ])
@@ -368,7 +368,7 @@ test('can get documents with properties in a range and the NOT some out', t => {
     'sectorcode:ET'
   ).then(result => {
     t.looseEqual(result, [
-      { _id: '52b213b38594d8a2be17c781', prop: [ 'sectorcode:BS' ] }
+      { _id: '52b213b38594d8a2be17c781', match: [ 'sectorcode:BS' ] }
     ])
   })
 })
