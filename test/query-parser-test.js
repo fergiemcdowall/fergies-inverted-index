@@ -373,3 +373,75 @@ test('can get documents with properties in a range and the NOT some out', t => {
   })
 })
 
+test('can do OR with gte/lte', t => {
+  t.plan(1)
+  wb.OR(
+    { gte: 'sectorcode:B', lte: 'sectorcode:C' },
+    { gte: 'sectorcode:K', lte: 'sectorcode:M' },
+  ).then(result => {
+    t.looseEqual(result, [
+      {
+        "_id": "52b213b38594d8a2be17c789",
+        "match": [
+          [
+            "sectorcode:BC",
+            "sectorcode:BM",
+            "sectorcode:BZ"
+          ]
+        ]
+      },
+      {
+        "_id": "52b213b38594d8a2be17c780",
+        "match": [
+          [
+            "sectorcode:BS"
+          ]
+        ]
+      },
+      {
+        "_id": "52b213b38594d8a2be17c781",
+        "match": [
+          [
+            "sectorcode:BS",
+            "sectorcode:BZ"
+          ]
+        ]
+      },
+      {
+        "_id": "52b213b38594d8a2be17c787",
+        "match": [
+          [
+            "sectorcode:LR"
+          ]
+        ]
+      }
+    ])
+  })
+})
+
+test('can do AND with gte/lte', t => {
+  t.plan(1)
+  wb.AND(
+    { gte: 'sectorcode:E', lte: 'sectorcode:G' },
+    { gte: 'sectorcode:Y', lte: 'sectorcode:Z' },
+  ).then(result => {
+    t.looseEqual(result, [
+      {
+        "_id": "52b213b38594d8a2be17c784",
+        "match": [
+          [
+            "sectorcode:FH"
+          ],
+          [
+            "sectorcode:YW",
+            "sectorcode:YZ"
+          ]
+        ]
+      }
+    ])
+  })
+})
+
+
+
+// TODO: AND/OR with gte: lte:
