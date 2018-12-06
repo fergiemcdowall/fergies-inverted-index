@@ -377,7 +377,7 @@ test('can do OR with gte/lte', t => {
   t.plan(1)
   wb.OR(
     { gte: 'sectorcode:B', lte: 'sectorcode:C' },
-    { gte: 'sectorcode:K', lte: 'sectorcode:M' },
+    { gte: 'sectorcode:K', lte: 'sectorcode:M' }
   ).then(result => {
     t.looseEqual(result, [
       {
@@ -423,7 +423,7 @@ test('can do AND with gte/lte', t => {
   t.plan(1)
   wb.AND(
     { gte: 'sectorcode:E', lte: 'sectorcode:G' },
-    { gte: 'sectorcode:Y', lte: 'sectorcode:Z' },
+    { gte: 'sectorcode:Y', lte: 'sectorcode:Z' }
   ).then(result => {
     t.looseEqual(result, [
       {
