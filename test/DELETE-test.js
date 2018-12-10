@@ -1,21 +1,20 @@
-const ndb = require('../lib/index.js')
+const ndb = require('../lib/main.js')
 const sandbox = 'test/sandbox/'
 const test = require('tape')
 const wbd = require('world-bank-dataset')
 
-var wb
+// apparently async/await doesnt totally work with tape
+initIndex = async function() {
+  global.wb = await ndb({name: sandbox + 'DELETE-TEST'})
+}
 
 test('create a little world bank index', t => {
-  t.plan(1)
-  ndb({
-    name: sandbox + 'DELETE-TEST'
-  }).then(db => {
-    wb = db
-    t.pass('db created')
-  })
+  t.plan(1)  
+  initIndex().then(t.pass)
 })
 
 test('can add some worldbank data', t => {
+  console.log(wb)
   var dataSize = 10
   const data = wbd.slice(0, dataSize).map(item => {
     return {

@@ -1,4 +1,4 @@
-const ndb = require('../lib/index.js')
+const si2 = require('../lib/index.js')
 const sandbox = 'test/sandbox/'
 const test = require('tape')
 const wbd = require('world-bank-dataset')
@@ -7,7 +7,7 @@ var wb
 
 test('create a little world bank index', t => {
   t.plan(1)
-  ndb({
+  si2({
     name: sandbox + 'wb2'
   }).then(db => {
     wb = db

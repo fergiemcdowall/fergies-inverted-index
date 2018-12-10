@@ -2,7 +2,7 @@
   "name": "fergies-inverted-index",
   "version": "0.0.5",
   "description": "An inverted index that allows javascript objects to be easily serialised and retrieved using promises and map-reduce",
-  "main": "lib/index.js",
+  "main": "lib/main.js",
   "directories": {
     "lib": "lib",
     "test": "test"
@@ -24,7 +24,7 @@
     "world-bank-dataset": "^1.0.0"
   },
   "scripts": {
-    "test": "rm -rf test/sandbox && mkdir test/sandbox && tape test/*-test.js",
+    "test": "rm -rf test/sandbox && mkdir test/sandbox && tape debug test/*-test.js",
     "lint": "standard --fix test/* lib/*"
   },
   "repository": {

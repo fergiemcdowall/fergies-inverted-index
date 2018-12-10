@@ -39,27 +39,27 @@ test('prefixing field with ! makes it non-searchable', t => {
 
 test('analyse index', t => {
   var storeState = [
-    { key: '!DOC￮52b213b38594d8a2be17c780￮',
-      value: 
-      { _id: '52b213b38594d8a2be17c780',
-        '!board_approval_month': 'November',
-        impagency: 'MINISTRY OF EDUCATION' } },
-    { key: '!DOC￮52b213b38594d8a2be17c781￮',
-      value: 
-      { _id: '52b213b38594d8a2be17c781',
-        '!board_approval_month': 'November',
-        impagency: 'MINISTRY OF FINANCE' } },
-    { key: '!DOC￮52b213b38594d8a2be17c782￮',
-      value: 
-      { _id: '52b213b38594d8a2be17c782',
-        '!board_approval_month': 'November',
-        impagency: 'MINISTRY OF TRANSPORT AND COMMUNICATIONS' } },
     { key: 'impagency:MINISTRY OF EDUCATION',
       value: [ '52b213b38594d8a2be17c780' ] },
     { key: 'impagency:MINISTRY OF FINANCE',
       value: [ '52b213b38594d8a2be17c781' ] },
     { key: 'impagency:MINISTRY OF TRANSPORT AND COMMUNICATIONS',
-      value: [ '52b213b38594d8a2be17c782' ] }
+      value: [ '52b213b38594d8a2be17c782' ] },
+    { key: '￮DOC￮52b213b38594d8a2be17c780￮',
+      value: 
+      { _id: '52b213b38594d8a2be17c780',
+        '!board_approval_month': 'November',
+        impagency: 'MINISTRY OF EDUCATION' } },
+    { key: '￮DOC￮52b213b38594d8a2be17c781￮',
+      value: 
+      { _id: '52b213b38594d8a2be17c781',
+        '!board_approval_month': 'November',
+        impagency: 'MINISTRY OF FINANCE' } },
+    { key: '￮DOC￮52b213b38594d8a2be17c782￮',
+      value: 
+      { _id: '52b213b38594d8a2be17c782',
+        '!board_approval_month': 'November',
+        impagency: 'MINISTRY OF TRANSPORT AND COMMUNICATIONS' } }
   ]
   t.plan(storeState.length)
   
