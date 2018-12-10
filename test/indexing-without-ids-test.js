@@ -1,4 +1,4 @@
-const fin = require('../lib/index.js')
+const fin = require('../')
 const sandbox = 'test/sandbox/'
 const test = require('tape')
 

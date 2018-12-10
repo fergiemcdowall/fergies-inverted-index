@@ -1,4 +1,4 @@
-const si2 = require('../lib/index.js')
+const si2 = require('../')
 const sandbox = 'test/sandbox/'
 const test = require('tape')
 const wbd = require('world-bank-dataset')

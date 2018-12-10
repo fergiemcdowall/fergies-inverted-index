@@ -1,4 +1,4 @@
-const ndb = require('../lib/index.js')
+const ndb = require('../')
 const sandbox = 'test/sandbox/'
 const test = require('tape')
 const wbd = require('world-bank-dataset')

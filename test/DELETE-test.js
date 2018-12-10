@@ -1,4 +1,4 @@
-const ndb = require('../lib/main.js')
+const ndb = require('../')
 const sandbox = 'test/sandbox/'
 const test = require('tape')
 const wbd = require('world-bank-dataset')
@@ -9,7 +9,7 @@ initIndex = async function() {
 }
 
 test('create a little world bank index', t => {
-  t.plan(1)  
+  t.plan(1)
   initIndex().then(t.pass)
 })
 
