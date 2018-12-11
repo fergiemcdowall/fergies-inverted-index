@@ -1,25 +1,20 @@
-const ndb = require('../')
+const fii = require('../')
 const sandbox = 'test/sandbox/'
 const test = require('tape')
 const wbd = require('world-bank-dataset')
 
-var wb
+const indexName = sandbox + 'stress-test'
 
 test('create a little world bank index', t => {
   t.plan(1)
-  ndb({
-    name: sandbox + 'stress-test'
-  }).then(db => {
-    wb = db
-    t.pass('db created')
-  })
+  fii.INIT({ name: indexName }).then(t.pass)
 })
 
 test('can add some worldbank data in a reasonable amount of time', t => {
   t.plan(2)
   const start = Date.now()
   const timeLimit = 5000
-  wb.PUT(wbd).then(result => {
+  global[indexName].PUT(wbd).then(result => {
     const elapsedTime = Date.now() - start
     t.equal(result.length, 500)
     t.ok(

@@ -3,8 +3,15 @@
 
 Throw JavaScript objects at the index and they will become retrievable by their properties using promises and map-reduce ([see examples](https://github.com/fergiemcdowall/fergies-inverted-index/tree/master/test))
 
+## Initialization API
 
-## API
+Command   | Options               | Description
+--------- | --------------------- | -----------
+`INIT`    | `{ name: indexName }` | Opens an index called the value of `indexName` and makes it available globally as `indexName` and `global[indexName]`.
+`OPEN`    | `{ name: indexName }` | Opens an index called the value of `indexName` and returns a Promise with the index.
+
+
+## Query API
 
 Command   | Options      | Accepts    | Returns    | Writes | Description
 --------- | ------------ | ---------- | ---------- | ------ | -----------
@@ -27,11 +34,16 @@ Command   | Options      | Accepts    | Returns    | Writes | Description
 ### Initialise and populate an index
 
 ```javascript
-const fin = require('fergies-inverted-index')
 
 // Make a new index, or open an existing one with this name
-fin({ name: 'idx' }).then(idx => {
-  idx.PUT([ /* my array of objects */ ]).then(doStuff)
+// EITHER:
+require('fergies-inverted-index').INIT({ name: 'idx' }) // index now available globally as "idx"
+// some time later...
+idx.PUT([ /* my array of objects */ ]).then(doStuff)
+
+// OR:
+require('fergies-inverted-index').OPEN({ name: 'idx' }).then(idx => {
+  idx.PUT([ /* my array of objects */ ]).then(doStuff) // no global, idx must be passed around
 })
 
 ```

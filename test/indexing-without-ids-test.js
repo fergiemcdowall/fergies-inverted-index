@@ -1,17 +1,12 @@
-const fin = require('../')
+const fii = require('../')
 const sandbox = 'test/sandbox/'
 const test = require('tape')
 
-var idx
+const indexName = sandbox + 'indexing-without-ids-test'
 
 test('create a little world bank index', t => {
   t.plan(1)
-  fin({
-    name: sandbox + 'indexing-without-ids-test'
-  }).then(db => {
-    idx = db
-    t.pass('db created')
-  })
+  fii.INIT({ name: indexName }).then(t.pass)
 })
 
 test('can add some worldbank data', t => {
@@ -27,7 +22,7 @@ test('can add some worldbank data', t => {
     },
   ]
   t.plan(1)
-  idx.PUT(data).then(t.pass)
+  global[indexName].PUT(data).then(t.pass)
 })
 
 test('can GET with string', t => {
@@ -41,6 +36,6 @@ test('can GET with string', t => {
     { key: '￮DOC￮1￮',
       value: { land: 'IRELAND', colour: 'GREEN', _id: 1 } }
   ]
-  idx.STORE.createReadStream()
+  global[indexName].STORE.createReadStream()
    .on('data', d => t.looseEqual(d, result.shift()))
 })

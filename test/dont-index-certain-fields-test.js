@@ -1,25 +1,20 @@
-const ndb = require('../')
+const fii = require('../')
 const sandbox = 'test/sandbox/'
 const test = require('tape')
 const wbd = require('world-bank-dataset')
 
-var wb
+const indexName = sandbox + 'non-searchable-fields-test'
 
 test('create a little world bank index', t => {
   t.plan(1)
-  ndb({
-    name: sandbox + 'non-searchable-fields-test'
-  }).then(db => {
-    wb = db
-    t.pass('db created')
-  })
+  fii.INIT({ name: indexName }).then(t.pass)
 })
 
 test('prefixing field with ! makes it non-searchable', t => {
   t.plan(2)
   const start = Date.now()
   const timeLimit = 2000
-  wb.PUT(
+  global[indexName].PUT(
     wbd.slice(0, 3).map(item => {
       return {
         _id: item._id.$oid,
@@ -63,6 +58,6 @@ test('analyse index', t => {
   ]
   t.plan(storeState.length)
   
-  r = wb.STORE.createReadStream()
+  r = global[indexName].STORE.createReadStream()
   r.on('data', d => t.looseEquals(d, storeState.shift()))
 })
