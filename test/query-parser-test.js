@@ -264,9 +264,8 @@ test('can aggregate totalamt (showing ID count)', t => {
   global[indexName].DISTINCT({
     gte: 'totalamt:1',
     lte: 'totalamt:4'
-  }).then(
-    result => global[indexName].EACH(result)
-  ).then(result =>
+  }).then(global[indexName].EACH)
+   .then(result =>
     t.looseEqual(
       result.map(item => {
         return {
@@ -437,6 +436,39 @@ test('can do AND with gte/lte', t => {
   })
 })
 
+test('can aggregate totalamt', t => {
+  t.plan(1)
+  global[indexName].AGGREGATE(
+    global[indexName].DISTINCT({
+      gte: 'totalamt:',
+      lte: 'totalamt:~'
+    }).then(global[indexName].EACH),
+    global[indexName].GET("board_approval_month:November")
+  ).then(result => {
+    t.looseEqual(result, [
+      { match: 'totalamt:0', _id: [ '52b213b38594d8a2be17c781' ] },
+      { match: 'totalamt:130000000', _id: [ '52b213b38594d8a2be17c780' ] },
+      { match: 'totalamt:6060000', _id: [ '52b213b38594d8a2be17c782' ] }
+    ])
+  })
+})
 
-
-// TODO: AND/OR with gte: lte:
+test('can aggregate totalamt', t => {
+  t.plan(1)
+  global[indexName].AGGREGATE(
+    global[indexName].DISTINCT({
+      gte: 'totalamt:',
+      lte: 'totalamt:~'
+    }).then(global[indexName].EACH),
+    global[indexName].GET("board_approval_month:October")
+  ).then(result => {
+    t.looseEqual(result, [
+      { match: 'totalamt:0', _id: [ '52b213b38594d8a2be17c783', '52b213b38594d8a2be17c787' ] },
+      { match: 'totalamt:10000000', _id: [ '52b213b38594d8a2be17c785' ] },
+      { match: 'totalamt:13100000', _id: [ '52b213b38594d8a2be17c784' ] },
+      { match: 'totalamt:160000000', _id: [ '52b213b38594d8a2be17c788' ] },
+      { match: 'totalamt:200000000', _id: [ '52b213b38594d8a2be17c789' ] },
+      { match: 'totalamt:500000000', _id: [ '52b213b38594d8a2be17c786' ] }
+    ])
+  })
+})
