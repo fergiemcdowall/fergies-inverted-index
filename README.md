@@ -5,10 +5,10 @@ Throw JavaScript objects at the index and they will become retrievable by their 
 
 ## Initialization API
 
-Command   | Options               | Description
---------- | --------------------- | -----------
-`INIT`    | `{ name: indexName }` | Opens an index called the value of `indexName` and makes it available globally as `indexName` and `global[indexName]`.
-`OPEN`    | `{ name: indexName }` | Opens an index called the value of `indexName` and returns a Promise with the index.
+Command   | Options | Description
+--------- | ------- | -----------
+`INIT`    | name    | Opens an index called the value of `indexName` and makes it available globally as `indexName` and `global[indexName]`.
+`OPEN`    | name    | Opens an index called the value of `indexName` and returns a Promise with the index.
 
 
 ## Query API
