@@ -17,9 +17,9 @@ Command     | Options      | Accepts    | Returns    | Writes | Description
 ----------- | ------------ | ---------- | ---------- | ------ | -----------
 `AGGREGATE` | -            | properties | ids        | no     | Aggregation: 1st arg is aggregation, 2nd arg is filter
 `AND`       | -            | properties | ids        | no     | Boolean AND. Return IDs of objects that have prop.A AND prop.b
+`BUCKET`    | -            | properties | ids        | no     | "Bag of IDs" for this property space
 `DELETE`    | -            | ids        | ids        | yes    | Remove objects from index
 `DISTINCT`  | `gte`, `lte` | properties | properties | no     | Return all properties in a range.
-`EACH`      | -            | properties | ids        | no     | For each property provided, get IDs of objects that contain it (use with DISTINCT, MAX and MIN)
 `GET`       | `gte`, `lte` | properties | ids        | no     | Get the IDs of objects with a property in the given range
 `MAX`       | `limit`      | properties | properties | no     | Get the highest property in this namespace
 `MIN`       | `limit`      | properties | properties | no     | Get the lowest property in this namespace
