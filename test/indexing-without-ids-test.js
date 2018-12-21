@@ -1,12 +1,16 @@
 const fii = require('../')
-const sandbox = 'test/sandbox/'
+const leveldown = require('leveldown')
 const test = require('tape')
 
+const sandbox = 'test/sandbox/'
 const indexName = sandbox + 'indexing-without-ids-test'
 
 test('create a little world bank index', t => {
   t.plan(1)
-  fii.INIT({ name: indexName }).then(t.pass)
+  fii({ down: leveldown(indexName) }, idx => {
+    global[indexName] = idx
+    t.pass('inited')
+  })
 })
 
 test('can add some worldbank data', t => {

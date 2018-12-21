@@ -1,4 +1,5 @@
 const fii = require('../')
+const leveldown = require('leveldown')
 const sandbox = 'test/sandbox/'
 const test = require('tape')
 const wbd = require('world-bank-dataset')
@@ -7,7 +8,10 @@ const indexName = sandbox + 'non-searchable-fields-test'
 
 test('create a little world bank index', t => {
   t.plan(1)
-  fii.INIT({ name: indexName }).then(t.pass)
+  fii({ down: leveldown(indexName) }, idx => {
+    global[indexName] = idx
+    t.pass('inited')
+  })
 })
 
 test('prefixing field with ! makes it non-searchable', t => {

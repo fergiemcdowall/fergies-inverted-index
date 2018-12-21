@@ -1,21 +1,24 @@
 const fii = require('../')
-const sandbox = 'test/sandbox/'
-const indexName = sandbox + 'DELETE-TEST'
+const leveldown = require('leveldown')
 const test = require('tape')
 const wbd = require('world-bank-dataset')
 
-// apparently async/await doesnt totally work with tape
-// const initIndex = async ops => {
-//   global[ops.name] = await fii(ops)
-// }
+const sandbox = 'test/sandbox/'
+const indexName = sandbox + 'DELETE-TEST'
 
-test('create a little world bank index', t => {
+test('create a little world bank index by lazy loading', t => {
   t.plan(1)
-  fii.INIT({name: indexName}).then(t.pass)
+  global[indexName] = fii({ down: leveldown(indexName) })
+  t.pass()  
+})
+
+test('give lazy loading some time to complete', t => {
+  t.plan(1)
+  setTimeout(t.pass, 500)
 })
 
 test('can add some worldbank data', t => {
-  console.log(global[indexName])
+//  console.log(global[indexName])
   var dataSize = 10
   const data = wbd.slice(0, dataSize).map(item => {
     return {
