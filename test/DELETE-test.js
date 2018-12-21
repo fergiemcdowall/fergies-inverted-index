@@ -9,7 +9,7 @@ const indexName = sandbox + 'DELETE-TEST'
 test('create a little world bank index by lazy loading', t => {
   t.plan(1)
   global[indexName] = fii({ down: leveldown(indexName) })
-  t.pass()  
+  t.pass()
 })
 
 test('give lazy loading some time to complete', t => {
@@ -46,7 +46,7 @@ test('can add some worldbank data', t => {
       { _id: '52b213b38594d8a2be17c786', board_approval_month: 'October', totalamt: 500000000 },
       { _id: '52b213b38594d8a2be17c787', board_approval_month: 'October', totalamt: 0 },
       { _id: '52b213b38594d8a2be17c788', board_approval_month: 'October', totalamt: 160000000 },
-      { _id: '52b213b38594d8a2be17c789', board_approval_month: 'October', totalamt: 200000000 } 
+      { _id: '52b213b38594d8a2be17c789', board_approval_month: 'October', totalamt: 200000000 }
     ])
   })
 })
@@ -54,13 +54,13 @@ test('can add some worldbank data', t => {
 test('can GET with string', t => {
   t.plan(1)
   global[indexName].GET('board_approval_month:November')
-   .then(result => {
-     t.looseEqual(result, [
-       { _id: '52b213b38594d8a2be17c780', match: [ 'board_approval_month:November' ] },
-       { _id: '52b213b38594d8a2be17c781', match: [ 'board_approval_month:November' ] },
-       { _id: '52b213b38594d8a2be17c782', match: [ 'board_approval_month:November' ] }
-     ])
-   })
+    .then(result => {
+      t.looseEqual(result, [
+        { _id: '52b213b38594d8a2be17c780', match: [ 'board_approval_month:November' ] },
+        { _id: '52b213b38594d8a2be17c781', match: [ 'board_approval_month:November' ] },
+        { _id: '52b213b38594d8a2be17c782', match: [ 'board_approval_month:November' ] }
+      ])
+    })
 })
 
 test('can DELETE', t => {

@@ -8,9 +8,9 @@ const indexName = sandbox + 'stress-test'
 
 test('create a little world bank index', t => {
   t.plan(1)
-  fii({ down: leveldown(indexName) }, idx => {
+  fii({ down: leveldown(indexName) }, (err, idx) => {
     global[indexName] = idx
-    t.pass('inited')
+    t.error(err)
   })
 })
 

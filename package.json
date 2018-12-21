@@ -31,7 +31,7 @@
     "leveldown": "level-js"
   },
   "scripts": {
-    "test": "rm -rf test/sandbox && mkdir test/sandbox && tape test/*-test.js",
+    "test": "rm -rf test/sandbox && mkdir test/sandbox && tape test/*-test.js && npm run lint",
     "lint": "standard --fix test/* lib/*"
   },
   "repository": {

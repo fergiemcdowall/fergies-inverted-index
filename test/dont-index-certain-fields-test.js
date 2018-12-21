@@ -8,9 +8,9 @@ const indexName = sandbox + 'non-searchable-fields-test'
 
 test('create a little world bank index', t => {
   t.plan(1)
-  fii({ down: leveldown(indexName) }, idx => {
+  fii({ down: leveldown(indexName) }, (err, idx) => {
     global[indexName] = idx
-    t.pass('inited')
+    t.error(err)
   })
 })
 
@@ -23,7 +23,7 @@ test('prefixing field with ! makes it non-searchable', t => {
       return {
         _id: item._id.$oid,
         '!board_approval_month': item.board_approval_month,
-        impagency: item.impagency,
+        impagency: item.impagency
       }
     })
   ).then(result => {
@@ -45,23 +45,22 @@ test('analyse index', t => {
     { key: 'impagency:MINISTRY OF TRANSPORT AND COMMUNICATIONS',
       value: [ '52b213b38594d8a2be17c782' ] },
     { key: '￮DOC￮52b213b38594d8a2be17c780￮',
-      value: 
+      value:
       { _id: '52b213b38594d8a2be17c780',
         '!board_approval_month': 'November',
         impagency: 'MINISTRY OF EDUCATION' } },
     { key: '￮DOC￮52b213b38594d8a2be17c781￮',
-      value: 
+      value:
       { _id: '52b213b38594d8a2be17c781',
         '!board_approval_month': 'November',
         impagency: 'MINISTRY OF FINANCE' } },
     { key: '￮DOC￮52b213b38594d8a2be17c782￮',
-      value: 
+      value:
       { _id: '52b213b38594d8a2be17c782',
         '!board_approval_month': 'November',
         impagency: 'MINISTRY OF TRANSPORT AND COMMUNICATIONS' } }
   ]
   t.plan(storeState.length)
-  
-  r = global[indexName].STORE.createReadStream()
+  const r = global[indexName].STORE.createReadStream()
   r.on('data', d => t.looseEquals(d, storeState.shift()))
 })

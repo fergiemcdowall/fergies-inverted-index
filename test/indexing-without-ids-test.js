@@ -7,14 +7,13 @@ const indexName = sandbox + 'indexing-without-ids-test'
 
 test('create a little world bank index', t => {
   t.plan(1)
-  fii({ down: leveldown(indexName) }, idx => {
+  fii({ down: leveldown(indexName) }, (err, idx) => {
     global[indexName] = idx
-    t.pass('inited')
+    t.error(err)
   })
 })
 
 test('can add some worldbank data', t => {
-  var dataSize = 10
   const data = [
     {
       land: 'SCOTLAND',
@@ -23,7 +22,7 @@ test('can add some worldbank data', t => {
     {
       land: 'IRELAND',
       colour: 'GREEN'
-    },
+    }
   ]
   t.plan(1)
   global[indexName].PUT(data).then(t.pass)
@@ -41,5 +40,5 @@ test('can GET with string', t => {
       value: { land: 'IRELAND', colour: 'GREEN', _id: 1 } }
   ]
   global[indexName].STORE.createReadStream()
-   .on('data', d => t.looseEqual(d, result.shift()))
+    .on('data', d => t.looseEqual(d, result.shift()))
 })
