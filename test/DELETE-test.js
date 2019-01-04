@@ -1,5 +1,4 @@
 const fii = require('../')
-const leveldown = require('leveldown')
 const test = require('tape')
 const wbd = require('world-bank-dataset')
 
@@ -8,7 +7,7 @@ const indexName = sandbox + 'DELETE-TEST'
 
 test('create a little world bank index by lazy loading', t => {
   t.plan(1)
-  global[indexName] = fii({ down: leveldown(indexName) })
+  global[indexName] = fii({ name: indexName })
   t.pass()
 })
 
