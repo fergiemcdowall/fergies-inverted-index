@@ -2,7 +2,12 @@
   "name": "fergies-inverted-index",
   "version": "0.0.11",
   "description": "An inverted index that allows javascript objects to be easily serialised and retrieved using promises and map-reduce",
-  "main": "lib/main.js",
+  "main": "dist/fergies-inverted-index.cjs.js",
+  "module": "dist/fergies-inverted-index.esm.js",
+  "browser": "dist/fergies-inverted-index.umd.js",
+  "files": [
+    "dist"
+  ],
   "directories": {
     "lib": "lib",
     "test": "test"
@@ -16,6 +21,7 @@
     "lodash": "^4.17.10",
     "lodash.intersection": "^4.4.0",
     "memdown": "^3.0.0",
+    "ms": "^2.1.1",
     "tape": "^4.9.0",
     "traverse": "^0.6.6"
   },
@@ -24,15 +30,17 @@
     "browserify": "^16.2.3",
     "create-react-app": "^2.1.1",
     "level-out": "^1.0.0",
+    "rollup": "^1.1.0",
+    "rollup-plugin-commonjs": "^9.2.0",
+    "rollup-plugin-node-builtins": "^2.1.2",
+    "rollup-plugin-node-resolve": "^4.0.0",
     "standard": "^12.0.1",
     "world-bank-dataset": "^1.0.0"
   },
-  "browser": {
-    "leveldown": "level-js"
-  },
   "scripts": {
     "test": "rm -rf test/sandbox && mkdir test/sandbox && tape test/*-test.js && npm run lint",
-    "lint": "standard --fix test/* lib/*"
+    "lint": "standard --fix test/* lib/*",
+    "build": "rollup -c"
   },
   "repository": {
     "type": "git",

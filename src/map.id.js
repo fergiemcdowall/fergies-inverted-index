@@ -1,4 +1,4 @@
-module.exports = db => {
+export default function init(db) {
   const GET = key => new Promise((resolve, reject) => {
     // to allow for nested promises
     // if this is a promise then resolve that

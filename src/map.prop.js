@@ -1,4 +1,4 @@
-module.exports = db => {
+export default function init(db) {
   const MIN = key => {
     var ops = {
       limit: 1,

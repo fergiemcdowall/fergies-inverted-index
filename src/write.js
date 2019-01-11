@@ -1,5 +1,5 @@
-const trav = require('traverse')
-const reader = require('./map.obj.js')
+import trav from 'traverse'
+import reader from './map.obj.js'
 
 // TODO: set reset this to the max value every time the DB is restarted
 var incrementalId = 0
@@ -104,7 +104,8 @@ const writer = (docs, db, mode) => {
   })
 }
 
-module.exports = db => {
+
+export default function init(db) {
   // docs needs to be an array of ids (strings)
   // first do an 'objects' call to get all of the documents to be
   // deleted
