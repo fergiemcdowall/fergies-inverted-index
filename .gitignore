@@ -1,3 +1,4 @@
 node_modules/
 naturaldb/
 test/sandbox/
+.DS_Store

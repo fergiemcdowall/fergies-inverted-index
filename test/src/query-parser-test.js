@@ -1,14 +1,13 @@
-const fii = require('../')
-const leveldown = require('leveldown')
-const sandbox = 'test/sandbox/'
-const test = require('tape')
-const wbd = require('world-bank-dataset')
+import fii from '../../dist/fergies-inverted-index.esm.js'
+import test from 'tape'
+import wbd from 'world-bank-dataset'
 
+const sandbox = 'test/sandbox/'
 const indexName = sandbox + 'wb2'
 
 test('create a little world bank index', t => {
   t.plan(1)
-  fii({ down: leveldown(indexName) }, (err, idx) => {
+  fii({ name: indexName }, (err, idx) => {
     global[indexName] = idx
     t.error(err)
   })

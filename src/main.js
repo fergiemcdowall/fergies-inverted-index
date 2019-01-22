@@ -1,15 +1,7 @@
-// const encode = require('encoding-down')
-// const idMap = require('./map.id.js')
-// const leveldown = require('leveldown')
-// const levelup = require('levelup')
-// const objMap = require('./map.obj.js')
-// const propMap = require('./map.prop.js')
-// const writer = require('./write.js')
+import level from 'level'
 
 import encode from 'encoding-down'
 import idMap from './map.id.js'
-import leveldown from 'leveldown'
-import levelup from 'levelup'
 import objMap from './map.obj.js'
 import propMap from './map.prop.js'
 import writer from './write.js'
@@ -34,21 +26,15 @@ const makeAFii = db => {
 }
 
 export default function fii(ops, callback) {
-  // todo: make this nicer
-  ops = ops || {}
-  ops.name = ops.name || 'fii'
   ops = Object.assign({}, {
-    down: leveldown(ops.name)
+    name: 'fii'
   }, ops)
   // if no callback provided, "lazy load"
   if (!callback) {
-    // Is encoding needed?
-    let db = levelup(encode(ops.down, { valueEncoding: 'json' }))
-    return makeAFii(db)
+    return makeAFii(ops.store || level(ops.name, { valueEncoding: 'json' }))
   } else {
+    if (ops.store) return callback(new Error('When initing with a store use "lazy loading"'), null)
     // use callback to provide a notification that db is opened
-    levelup(encode(ops.down, {
-      valueEncoding: 'json'
-    }), (err, db) => callback(err, makeAFii(db)))
+    level(ops.name, { valueEncoding: 'json' }, (err, store) => callback(err, makeAFii(store)))
   }
 }

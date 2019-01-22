@@ -1,13 +1,12 @@
-const fii = require('../')
-const leveldown = require('leveldown')
-const test = require('tape')
+import fii from '../../dist/fergies-inverted-index.esm.js'
+import test from 'tape'
 
 const sandbox = 'test/sandbox/'
 const indexName = sandbox + 'indexing-without-ids-test'
 
 test('create a little world bank index', t => {
   t.plan(1)
-  fii({ down: leveldown(indexName) }, (err, idx) => {
+  fii({ name: indexName }, (err, idx) => {
     global[indexName] = idx
     t.error(err)
   })
@@ -40,5 +39,5 @@ test('can GET with string', t => {
       value: { land: 'IRELAND', colour: 'GREEN', _id: 1 } }
   ]
   global[indexName].STORE.createReadStream()
-    .on('data', d => t.looseEqual(d, result.shift()))
+                   .on('data', d => t.looseEqual(d, result.shift()))
 })

@@ -1,14 +1,13 @@
-const fii = require('../')
-const leveldown = require('leveldown')
-const sandbox = 'test/sandbox/'
-const test = require('tape')
-const wbd = require('world-bank-dataset')
+import fii from '../../dist/fergies-inverted-index.esm.js'
+import test from 'tape'
+import wbd from 'world-bank-dataset'
 
+const sandbox = 'test/sandbox/'
 const indexName = sandbox + 'stress-test'
 
 test('create a little world bank index', t => {
   t.plan(1)
-  fii({ down: leveldown(indexName) }, (err, idx) => {
+  fii({ name: indexName }, (err, idx) => {
     global[indexName] = idx
     t.error(err)
   })
@@ -17,7 +16,7 @@ test('create a little world bank index', t => {
 test('can add some worldbank data in a reasonable amount of time', t => {
   t.plan(2)
   const start = Date.now()
-  const timeLimit = 5000
+  const timeLimit = 10000
   global[indexName].PUT(wbd).then(result => {
     const elapsedTime = Date.now() - start
     t.equal(result.length, 500)

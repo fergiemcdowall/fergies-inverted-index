@@ -1,14 +1,13 @@
-const fii = require('../')
-const leveldown = require('leveldown')
-const sandbox = 'test/sandbox/'
-const test = require('tape')
-const wbd = require('world-bank-dataset')
+import fii from '../../dist/fergies-inverted-index.esm.js'
+import test from 'tape'
+import wbd from 'world-bank-dataset'
 
+const sandbox = 'test/sandbox/'
 const indexName = sandbox + 'non-searchable-fields-test'
 
 test('create a little world bank index', t => {
   t.plan(1)
-  fii({ down: leveldown(indexName) }, (err, idx) => {
+  fii({ name: indexName }, (err, idx) => {
     global[indexName] = idx
     t.error(err)
   })
@@ -46,19 +45,19 @@ test('analyse index', t => {
       value: [ '52b213b38594d8a2be17c782' ] },
     { key: '￮DOC￮52b213b38594d8a2be17c780￮',
       value:
-      { _id: '52b213b38594d8a2be17c780',
-        '!board_approval_month': 'November',
-        impagency: 'MINISTRY OF EDUCATION' } },
+        { _id: '52b213b38594d8a2be17c780',
+          '!board_approval_month': 'November',
+          impagency: 'MINISTRY OF EDUCATION' } },
     { key: '￮DOC￮52b213b38594d8a2be17c781￮',
       value:
-      { _id: '52b213b38594d8a2be17c781',
-        '!board_approval_month': 'November',
-        impagency: 'MINISTRY OF FINANCE' } },
+        { _id: '52b213b38594d8a2be17c781',
+          '!board_approval_month': 'November',
+          impagency: 'MINISTRY OF FINANCE' } },
     { key: '￮DOC￮52b213b38594d8a2be17c782￮',
       value:
-      { _id: '52b213b38594d8a2be17c782',
-        '!board_approval_month': 'November',
-        impagency: 'MINISTRY OF TRANSPORT AND COMMUNICATIONS' } }
+        { _id: '52b213b38594d8a2be17c782',
+          '!board_approval_month': 'November',
+          impagency: 'MINISTRY OF TRANSPORT AND COMMUNICATIONS' } }
   ]
   t.plan(storeState.length)
   const r = global[indexName].STORE.createReadStream()

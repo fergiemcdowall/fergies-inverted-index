@@ -1,6 +1,5 @@
-import encode from 'encoding-down';
-import leveldown from 'leveldown';
-import levelup from 'levelup';
+import level from 'level';
+import 'encoding-down';
 import trav from 'traverse';
 
 function init(db) {
@@ -280,9 +279,6 @@ function init$3(db) {
   }
 }
 
-// const encode = require('encoding-down')
-
-
 const makeAFii = db => {
   return {
     AGGREGATE: init(db).AGGREGATE,
@@ -302,22 +298,16 @@ const makeAFii = db => {
 };
 
 function fii(ops, callback) {
-  // todo: make this nicer
-  ops = ops || {};
-  ops.name = ops.name || 'fii';
   ops = Object.assign({}, {
-    down: leveldown(ops.name)
+    name: 'fii'
   }, ops);
   // if no callback provided, "lazy load"
   if (!callback) {
-    // Is encoding needed?
-    let db = levelup(encode(ops.down, { valueEncoding: 'json' }));
-    return makeAFii(db)
+    return makeAFii(ops.store || level(ops.name, { valueEncoding: 'json' }))
   } else {
+    if (ops.store) return callback(new Error('When initing with a store use "lazy loading"'), null)
     // use callback to provide a notification that db is opened
-    levelup(encode(ops.down, {
-      valueEncoding: 'json'
-    }), (err, db) => callback(err, makeAFii(db)));
+    level(ops.name, { valueEncoding: 'json' }, (err, store) => callback(err, makeAFii(store)));
   }
 }
 

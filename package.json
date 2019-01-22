@@ -4,7 +4,6 @@
   "description": "An inverted index that allows javascript objects to be easily serialised and retrieved using promises and map-reduce",
   "main": "dist/fergies-inverted-index.cjs.js",
   "module": "dist/fergies-inverted-index.esm.js",
-  "browser": "dist/fergies-inverted-index.umd.js",
   "files": [
     "dist"
   ],
@@ -15,30 +14,25 @@
   "dependencies": {
     "JSONStream": "^1.3.5",
     "encoding-down": "^4.0.0",
-    "level-js": "^3.0.0",
-    "leveldown": "^4.0.1",
-    "levelup": "^3.1.1",
-    "lodash": "^4.17.10",
-    "lodash.intersection": "^4.4.0",
-    "memdown": "^3.0.0",
-    "ms": "^2.1.1",
-    "tape": "^4.9.0",
+    "level": "^5.0.0-0",
     "traverse": "^0.6.6"
   },
   "devDependencies": {
-    "browser-run": "^5.0.1",
     "browserify": "^16.2.3",
-    "create-react-app": "^2.1.1",
     "level-out": "^1.0.0",
     "rollup": "^1.1.0",
-    "rollup-plugin-commonjs": "^9.2.0",
-    "rollup-plugin-node-builtins": "^2.1.2",
-    "rollup-plugin-node-resolve": "^4.0.0",
     "standard": "^12.0.1",
+    "tape": "^4.9.0",
+    "tape-run": "^5.0.0",
+    "webpack": "^4.29.0",
+    "webpack-cli": "^3.2.1",
     "world-bank-dataset": "^1.0.0"
   },
   "scripts": {
-    "test": "rm -rf test/sandbox && mkdir test/sandbox && tape test/*-test.js && npm run lint",
+    "test": "npm run test-node && npm run test-browser && npm run lint",
+    "test-node": "npm run build && npm run empty-sandbox && tape test/cjs/*.js",
+    "test-browser": "npm run empty-sandbox && webpack test/src/*-test.js -o test/sandbox/bundle.js && cat test/sandbox/bundle.js | tape-run --browser firefox",
+    "empty-sandbox": "rm -rf test/sandbox && mkdir test/sandbox",
     "lint": "standard --fix test/* lib/*",
     "build": "rollup -c"
   },
