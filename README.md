@@ -28,20 +28,11 @@ Command     | Options      | Accepts    | Returns    | Writes | Description
 
 
 ```javascript
+import fii from 'fergies-inverted-index'
 
-const fii = require('fergies-inverted-index')
+const idx = fii()
 
-// EITHER:
-// If a callback is not provided, index will "lazy load".
-global.idx = fii()
-// moments later...
-idx.PUT([ /* my array of objects */ ]).then(doStuff)
-
-// OR:
-// strict loading- index only available from within callback
-fii().then(idx => {
-  idx.PUT([ /* my array of objects */ ]).then(doStuff) // no global, idx must be passed around
-})
+idx.PUT([ /* my array of objects to be searched */ ]).then(doStuff)
 
 ```
 
