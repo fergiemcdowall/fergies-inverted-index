@@ -31,7 +31,7 @@
   "scripts": {
     "test": "npm run test-node && npm run test-browser && npm run lint",
     "test-node": "npm run build && npm run empty-sandbox && tape test/cjs/*.js",
-    "test-browser": "npm run empty-sandbox && webpack test/src/*-test.js -o test/sandbox/bundle.js && cat test/sandbox/bundle.js | tape-run --browser firefox",
+    "test-browser": "npm run empty-sandbox && webpack test/src/*-test.js -o test/sandbox/bundle.js && cat test/sandbox/bundle.js | tape-run",
     "empty-sandbox": "rm -rf test/sandbox && mkdir test/sandbox",
     "lint": "standard --fix test/* lib/*",
     "build": "rollup -c"
