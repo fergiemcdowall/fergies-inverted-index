@@ -110,7 +110,7 @@ db.AND('land:scotland', 'year:1975', 'color:blue').then(result)
 
 <a name="BUCKET"></a>
 
-### `db.BUCKET(keyspace)`
+### `db.BUCKET(keyspace).then(result)`
 
 `db.BUCKET` returns all object ids for objects that contain the given
 property, aggregated by property
@@ -125,7 +125,7 @@ see also GET
 
 <a name="BUCKETFILTER"></a>
 
-### `db.BUCKETFILTER([ ...bucket ], filter query )`
+### `db.BUCKETFILTER([ ...bucket ], filter query ).then(result)`
 
 The first argument is an array of buckets, the second is an expression
 that filters each bucket
@@ -134,14 +134,14 @@ that filters each bucket
 
 <a name="DELETE"></a>
 
-### `db.DELETE([ ...id ])`
+### `db.DELETE([ ...id ]).then(result)`
 
 Deletes all objects by ID
 
 
 <a name="DISTINCT"></a>
 
-### `db.DISTINCT(options)`
+### `db.DISTINCT(options).then(result)`
 
 `db.DISTINCT` returns every value in the db that is greater than equal
 to `gte` and less than or equal to `lte` (sorted alphabetically)
@@ -154,7 +154,7 @@ db.DISTINCT({ gte: 'h', lte: 'l' }).then(result)
 
 <a name="GET"></a>
 
-### `db.GET(options)`
+### `db.GET(options).then(result)`
 
 `db.GET` returns all object ids for objects that contain the given
 property, aggregated by object id.
@@ -174,7 +174,7 @@ db.GET('h').then(result)
 
 <a name="MAX"></a>
 
-### `db.MAX(keyspace)`
+### `db.MAX(keyspace).then(result)`
 
 Get the highest alphabetical value in a given keyspace
 
@@ -187,7 +187,7 @@ db.MAX('price')
 
 <a name="MIN"></a>
 
-### `db.MIN(keyspace)`
+### `db.MIN(keyspace).then(result)`
 
 Get the lowest alphabetical value in a given keyspace
 
@@ -200,7 +200,7 @@ db.MIN('price')
 
 <a name="NOT"></a>
 
-### `db.NOT(A, B)`
+### `db.NOT(A, B).then(result)`
 
 Where A and B are sets, `db.NOT` Returns the ids of objects that are
 present in A, but not in B.
@@ -208,7 +208,7 @@ present in A, but not in B.
 
 <a name="OBJECT"></a>
 
-### `db.OBJECT([ ...id ])`
+### `db.OBJECT([ ...id ]).then(result)`
 
 Given an array of ids, `db.OBJECT` will return the corresponding
 objects
@@ -216,14 +216,14 @@ objects
 
 <a name="OR"></a>
 
-### `db.OR([ ...Promise ])`
+### `db.OR([ ...Promise ]).then(result)`
 
 Return ids of objects that are in one or more of the query clauses
 
 
 <a name="PUT"></a>
 
-### `db.PUT([ ...Promise ])`
+### `db.PUT([ ...Promise ]).then(result)`
 
 Add objects to database
 
