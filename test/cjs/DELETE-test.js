@@ -290,6 +290,7 @@ const makeAFii = db => {
     AGGREGATE: init(db).AGGREGATE,
     AND: init(db).INTERSECTION,
     BUCKET: init(db).BUCKET,
+    BUCKETFILTER: init(db).AGGREGATE,
     DELETE: init$3(db).DELETE,
     DISTINCT: init$2(db).DIST,
     GET: init(db).GET,

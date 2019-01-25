@@ -443,7 +443,7 @@ test('can do AND with gte/lte', t => {
 
 test('can aggregate totalamt', t => {
   t.plan(1)
-  global[indexName].AGGREGATE(
+  global[indexName].BUCKETFILTER(
     global[indexName].DISTINCT({
       gte: 'totalamt:',
       lte: 'totalamt:~'
@@ -460,7 +460,7 @@ test('can aggregate totalamt', t => {
 
 test('can aggregate totalamt', t => {
   t.plan(1)
-  global[indexName].AGGREGATE(
+  global[indexName].BUCKETFILTER(
     global[indexName].DISTINCT({
       gte: 'totalamt:',
       lte: 'totalamt:~'
@@ -513,7 +513,7 @@ test('can do custom buckets', t => {
 
 test('can do custom buckets and agreggate', t => {
   t.plan(1)
-  global[indexName].AGGREGATE(
+  global[indexName].BUCKETFILTER(
     Promise.all(
       [1, 2, 3, 4, 5].map(item => global[indexName].BUCKET('totalamt:' + item))
     ),

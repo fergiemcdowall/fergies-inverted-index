@@ -12,6 +12,7 @@ const makeAFii = db => {
     AGGREGATE: idMap(db).AGGREGATE,
     AND: idMap(db).INTERSECTION,
     BUCKET: idMap(db).BUCKET,
+    BUCKETFILTER: idMap(db).AGGREGATE,
     DELETE: writer(db).DELETE,
     DISTINCT: propMap(db).DIST,
     GET: idMap(db).GET,
