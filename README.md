@@ -71,8 +71,7 @@ db.MAX('population').then(result)
 - <a href="#STORE"><code>db.<b>STORE</b></code></a>
 
 
-<a name="open"></a>
-
+<a name="fii"></a>
 
 ### `fii([options[, callback]])`
 
