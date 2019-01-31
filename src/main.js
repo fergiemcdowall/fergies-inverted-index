@@ -1,11 +1,9 @@
 import level from 'level'
 
-import encode from 'encoding-down'
 import idMap from './map.id.js'
 import objMap from './map.obj.js'
 import propMap from './map.prop.js'
 import writer from './write.js'
-
 
 const makeAFii = db => {
   return {
@@ -26,7 +24,7 @@ const makeAFii = db => {
   }
 }
 
-export default function fii(ops, callback) {
+export default function fii (ops, callback) {
   ops = Object.assign({}, {
     name: 'fii'
   }, ops)

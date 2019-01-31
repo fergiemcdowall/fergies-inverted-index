@@ -104,8 +104,7 @@ const writer = (docs, db, mode) => {
   })
 }
 
-
-export default function init(db) {
+export default function init (db) {
   // docs needs to be an array of ids (strings)
   // first do an 'objects' call to get all of the documents to be
   // deleted

@@ -1,4 +1,4 @@
-export default function init(db) {
+export default function init (db) {
   return {
     OBJECT: _ids => Promise.all(
       _ids.map(

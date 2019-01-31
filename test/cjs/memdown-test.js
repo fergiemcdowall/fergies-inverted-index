@@ -3,15 +3,14 @@
 function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'default' in ex) ? ex['default'] : ex; }
 
 var level = _interopDefault(require('level'));
-var encode = _interopDefault(require('encoding-down'));
 var trav = _interopDefault(require('traverse'));
-var fs = _interopDefault(require('fs'));
 var levelup = _interopDefault(require('levelup'));
 var memdown = _interopDefault(require('memdown'));
 var test = _interopDefault(require('tape'));
 var wbd = _interopDefault(require('world-bank-dataset'));
+var encode = _interopDefault(require('encoding-down'));
 
-function init(db) {
+function init (db) {
   const GET = key => new Promise((resolve, reject) => {
     // to allow for nested promises
     // if this is a promise then resolve that
@@ -107,7 +106,7 @@ function init(db) {
   }
 }
 
-function init$1(db) {
+function init$1 (db) {
   return {
     OBJECT: _ids => Promise.all(
       _ids.map(
@@ -117,7 +116,7 @@ function init$1(db) {
   }
 }
 
-function init$2(db) {
+function init$2 (db) {
   const MIN = key => {
     var ops = {
       limit: 1,
@@ -266,8 +265,7 @@ const writer = (docs, db, mode) => {
   })
 };
 
-
-function init$3(db) {
+function init$3 (db) {
   // docs needs to be an array of ids (strings)
   // first do an 'objects' call to get all of the documents to be
   // deleted
@@ -307,7 +305,7 @@ const makeAFii = db => {
   }
 };
 
-function fii(ops, callback) {
+function fii (ops, callback) {
   ops = Object.assign({}, {
     name: 'fii'
   }, ops);
@@ -337,17 +335,16 @@ const data = wbd.slice(0, 10).map(item => {
   }
 });
 
-
 var db;
 
 test('create a fii with memdown', t => {
-  t.plan(4);
+  t.plan(3);
   levelup(encode(memdown(indexName), {
     valueEncoding: 'json'
   }), (err, store) => {
     t.error(err);
     db = fii({ store: store });
-    t.ok(!fs.existsSync('test/' + indexName));
+//    t.ok(!fs.existsSync('test/' + indexName))
     db.PUT(data).then(() => {
       t.pass('ok');
     }).then(() => {

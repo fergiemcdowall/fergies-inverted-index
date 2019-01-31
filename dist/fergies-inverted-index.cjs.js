@@ -3,10 +3,9 @@
 function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'default' in ex) ? ex['default'] : ex; }
 
 var level = _interopDefault(require('level'));
-require('encoding-down');
 var trav = _interopDefault(require('traverse'));
 
-function init(db) {
+function init (db) {
   const GET = key => new Promise((resolve, reject) => {
     // to allow for nested promises
     // if this is a promise then resolve that
@@ -102,7 +101,7 @@ function init(db) {
   }
 }
 
-function init$1(db) {
+function init$1 (db) {
   return {
     OBJECT: _ids => Promise.all(
       _ids.map(
@@ -112,7 +111,7 @@ function init$1(db) {
   }
 }
 
-function init$2(db) {
+function init$2 (db) {
   const MIN = key => {
     var ops = {
       limit: 1,
@@ -261,8 +260,7 @@ const writer = (docs, db, mode) => {
   })
 };
 
-
-function init$3(db) {
+function init$3 (db) {
   // docs needs to be an array of ids (strings)
   // first do an 'objects' call to get all of the documents to be
   // deleted
@@ -302,7 +300,7 @@ const makeAFii = db => {
   }
 };
 
-function fii(ops, callback) {
+function fii (ops, callback) {
   ops = Object.assign({}, {
     name: 'fii'
   }, ops);

@@ -1,5 +1,5 @@
 import fii from '../../dist/fergies-inverted-index.esm.js'
-import fs from 'fs'
+// import fs from 'fs'
 import levelup from 'levelup'
 import memdown from 'memdown'
 import test from 'tape'
@@ -25,13 +25,13 @@ const data = wbd.slice(0, 10).map(item => {
 var db
 
 test('create a fii with memdown', t => {
-  t.plan(4)
+  t.plan(3)
   levelup(encode(memdown(indexName), {
     valueEncoding: 'json'
   }), (err, store) => {
     t.error(err)
     db = fii({ store: store })
-    t.ok(!fs.existsSync('test/' + indexName))
+//    t.ok(!fs.existsSync('test/' + indexName))
     db.PUT(data).then(() => {
       t.pass('ok')
     }).then(() => {
