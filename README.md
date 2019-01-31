@@ -55,7 +55,7 @@ db.MAX('population').then(result)
 
 ## API
 
-- <a href="#fii"><code><b>fii()</b></code></a>
+- <a href="#open"><code><b>fii()</b></code></a>
 - <a href="#AND"><code>db.<b>AND()</b></code></a>
 - <a href="#BUCKET"><code>db.<b>BUCKET()</b></code></a>
 - <a href="#BUCKETFILTER"><code>db.<b>BUCKETFILTER()</b></code></a>
