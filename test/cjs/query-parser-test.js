@@ -8,6 +8,7 @@ var test = _interopDefault(require('tape'));
 var wbd = _interopDefault(require('world-bank-dataset'));
 
 function init (db) {
+
   const GET = key => new Promise((resolve, reject) => {
     // to allow for nested promises
     // if this is a promise then resolve that
@@ -74,23 +75,35 @@ function init (db) {
   // TODO: put in some validation here
   // arg 1: an aggregration
   // arg 2: a filter set- return only results of arg 1 that intersect with arg 2
+  // TODO: should this use spread syntax? Maybe 2 args instead?
   const AGGREGATE = (...args) => Promise.all(args).then(result => {
     var aggregation = new Set(result[1].map(item => item._id));
     return result[0].map(
-      item => {
-        return {
-          match: item.match,
-          _id: [...new Set([...item._id].filter(x => aggregation.has(x)))]
-        }
-      }
+      item => Object.assign(item, {
+        _id: [...new Set([...item._id].filter(x => aggregation.has(x)))]
+      })
     ).filter(item => item._id.length)
   });
 
+  // return a bucket of IDs. Key is an object like this:
+  // {gte:..., lte:...} (gte/lte == greater/less than or equal)
   const BUCKET = key => GET(key).then(result => {
-    return {
-      match: key,
+    // if gte == lte (in other words get a bucket on one specific
+    // value) a single string can be used as shorthand
+
+
+    if ((typeof key) === 'string') key = {
+      gte: key,
+      lte: key
+    };
+    // console.log('key ->')
+    // console.log(key)
+    // console.log(result)
+    
+    // TODO: some kind of verification of key object
+    return Object.assign(key, {
       _id: [...result.reduce((acc, cur) => acc.add(cur._id), new Set())].sort()
-    }
+    })
   });
 
   return {
@@ -539,14 +552,14 @@ test('can aggregate totalamt', t => {
     .then(result => Promise.all(result.map(global[indexName].BUCKET)))
     .then(result => {
       t.looseEqual(result, [
-        { match: 'totalamt:0', _id: [ '52b213b38594d8a2be17c781', '52b213b38594d8a2be17c783', '52b213b38594d8a2be17c787' ] },
-        { match: 'totalamt:10000000', _id: [ '52b213b38594d8a2be17c785' ] },
-        { match: 'totalamt:130000000', _id: [ '52b213b38594d8a2be17c780' ] },
-        { match: 'totalamt:13100000', _id: [ '52b213b38594d8a2be17c784' ] },
-        { match: 'totalamt:160000000', _id: [ '52b213b38594d8a2be17c788' ] },
-        { match: 'totalamt:200000000', _id: [ '52b213b38594d8a2be17c789' ] },
-        { match: 'totalamt:500000000', _id: [ '52b213b38594d8a2be17c786' ] },
-        { match: 'totalamt:6060000', _id: [ '52b213b38594d8a2be17c782' ] }
+        { gte: 'totalamt:0', lte: 'totalamt:0', _id: [ '52b213b38594d8a2be17c781', '52b213b38594d8a2be17c783', '52b213b38594d8a2be17c787' ] },
+        { gte: 'totalamt:10000000', lte: 'totalamt:10000000', _id: [ '52b213b38594d8a2be17c785' ] },
+        { gte: 'totalamt:130000000', lte: 'totalamt:130000000', _id: [ '52b213b38594d8a2be17c780' ] },
+        { gte: 'totalamt:13100000', lte: 'totalamt:13100000', _id: [ '52b213b38594d8a2be17c784' ] },
+        { gte: 'totalamt:160000000', lte: 'totalamt:160000000', _id: [ '52b213b38594d8a2be17c788' ] },
+        { gte: 'totalamt:200000000', lte: 'totalamt:200000000', _id: [ '52b213b38594d8a2be17c789' ] },
+        { gte: 'totalamt:500000000', lte: 'totalamt:500000000', _id: [ '52b213b38594d8a2be17c786' ] },
+        { gte: 'totalamt:6060000', lte: 'totalamt:6060000', _id: [ '52b213b38594d8a2be17c782' ] }
       ]);
     });
 });
@@ -561,18 +574,19 @@ test('can aggregate totalamt (showing ID count)', t => {
     .then(result => {
       t.looseEqual(result.map(item => {
         return {
-          match: item.match,
+          gte: item.gte,
+          lte: item.lte,
           count: item._id.length
         }
       }), [
-        { match: 'totalamt:0', count: 3 },
-        { match: 'totalamt:10000000', count: 1 },
-        { match: 'totalamt:130000000', count: 1 },
-        { match: 'totalamt:13100000', count: 1 },
-        { match: 'totalamt:160000000', count: 1 },
-        { match: 'totalamt:200000000', count: 1 },
-        { match: 'totalamt:500000000', count: 1 },
-        { match: 'totalamt:6060000', count: 1 }
+        { gte: 'totalamt:0', lte: 'totalamt:0', count: 3 },
+        { gte: 'totalamt:10000000', lte: 'totalamt:10000000', count: 1 },
+        { gte: 'totalamt:130000000', lte: 'totalamt:130000000', count: 1 },
+        { gte: 'totalamt:13100000', lte: 'totalamt:13100000', count: 1 },
+        { gte: 'totalamt:160000000', lte: 'totalamt:160000000', count: 1 },
+        { gte: 'totalamt:200000000', lte: 'totalamt:200000000', count: 1 },
+        { gte: 'totalamt:500000000', lte: 'totalamt:500000000', count: 1 },
+        { gte: 'totalamt:6060000', lte: 'totalamt:6060000', count: 1 }
       ]);
     });
 });
@@ -588,15 +602,16 @@ test('can aggregate totalamt (showing ID count)', t => {
       t.looseEqual(
         result.map(item => {
           return {
-            match: item.match,
+            gte: item.gte,
+            lte: item.lte,
             count: item._id.length
           }
         }), [
-          { match: 'totalamt:10000000', count: 1 },
-          { match: 'totalamt:130000000', count: 1 },
-          { match: 'totalamt:13100000', count: 1 },
-          { match: 'totalamt:160000000', count: 1 },
-          { match: 'totalamt:200000000', count: 1 }
+          { gte: 'totalamt:10000000', lte: 'totalamt:10000000', count: 1 },
+          { gte: 'totalamt:130000000', lte: 'totalamt:130000000', count: 1 },
+          { gte: 'totalamt:13100000', lte: 'totalamt:13100000', count: 1 },
+          { gte: 'totalamt:160000000', lte: 'totalamt:160000000', count: 1 },
+          { gte: 'totalamt:200000000', lte: 'totalamt:200000000', count: 1 }
         ]
       ));
 });
@@ -765,9 +780,9 @@ test('can aggregate totalamt', t => {
     global[indexName].GET('board_approval_month:November')
   ).then(result => {
     t.looseEqual(result, [
-      { match: 'totalamt:0', _id: [ '52b213b38594d8a2be17c781' ] },
-      { match: 'totalamt:130000000', _id: [ '52b213b38594d8a2be17c780' ] },
-      { match: 'totalamt:6060000', _id: [ '52b213b38594d8a2be17c782' ] }
+      { gte: 'totalamt:0', lte: 'totalamt:0', _id: [ '52b213b38594d8a2be17c781' ] },
+      { gte: 'totalamt:130000000', lte: 'totalamt:130000000', _id: [ '52b213b38594d8a2be17c780' ] },
+      { gte: 'totalamt:6060000', lte: 'totalamt:6060000', _id: [ '52b213b38594d8a2be17c782' ] }
     ]);
   });
 });
@@ -782,12 +797,12 @@ test('can aggregate totalamt', t => {
     global[indexName].GET('board_approval_month:October')
   ).then(result => {
     t.looseEqual(result, [
-      { match: 'totalamt:0', _id: [ '52b213b38594d8a2be17c783', '52b213b38594d8a2be17c787' ] },
-      { match: 'totalamt:10000000', _id: [ '52b213b38594d8a2be17c785' ] },
-      { match: 'totalamt:13100000', _id: [ '52b213b38594d8a2be17c784' ] },
-      { match: 'totalamt:160000000', _id: [ '52b213b38594d8a2be17c788' ] },
-      { match: 'totalamt:200000000', _id: [ '52b213b38594d8a2be17c789' ] },
-      { match: 'totalamt:500000000', _id: [ '52b213b38594d8a2be17c786' ] }
+      { gte: 'totalamt:0', lte: 'totalamt:0', _id: [ '52b213b38594d8a2be17c783', '52b213b38594d8a2be17c787' ] },
+      { gte: 'totalamt:10000000', lte: 'totalamt:10000000', _id: [ '52b213b38594d8a2be17c785' ] },
+      { gte: 'totalamt:13100000', lte: 'totalamt:13100000', _id: [ '52b213b38594d8a2be17c784' ] },
+      { gte: 'totalamt:160000000', lte: 'totalamt:160000000', _id: [ '52b213b38594d8a2be17c788' ] },
+      { gte: 'totalamt:200000000', lte: 'totalamt:200000000', _id: [ '52b213b38594d8a2be17c789' ] },
+      { gte: 'totalamt:500000000', lte: 'totalamt:500000000', _id: [ '52b213b38594d8a2be17c786' ] }
     ]);
   });
 });
@@ -796,7 +811,8 @@ test('can do bucket', t => {
   t.plan(1);
   global[indexName].BUCKET('totalamt:1').then(result => {
     t.looseEqual(result, {
-      match: 'totalamt:1',
+      gte: 'totalamt:1',
+      lte: 'totalamt:1',
       _id: [
         '52b213b38594d8a2be17c780',
         '52b213b38594d8a2be17c784',
@@ -812,17 +828,14 @@ test('can do custom buckets', t => {
   Promise.all(
     [1, 2, 3, 4, 5].map(item => global[indexName].BUCKET('totalamt:' + item))
   ).then(result => t.looseEqual(result, [
-    { match: 'totalamt:1',
-      _id: [
-        '52b213b38594d8a2be17c780',
-        '52b213b38594d8a2be17c784',
-        '52b213b38594d8a2be17c785',
-        '52b213b38594d8a2be17c788' ] },
-    { match: 'totalamt:2', _id: [ '52b213b38594d8a2be17c789' ] },
-    { match: 'totalamt:3', _id: [] },
-    { match: 'totalamt:4', _id: [] },
-    { match: 'totalamt:5', _id: [ '52b213b38594d8a2be17c786' ] }
-  ]));
+    { gte: 'totalamt:1', lte: 'totalamt:1', _id: [ '52b213b38594d8a2be17c780',
+                                                   '52b213b38594d8a2be17c784',
+                                                   '52b213b38594d8a2be17c785',
+                                                   '52b213b38594d8a2be17c788' ] },
+    { gte: 'totalamt:2', lte: 'totalamt:2', _id: [ '52b213b38594d8a2be17c789' ] },
+    { gte: 'totalamt:3', lte: 'totalamt:3', _id: [] },
+    { gte: 'totalamt:4', lte: 'totalamt:4', _id: [] },
+    { gte: 'totalamt:5', lte: 'totalamt:5', _id: [ '52b213b38594d8a2be17c786' ] } ]));
 });
 
 test('can do custom buckets and agreggate', t => {
@@ -833,12 +846,9 @@ test('can do custom buckets and agreggate', t => {
     ),
     global[indexName].GET('board_approval_month:October')
   ).then(result => t.looseEqual(result, [
-    { match: 'totalamt:1',
-      _id: [
-        '52b213b38594d8a2be17c784',
-        '52b213b38594d8a2be17c785',
-        '52b213b38594d8a2be17c788' ] },
-    { match: 'totalamt:2', _id: [ '52b213b38594d8a2be17c789' ] },
-    { match: 'totalamt:5', _id: [ '52b213b38594d8a2be17c786' ] }
+    { gte: 'totalamt:1', lte: 'totalamt:1',
+      _id: [ '52b213b38594d8a2be17c784', '52b213b38594d8a2be17c785', '52b213b38594d8a2be17c788' ] },
+    { gte: 'totalamt:2', lte: 'totalamt:2', _id: [ '52b213b38594d8a2be17c789' ] },
+    { gte: 'totalamt:5', lte: 'totalamt:5', _id: [ '52b213b38594d8a2be17c786' ] } 
   ]));
 });

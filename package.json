@@ -17,11 +17,10 @@
     "traverse": "^0.6.6"
   },
   "devDependencies": {
-    "browserify": "^16.2.3",
     "encoding-down": "^4.0.1",
+    "memdown": "^3.0.0",
     "level-out": "^1.0.0",
     "levelup": "^4.0.0",
-    "memdown": "^3.0.0",
     "rollup": "^1.1.0",
     "standard": "^12.0.1",
     "tape": "^4.9.0",
@@ -35,7 +34,7 @@
     "empty-sandbox": "rm -rf test/sandbox && mkdir test/sandbox",
     "lint": "standard --fix test/* src/*",
     "test": "npm run test-node && npm run test-browser && npm run lint",
-    "test-browser": "npm run empty-sandbox && webpack test/src/*-test.js -o test/sandbox/bundle.js && cat test/sandbox/bundle.js | tape-run",
+    "test-browser": "npm run empty-sandbox && webpack --mode development test/src/*-test.js -o test/sandbox/bundle.js && cat test/sandbox/bundle.js | tape-run",
     "test-node": "npm run build && npm run empty-sandbox && tape test/cjs/*.js"
   },
   "repository": {
