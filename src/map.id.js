@@ -1,7 +1,6 @@
 export default function init (db) {
-
   const isString = s => (typeof s === 'string')
-  
+
   const GET = key => new Promise((resolve, reject) => {
     if (key instanceof Promise) return resolve(key) // MAGIC! Enables nested promises
     if (isString(key)) key = { gte: key, lte: key + '￮' }
@@ -33,8 +32,8 @@ export default function init (db) {
 
   // NOT
   const SET_DIFFERENCE = (a, b) => Promise.all([
-    isString(a) ? GET(a): a,
-    isString(b) ? GET(b): b
+    isString(a) ? GET(a) : a,
+    isString(b) ? GET(b) : b
   ]).then(result => result[0].filter(
     item => result[1].map(item => item._id).indexOf(item._id)
   ))
@@ -43,17 +42,18 @@ export default function init (db) {
   // document ids together with the tokens that they have matched (a
   // document can match more than one token in a range)
   const RANGE = ops => new Promise(resolve => {
-    const rs = {}  // resultset
+    const rs = {} // resultset
     db.createReadStream(ops)
-      .on('data', token => token.value.forEach(docId => rs[docId] = [
-        ...(rs[docId] || []), token.key
-      ]))
+      .on('data', token => token.value.forEach(docId => {
+        rs[docId] = [...(rs[docId] || []), token.key]
+        return rs
+      }))
       .on('end', () => resolve(
         // convert map into array
         Object.keys(rs).map(id => ({
           _id: id,
           match: rs[id]
-        }))        
+        }))
       ))
   })
 
@@ -75,9 +75,11 @@ export default function init (db) {
   const BUCKET = key => GET(key).then(result => {
     // if gte == lte (in other words get a bucket on one specific
     // value) a single string can be used as shorthand
-    if (isString(key)) key = {
-      gte: key,
-      lte: key
+    if (isString(key)) {
+      key = {
+        gte: key,
+        lte: key
+      }
     }
     // TODO: some kind of verification of key object
     return Object.assign(key, {
