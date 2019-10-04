@@ -62,6 +62,19 @@ test('can GET with string', t => {
     })
 })
 
+test('can get with OBJECT', t => {
+  t.plan(1)
+  global[indexName].OBJECT([
+    {_id:'52b213b38594d8a2be17c781'},
+    {_id:'52b213b38594d8a2be17c782'}
+  ]).then(result => {
+    t.looseEqual(result, [
+      { _id: '52b213b38594d8a2be17c781', board_approval_month: 'November', totalamt: 0 },
+      { _id: '52b213b38594d8a2be17c782', board_approval_month: 'November', totalamt: 6060000 }
+    ])
+  })
+})
+
 test('can DELETE', t => {
   t.plan(1)
   global[indexName].DELETE([
@@ -71,6 +84,21 @@ test('can DELETE', t => {
     t.looseEqual(result, [
       { _id: '52b213b38594d8a2be17c781', board_approval_month: 'November', totalamt: 0 },
       { _id: '52b213b38594d8a2be17c782', board_approval_month: 'November', totalamt: 6060000 }
+    ])
+  })
+})
+
+test('can get with OBJECT', t => {
+  t.plan(1)
+  global[indexName].OBJECT([
+    { _id: '52b213b38594d8a2be17c780'},
+    { _id: '52b213b38594d8a2be17c781'},
+    { _id: '52b213b38594d8a2be17c782'}
+  ]).then(result => {
+    t.looseEqual(result, [
+      { _id: '52b213b38594d8a2be17c780', board_approval_month: 'November', totalamt: 130000000 },
+      null,
+      null
     ])
   })
 })
