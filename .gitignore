@@ -1,4 +1,6 @@
-node_modules/
-naturaldb/
-test/sandbox/
 .DS_Store
+dist
+naturaldb/
+node_modules/
+test/cjs/
+test/sandbox/
