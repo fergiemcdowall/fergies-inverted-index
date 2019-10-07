@@ -14,19 +14,19 @@ export default function init (db) {
     // flatten
     sets = [].concat.apply([], sets)
     var setObject = sets.reduce((acc, cur) => {
-      acc[cur._id] = [...(acc[cur._id] || []), cur.match]
+      acc[cur._id] = [...(acc[cur._id] || []), cur._match]
       return acc
     }, {})
     return Object.keys(setObject).map(id => ({
       _id: id,
-      match: setObject[id]
+      _match: setObject[id]
     }))
   })
 
   // AND
   const INTERSECTION = (...keys) => UNION(...keys).then(
     result => result.filter(
-      item => (item.match.length === keys.length)
+      item => (item._match.length === keys.length)
     )
   )
 
@@ -52,7 +52,7 @@ export default function init (db) {
         // convert map into array
         Object.keys(rs).map(id => ({
           _id: id,
-          match: rs[id]
+          _match: rs[id]
         }))
       ))
   })

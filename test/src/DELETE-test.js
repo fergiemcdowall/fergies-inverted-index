@@ -55,9 +55,9 @@ test('can GET with string', t => {
   global[indexName].GET('board_approval_month:November')
     .then(result => {
       t.looseEqual(result, [
-        { _id: '52b213b38594d8a2be17c780', match: [ 'board_approval_month:November' ] },
-        { _id: '52b213b38594d8a2be17c781', match: [ 'board_approval_month:November' ] },
-        { _id: '52b213b38594d8a2be17c782', match: [ 'board_approval_month:November' ] }
+        { _id: '52b213b38594d8a2be17c780', _match: [ 'board_approval_month:November' ] },
+        { _id: '52b213b38594d8a2be17c781', _match: [ 'board_approval_month:November' ] },
+        { _id: '52b213b38594d8a2be17c782', _match: [ 'board_approval_month:November' ] }
       ])
     })
 })
@@ -111,7 +111,7 @@ test('can GET with object', t => {
   })
     .then(result => {
       t.looseEqual(result, [
-        { _id: '52b213b38594d8a2be17c780', match: [ 'board_approval_month:November' ] }
+        { _id: '52b213b38594d8a2be17c780', _match: [ 'board_approval_month:November' ] }
       ])
     })
 })
