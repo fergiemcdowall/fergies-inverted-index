@@ -5,7 +5,6 @@ function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'defau
 var level = _interopDefault(require('level'));
 var trav = _interopDefault(require('traverse'));
 var test = _interopDefault(require('tape'));
-var wbd = _interopDefault(require('world-bank-dataset'));
 
 function init (db) {
   const isString = s => (typeof s === 'string');
@@ -330,7 +329,100 @@ function fii (ops, callback) {
 }
 
 const sandbox = 'test/sandbox/';
-const indexName = sandbox + 'wb-aggregation-test';
+const indexName = sandbox + 'cars-aggregation-test';
+
+const data = [
+  {
+    "_id": 0,
+    "make": "BMW",
+    "colour": "Blue",
+    "year": 2011,
+    "price": 83988,
+    "model": "3-series",
+    "drivetrain": "Hybrid"
+  },
+  {
+    "_id": 1,
+    "make": "Volvo",
+    "colour": "Black",
+    "year": 2016,
+    "price": 44274,
+    "model": "XC90",
+    "drivetrain": "Petrol"
+  },
+  {
+    "_id": 2,
+    "make": "Volvo",
+    "colour": "Silver",
+    "year": 2008,
+    "price": 33114,
+    "model": "XC90",
+    "drivetrain": "Hybrid"
+  },
+  {
+    "_id": 3,
+    "make": "Volvo",
+    "colour": "Silver",
+    "year": 2007,
+    "price": 47391,
+    "model": "XC60",
+    "drivetrain": "Hybrid"
+  },
+  {
+    "_id": 4,
+    "make": "BMW",
+    "colour": "Black",
+    "year": 2000,
+    "price": 88652,
+    "model": "5-series",
+    "drivetrain": "Diesel"
+  },
+  {
+    "_id": 5,
+    "make": "Tesla",
+    "colour": "Red",
+    "year": 2014,
+    "price": 75397,
+    "model": "X",
+    "drivetrain": "Electric"
+  },
+  {
+    "_id": 6,
+    "make": "Tesla",
+    "colour": "Blue",
+    "year": 2017,
+    "price": 79540,
+    "model": "S",
+    "drivetrain": "Electric"
+  },
+  {
+    "_id": 7,
+    "make": "BMW",
+    "colour": "Black",
+    "year": 2019,
+    "price": 57280,
+    "model": "3-series",
+    "drivetrain": "Petrol"
+  },
+  {
+    "_id": 8,
+    "make": "BMW",
+    "colour": "Silver",
+    "year": 2015,
+    "price": 81177,
+    "model": "3-series",
+    "drivetrain": "Petrol"
+  },
+  {
+    "_id": 9,
+    "make": "Volvo",
+    "colour": "White",
+    "year": 2004,
+    "price": 37512,
+    "model": "XC90",
+    "drivetrain": "Hybrid"
+  }
+];
 
 test('create a little world bank index', t => {
   t.plan(1);
@@ -341,38 +433,23 @@ test('create a little world bank index', t => {
 });
 
 test('can add some worldbank data', t => {
-  var dataSize = 10;
-  const data = wbd.slice(0, dataSize).map(item => {
-    return {
-      _id: item._id.$oid,
-      sectorcode: item.sectorcode.split(','),
-      board_approval_month: item.board_approval_month,
-      impagency: item.impagency,
-      majorsector_percent: item.majorsector_percent,
-      mjsector_namecode: item.mjsector_namecode,
-      sector_namecode: item.sector_namecode,
-      totalamt: item.totalamt
-    }
-  });
-  console.log(JSON.stringify(data.map(item => {
-    return {
-      _id: item._id,
-      board_approval_month: item.board_approval_month,
-      sectorcode: item.sectorcode
-    }
-  }), null, 2));
   t.plan(1);
   global[indexName].PUT(data).then(t.pass);
 });
 
 test('can GET a single bucket', t => {
   t.plan(1);
-  global[indexName].BUCKET('sectorcode:BZ')
+  global[indexName].BUCKET('make:Volvo')
     .then(result => {
       t.looseEqual(result, {
-        gte: 'sectorcode:BZ',
-        lte: 'sectorcode:BZ',
-        _id: [ '52b213b38594d8a2be17c781', '52b213b38594d8a2be17c789' ]
+        gte: 'make:Volvo',
+        lte: 'make:Volvo',
+        _id: [ '1', '2', '3', '9' ] 
       });
     });
 });
+
+// TODO
+
+// Can specifiy a "field" param
+// Nice error message if field doesnt exist
