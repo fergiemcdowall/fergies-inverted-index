@@ -65,13 +65,11 @@ const createMergedReverseIndex = (index, db, mode) => {
   }))
 }
 
-const objectIndex = (docs, mode) => docs.map(doc => {
-  return {
-    key: '￮DOC￮' + doc._id + '￮',
-    type: mode,
-    value: doc
-  }
-})
+const objectIndex = (docs, mode) => docs.map(doc => ({
+  key: '￮DOC￮' + doc._id + '￮',
+  type: mode,
+  value: doc
+}))
 
 const reverseIndex = (acc, cur) => {
   cur.keys.forEach(key => {
@@ -93,16 +91,28 @@ const checkID = doc => {
   return doc
 }
 
-const writer = (docs, db, mode) => {
+const availableFields = reverseIndex => [
+  ...new Set(
+    reverseIndex.map(item => item.key.split(':')[0])
+  )
+].map(f => ({
+  type: 'put',
+  key: '￮FIELD￮' + f + '￮',
+  value: true
+}))
+
+const writer = (docs, db, mode) => new Promise((resolve, reject) => {
   // check for _id field, autogenerate if necessary
   docs = docs.map(checkID)
-  return new Promise((resolve, reject) => {
-    createMergedReverseIndex(createDeltaReverseIndex(docs), db, mode)
-      .then(mergedReverseIndex => {
-        db.batch(mergedReverseIndex.concat(objectIndex(docs, mode)), e => resolve(docs))
-      })
-  })
-}
+  createMergedReverseIndex(
+    createDeltaReverseIndex(docs), db, mode
+  ).then(mergedReverseIndex => db.batch(
+    mergedReverseIndex
+      .concat(objectIndex(docs, mode))
+      .concat(availableFields(mergedReverseIndex))
+    , e => resolve(docs)
+  ))
+})
 
 export default function init (db) {
   // docs needs to be an array of ids (strings)
