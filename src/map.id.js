@@ -1,8 +1,18 @@
 export default function init (db) {
   const isString = s => (typeof s === 'string')
+//  const isObject = o => ((typeof o === 'object') && (o !== null))
 
   const GET = key => new Promise((resolve, reject) => {
     if (key instanceof Promise) return resolve(key) // MAGIC! Enables nested promises
+    // takes objects in the form of
+    // {
+    //   field: ...,
+    //   value: ...
+    // }
+    if (key.value) key = {
+      gte: key.field + ':' + (key.value || ''),
+      lte: key.field + ':' + (key.value || '') + '￮'
+    }
     if (isString(key)) key = { gte: key, lte: key + '￮' }
     return RANGE(key).then(resolve)
   })
@@ -42,6 +52,7 @@ export default function init (db) {
   // document ids together with the tokens that they have matched (a
   // document can match more than one token in a range)
   const RANGE = ops => new Promise(resolve => {
+    console.log(ops)
     const rs = {} // resultset
     db.createReadStream(ops)
       .on('data', token => token.value.forEach(docId => {
@@ -75,12 +86,12 @@ export default function init (db) {
   const BUCKET = key => GET(key).then(result => {
     // if gte == lte (in other words get a bucket on one specific
     // value) a single string can be used as shorthand
-    if (isString(key)) {
-      key = {
-        gte: key,
-        lte: key
-      }
-    }
+    // if (isString(key)) {
+    //   key = {
+    //     gte: key,
+    //     lte: key
+    //   }
+    // }
     // TODO: some kind of verification of key object
     return Object.assign(key, {
       _id: [...result.reduce((acc, cur) => acc.add(cur._id), new Set())].sort()

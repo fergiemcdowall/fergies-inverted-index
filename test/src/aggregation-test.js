@@ -112,15 +112,67 @@ test('can add some worldbank data', t => {
 
 test('can GET a single bucket', t => {
   t.plan(1)
-  global[indexName].BUCKET('make:Volvo')
-    .then(result => {
+  global[indexName].BUCKET({
+    field: 'make',
+    value: 'Volvo'
+  }).then(result => {
       t.looseEqual(result, {
-        gte: 'make:Volvo',
-        lte: 'make:Volvo',
-        _id: [ '1', '2', '3', '9' ] 
+        field: 'make',
+        value: 'Volvo',
+        _id: [ '1', '2', '3', '9' ]
       })
     })
 })
+
+test('can GET a single bucket with gte lte', t => {
+  t.plan(1)
+  global[indexName].BUCKET({
+    field: 'make',
+    gte: 'Volvo',
+    lte: 'Volvo'
+  }).then(result => {
+      t.looseEqual(result, {
+        field: 'make',
+        value: 'Volvo',
+        _id: [ '1', '2', '3', '9' ]
+      })
+    })
+})
+
+test('can get DISTINCT values', t => {
+  t.plan(1)
+  global[indexName].DISTINCT({
+    field:'make'
+  }).then(result => t.looseEquals(result, [
+    { field: 'make', value: 'BMW' },
+    { field: 'make', value: 'Tesla' },
+    { field: 'make', value: 'Volvo' }
+  ]))
+})
+
+test('can get DISTINCT values with gte', t => {
+  t.plan(1)
+  global[indexName].DISTINCT({
+    field: 'make',
+    gte: 'C'
+  }).then(result => t.looseEquals(result, [
+    { field: 'make', value: 'Tesla' },
+    { field: 'make', value: 'Volvo' }
+  ]))
+})
+
+test('can get DISTINCT values with gte and lte', t => {
+  t.plan(1)
+  global[indexName].DISTINCT({
+    field: 'make',
+    gte: 'C',
+    lte: 'U'
+  }).then(result => t.looseEquals(result, [
+    { field: 'make', value: 'Tesla' }
+  ]))
+})
+
+
 
 // TODO
 

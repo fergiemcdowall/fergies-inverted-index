@@ -1,41 +1,33 @@
 export default function init (db) {
-  const MIN = key => {
-    var ops = {
+  const getRange = ops => new Promise((resolve, reject) => {
+    const keys = []
+    db.createKeyStream(ops)
+      .on('data', data => { keys.push(data) })
+      .on('end', () => resolve(keys))
+  })
+
+  const MIN = key => new Promise((resolve, reject) => {
+    db.createKeyStream({
       limit: 1,
       gte: key + '!'
-    }
-    return new Promise((resolve, reject) => {
-      db.createKeyStream(ops)
-        .on('data', resolve)
-    })
-  }
-
-  const MAX = key => {
-    var ops = {
+    }).on('data', resolve)
+  })
+  
+  const MAX = key => new Promise((resolve, reject) => {
+    db.createKeyStream({
       limit: 1,
       lte: key + '￮',
       reverse: true
-    }
-    return new Promise((resolve, reject) => {
-      db.createKeyStream(ops)
-        .on('data', resolve)
-    })
-  }
-
-  const DIST = ops => {
-    if (typeof ops === 'string') {
-      ops = {
-        gte: ops,
-        lte: ops + '￮'
-      }
-    }
-    const keys = []
-    return new Promise((resolve, reject) => {
-      db.createKeyStream(ops)
-        .on('data', data => { keys.push(data) })
-        .on('end', () => resolve(keys))
-    })
-  }
+    }).on('data', resolve)
+  })
+  
+  const DIST = ops => getRange({
+    gte: ops.field + ':' + (ops.gte || ''),
+    lte: ops.field + ':' + (ops.lte || '') + '￮',
+  }).then(items => items.map(item => ({
+    field: item.split(/:(.+)/)[0],
+    value: item.split(/:(.+)/)[1]
+  })))
 
   return {
     DIST: DIST,

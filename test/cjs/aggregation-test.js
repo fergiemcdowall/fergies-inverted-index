@@ -8,9 +8,19 @@ var test = _interopDefault(require('tape'));
 
 function init (db) {
   const isString = s => (typeof s === 'string');
+//  const isObject = o => ((typeof o === 'object') && (o !== null))
 
   const GET = key => new Promise((resolve, reject) => {
     if (key instanceof Promise) return resolve(key) // MAGIC! Enables nested promises
+    // takes objects in the form of
+    // {
+    //   field: ...,
+    //   value: ...
+    // }
+    if (key.value) key = {
+      gte: key.field + ':' + (key.value || ''),
+      lte: key.field + ':' + (key.value || '') + '￮'
+    };
     if (isString(key)) key = { gte: key, lte: key + '￮' };
     return RANGE(key).then(resolve)
   });
@@ -50,6 +60,7 @@ function init (db) {
   // document ids together with the tokens that they have matched (a
   // document can match more than one token in a range)
   const RANGE = ops => new Promise(resolve => {
+    console.log(ops);
     const rs = {}; // resultset
     db.createReadStream(ops)
       .on('data', token => token.value.forEach(docId => {
@@ -83,12 +94,12 @@ function init (db) {
   const BUCKET = key => GET(key).then(result => {
     // if gte == lte (in other words get a bucket on one specific
     // value) a single string can be used as shorthand
-    if (isString(key)) {
-      key = {
-        gte: key,
-        lte: key
-      };
-    }
+    // if (isString(key)) {
+    //   key = {
+    //     gte: key,
+    //     lte: key
+    //   }
+    // }
     // TODO: some kind of verification of key object
     return Object.assign(key, {
       _id: [...result.reduce((acc, cur) => acc.add(cur._id), new Set())].sort()
@@ -116,43 +127,35 @@ function init$1 (db) {
 }
 
 function init$2 (db) {
-  const MIN = key => {
-    var ops = {
+  const getRange = ops => new Promise((resolve, reject) => {
+    const keys = [];
+    db.createKeyStream(ops)
+      .on('data', data => { keys.push(data); })
+      .on('end', () => resolve(keys));
+  });
+
+  const MIN = key => new Promise((resolve, reject) => {
+    db.createKeyStream({
       limit: 1,
       gte: key + '!'
-    };
-    return new Promise((resolve, reject) => {
-      db.createKeyStream(ops)
-        .on('data', resolve);
-    })
-  };
-
-  const MAX = key => {
-    var ops = {
+    }).on('data', resolve);
+  });
+  
+  const MAX = key => new Promise((resolve, reject) => {
+    db.createKeyStream({
       limit: 1,
       lte: key + '￮',
       reverse: true
-    };
-    return new Promise((resolve, reject) => {
-      db.createKeyStream(ops)
-        .on('data', resolve);
-    })
-  };
-
-  const DIST = ops => {
-    if (typeof ops === 'string') {
-      ops = {
-        gte: ops,
-        lte: ops + '￮'
-      };
-    }
-    const keys = [];
-    return new Promise((resolve, reject) => {
-      db.createKeyStream(ops)
-        .on('data', data => { keys.push(data); })
-        .on('end', () => resolve(keys));
-    })
-  };
+    }).on('data', resolve);
+  });
+  
+  const DIST = ops => getRange({
+    gte: ops.field + ':' + (ops.gte || ''),
+    lte: ops.field + ':' + (ops.lte || '') + '￮',
+  }).then(items => items.map(item => ({
+    field: item.split(/:(.+)/)[0],
+    value: item.split(/:(.+)/)[1]
+  })));
 
   return {
     DIST: DIST,
@@ -278,14 +281,9 @@ function init$3 (db) {
   // docs needs to be an array of ids (strings)
   // first do an 'objects' call to get all of the documents to be
   // deleted
-  const DELETE = _ids =>
-    init$1(db).OBJECT(
-      _ids.map(_id => {
-        return {
-          _id: _id
-        }
-      })
-    ).then(docs => writer(docs, db, 'del'));
+  const DELETE = _ids => init$1(db).OBJECT(
+    _ids.map(_id => ({ _id: _id }))
+  ).then(docs => writer(docs, db, 'del'));
 
   const PUT = docs => writer(docs, db, 'put');
 
@@ -439,15 +437,67 @@ test('can add some worldbank data', t => {
 
 test('can GET a single bucket', t => {
   t.plan(1);
-  global[indexName].BUCKET('make:Volvo')
-    .then(result => {
+  global[indexName].BUCKET({
+    field: 'make',
+    value: 'Volvo'
+  }).then(result => {
       t.looseEqual(result, {
-        gte: 'make:Volvo',
-        lte: 'make:Volvo',
-        _id: [ '1', '2', '3', '9' ] 
+        field: 'make',
+        value: 'Volvo',
+        _id: [ '1', '2', '3', '9' ]
       });
     });
 });
+
+test('can GET a single bucket with gte lte', t => {
+  t.plan(1);
+  global[indexName].BUCKET({
+    field: 'make',
+    gte: 'Volvo',
+    lte: 'Volvo'
+  }).then(result => {
+      t.looseEqual(result, {
+        field: 'make',
+        value: 'Volvo',
+        _id: [ '1', '2', '3', '9' ]
+      });
+    });
+});
+
+test('can get DISTINCT values', t => {
+  t.plan(1);
+  global[indexName].DISTINCT({
+    field:'make'
+  }).then(result => t.looseEquals(result, [
+    { field: 'make', value: 'BMW' },
+    { field: 'make', value: 'Tesla' },
+    { field: 'make', value: 'Volvo' }
+  ]));
+});
+
+test('can get DISTINCT values with gte', t => {
+  t.plan(1);
+  global[indexName].DISTINCT({
+    field: 'make',
+    gte: 'C'
+  }).then(result => t.looseEquals(result, [
+    { field: 'make', value: 'Tesla' },
+    { field: 'make', value: 'Volvo' }
+  ]));
+});
+
+test('can get DISTINCT values with gte and lte', t => {
+  t.plan(1);
+  global[indexName].DISTINCT({
+    field: 'make',
+    gte: 'C',
+    lte: 'U'
+  }).then(result => t.looseEquals(result, [
+    { field: 'make', value: 'Tesla' }
+  ]));
+});
+
+
 
 // TODO
 

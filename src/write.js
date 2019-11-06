@@ -118,14 +118,9 @@ export default function init (db) {
   // docs needs to be an array of ids (strings)
   // first do an 'objects' call to get all of the documents to be
   // deleted
-  const DELETE = _ids =>
-    reader(db).OBJECT(
-      _ids.map(_id => {
-        return {
-          _id: _id
-        }
-      })
-    ).then(docs => writer(docs, db, 'del'))
+  const DELETE = _ids => reader(db).OBJECT(
+    _ids.map(_id => ({ _id: _id }))
+  ).then(docs => writer(docs, db, 'del'))
 
   const PUT = docs => writer(docs, db, 'put')
 
