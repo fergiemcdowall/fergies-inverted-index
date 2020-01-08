@@ -12,7 +12,7 @@ export default function init (db) {
       gte: key + '!'
     }).on('data', resolve)
   })
-  
+
   const MAX = key => new Promise((resolve, reject) => {
     db.createKeyStream({
       limit: 1,
@@ -20,15 +20,15 @@ export default function init (db) {
       reverse: true
     }).on('data', resolve)
   })
-  
+
   const DIST = ops => getRange({
     gte: ops.field + ':' + ((ops.value && ops.value.gte) || ''),
-    lte: ops.field + ':' + ((ops.value && ops.value.lte) || '') + '￮',
+    lte: ops.field + ':' + ((ops.value && ops.value.lte) || '') + '￮'
   }).then(items => items.map(item => ({
     field: item.split(/:(.+)/)[0],
     value: item.split(/:(.+)/)[1]
   })))
-  
+
   return {
     DIST: DIST,
     MAX: MAX,

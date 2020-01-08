@@ -209,7 +209,7 @@ const invertDoc = function (obj) {
     }
   });
   return {
-    _id: obj._id || ++incrementalId, // generate _id if not present
+    _id: obj._id || incrementalId, // generate _id if not present
     keys: keys
   }
 };
@@ -272,7 +272,7 @@ const checkID = doc => {
   if (typeof doc._id === 'string') return doc
   if (typeof doc._id === 'number') return doc
   // else
-  doc._id = incrementalId++;
+  doc._id = ++incrementalId;
   return doc
 };
 
