@@ -1,10 +1,37 @@
 export default function init (db) {
   const isString = s => (typeof s === 'string')
 
+  // key might be object or string like this
+  // <fieldname>:<value>. Turn key into json object that is of the
+  // format {field: ..., value: {gte: ..., lte ...}}
+
+  const parseKey = key => {
+    if (isString(key)) {
+      key = {
+        field: key.split(':')[0],
+        value: {
+          gte: key.split(':')[1],
+          lte: key.split(':')[1]
+        }
+      }
+    }
+
+    key.value = {
+      gte: key.field + ':' + ((key.value.gte || key.value) || ''),
+      lte: key.field + ':' + ((key.value.lte || key.value) || '') + '￮'
+    }
+    return key
+  }
+
   const GET = key => new Promise((resolve, reject) => {
     if (key instanceof Promise) return resolve(key) // MAGIC! Enables nested promises
-    if (isString(key)) key = { gte: key, lte: key + '￮' }
-    return RANGE(key).then(resolve)
+    // takes objects in the form of
+    // {
+    //   field: ...,
+    //   value: ... (either a string or gte/lte)
+    // }
+
+    return RANGE(parseKey(key)).then(resolve)
   })
 
   // OR
@@ -43,7 +70,7 @@ export default function init (db) {
   // document can match more than one token in a range)
   const RANGE = ops => new Promise(resolve => {
     const rs = {} // resultset
-    db.createReadStream(ops)
+    db.createReadStream(ops.value)
       .on('data', token => token.value.forEach(docId => {
         rs[docId] = [...(rs[docId] || []), token.key]
         return rs
@@ -75,15 +102,20 @@ export default function init (db) {
   const BUCKET = key => GET(key).then(result => {
     // if gte == lte (in other words get a bucket on one specific
     // value) a single string can be used as shorthand
-    if (isString(key)) {
-      key = {
-        gte: key,
-        lte: key
-      }
-    }
+    // if (isString(key)) {
+    //   key = {
+    //     gte: key,
+    //     lte: key
+    //   }
+    // }
     // TODO: some kind of verification of key object
+    key = parseKey(key)
     return Object.assign(key, {
-      _id: [...result.reduce((acc, cur) => acc.add(cur._id), new Set())].sort()
+      _id: [...result.reduce((acc, cur) => acc.add(cur._id), new Set())].sort(),
+      value: {
+        gte: key.value.gte.split(':').pop(),
+        lte: key.value.lte.split(':').pop().replace(/￮/g, '')
+      }
     })
   })
 

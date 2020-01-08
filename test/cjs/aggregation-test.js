@@ -5,15 +5,41 @@ function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'defau
 var level = _interopDefault(require('level'));
 var trav = _interopDefault(require('traverse'));
 var test = _interopDefault(require('tape'));
-var wbd = _interopDefault(require('world-bank-dataset'));
 
 function init (db) {
   const isString = s => (typeof s === 'string');
 
+  // key might be object or string like this
+  // <fieldname>:<value>. Turn key into json object that is of the
+  // format {field: ..., value: {gte: ..., lte ...}}
+
+  const parseKey = key => {
+    if (isString(key)) {
+      key = {
+        field: key.split(':')[0],
+        value: {
+          gte: key.split(':')[1],
+          lte: key.split(':')[1]
+        }
+      };
+    }
+
+    key.value = {
+      gte: key.field + ':' + ((key.value.gte || key.value) || ''),
+      lte: key.field + ':' + ((key.value.lte || key.value) || '') + '￮'
+    };
+    return key
+  };
+
   const GET = key => new Promise((resolve, reject) => {
     if (key instanceof Promise) return resolve(key) // MAGIC! Enables nested promises
-    if (isString(key)) key = { gte: key, lte: key + '￮' };
-    return RANGE(key).then(resolve)
+    // takes objects in the form of
+    // {
+    //   field: ...,
+    //   value: ... (either a string or gte/lte)
+    // }
+
+    return RANGE(parseKey(key)).then(resolve)
   });
 
   // OR
@@ -52,7 +78,7 @@ function init (db) {
   // document can match more than one token in a range)
   const RANGE = ops => new Promise(resolve => {
     const rs = {}; // resultset
-    db.createReadStream(ops)
+    db.createReadStream(ops.value)
       .on('data', token => token.value.forEach(docId => {
         rs[docId] = [...(rs[docId] || []), token.key];
         return rs
@@ -84,15 +110,20 @@ function init (db) {
   const BUCKET = key => GET(key).then(result => {
     // if gte == lte (in other words get a bucket on one specific
     // value) a single string can be used as shorthand
-    if (isString(key)) {
-      key = {
-        gte: key,
-        lte: key
-      };
-    }
+    // if (isString(key)) {
+    //   key = {
+    //     gte: key,
+    //     lte: key
+    //   }
+    // }
     // TODO: some kind of verification of key object
+    key = parseKey(key);
     return Object.assign(key, {
-      _id: [...result.reduce((acc, cur) => acc.add(cur._id), new Set())].sort()
+      _id: [...result.reduce((acc, cur) => acc.add(cur._id), new Set())].sort(),
+      value: {
+        gte: key.value.gte.split(':').pop(),
+        lte: key.value.lte.split(':').pop().replace(/￮/g, '')
+      }
     })
   });
 
@@ -117,43 +148,35 @@ function init$1 (db) {
 }
 
 function init$2 (db) {
-  const MIN = key => {
-    var ops = {
+  const getRange = ops => new Promise((resolve, reject) => {
+    const keys = [];
+    db.createKeyStream(ops)
+      .on('data', data => { keys.push(data); })
+      .on('end', () => resolve(keys));
+  });
+
+  const MIN = key => new Promise((resolve, reject) => {
+    db.createKeyStream({
       limit: 1,
       gte: key + '!'
-    };
-    return new Promise((resolve, reject) => {
-      db.createKeyStream(ops)
-        .on('data', resolve);
-    })
-  };
+    }).on('data', resolve);
+  });
 
-  const MAX = key => {
-    var ops = {
+  const MAX = key => new Promise((resolve, reject) => {
+    db.createKeyStream({
       limit: 1,
       lte: key + '￮',
       reverse: true
-    };
-    return new Promise((resolve, reject) => {
-      db.createKeyStream(ops)
-        .on('data', resolve);
-    })
-  };
+    }).on('data', resolve);
+  });
 
-  const DIST = ops => {
-    if (typeof ops === 'string') {
-      ops = {
-        gte: ops,
-        lte: ops + '￮'
-      };
-    }
-    const keys = [];
-    return new Promise((resolve, reject) => {
-      db.createKeyStream(ops)
-        .on('data', data => { keys.push(data); })
-        .on('end', () => resolve(keys));
-    })
-  };
+  const DIST = ops => getRange({
+    gte: ops.field + ':' + ((ops.value && ops.value.gte) || ''),
+    lte: ops.field + ':' + ((ops.value && ops.value.lte) || '') + '￮'
+  }).then(items => items.map(item => ({
+    field: item.split(/:(.+)/)[0],
+    value: item.split(/:(.+)/)[1]
+  })));
 
   return {
     DIST: DIST,
@@ -185,7 +208,7 @@ const invertDoc = function (obj) {
     }
   });
   return {
-    _id: obj._id || ++incrementalId, // generate _id if not present
+    _id: obj._id || incrementalId, // generate _id if not present
     keys: keys
   }
 };
@@ -226,13 +249,11 @@ const createMergedReverseIndex = (index, db, mode) => {
   }))
 };
 
-const objectIndex = (docs, mode) => docs.map(doc => {
-  return {
-    key: '￮DOC￮' + doc._id + '￮',
-    type: mode,
-    value: doc
-  }
-});
+const objectIndex = (docs, mode) => docs.map(doc => ({
+  key: '￮DOC￮' + doc._id + '￮',
+  type: mode,
+  value: doc
+}));
 
 const reverseIndex = (acc, cur) => {
   cur.keys.forEach(key => {
@@ -250,33 +271,40 @@ const checkID = doc => {
   if (typeof doc._id === 'string') return doc
   if (typeof doc._id === 'number') return doc
   // else
-  doc._id = incrementalId++;
+  doc._id = ++incrementalId;
   return doc
 };
 
-const writer = (docs, db, mode) => {
+const availableFields = reverseIndex => [
+  ...new Set(
+    reverseIndex.map(item => item.key.split(':')[0])
+  )
+].map(f => ({
+  type: 'put',
+  key: '￮FIELD￮' + f + '￮',
+  value: true
+}));
+
+const writer = (docs, db, mode) => new Promise((resolve, reject) => {
   // check for _id field, autogenerate if necessary
   docs = docs.map(checkID);
-  return new Promise((resolve, reject) => {
-    createMergedReverseIndex(createDeltaReverseIndex(docs), db, mode)
-      .then(mergedReverseIndex => {
-        db.batch(mergedReverseIndex.concat(objectIndex(docs, mode)), e => resolve(docs));
-      });
-  })
-};
+  createMergedReverseIndex(
+    createDeltaReverseIndex(docs), db, mode
+  ).then(mergedReverseIndex => db.batch(
+    mergedReverseIndex
+      .concat(objectIndex(docs, mode))
+      .concat(availableFields(mergedReverseIndex))
+    , e => resolve(docs)
+  ));
+});
 
 function init$3 (db) {
   // docs needs to be an array of ids (strings)
   // first do an 'objects' call to get all of the documents to be
   // deleted
-  const DELETE = _ids =>
-    init$1(db).OBJECT(
-      _ids.map(_id => {
-        return {
-          _id: _id
-        }
-      })
-    ).then(docs => writer(docs, db, 'del'));
+  const DELETE = _ids => init$1(db).OBJECT(
+    _ids.map(_id => ({ _id: _id }))
+  ).then(docs => writer(docs, db, 'del'));
 
   const PUT = docs => writer(docs, db, 'put');
 
@@ -320,7 +348,100 @@ function fii (ops, callback) {
 }
 
 const sandbox = 'test/sandbox/';
-const indexName = sandbox + 'wb-aggregation-test';
+const indexName = sandbox + 'cars-aggregation-test';
+
+const data = [
+  {
+    "_id": 0,
+    "make": "BMW",
+    "colour": "Blue",
+    "year": 2011,
+    "price": 83988,
+    "model": "3-series",
+    "drivetrain": "Hybrid"
+  },
+  {
+    "_id": 1,
+    "make": "Volvo",
+    "colour": "Black",
+    "year": 2016,
+    "price": 44274,
+    "model": "XC90",
+    "drivetrain": "Petrol"
+  },
+  {
+    "_id": 2,
+    "make": "Volvo",
+    "colour": "Silver",
+    "year": 2008,
+    "price": 33114,
+    "model": "XC90",
+    "drivetrain": "Hybrid"
+  },
+  {
+    "_id": 3,
+    "make": "Volvo",
+    "colour": "Silver",
+    "year": 2007,
+    "price": 47391,
+    "model": "XC60",
+    "drivetrain": "Hybrid"
+  },
+  {
+    "_id": 4,
+    "make": "BMW",
+    "colour": "Black",
+    "year": 2000,
+    "price": 88652,
+    "model": "5-series",
+    "drivetrain": "Diesel"
+  },
+  {
+    "_id": 5,
+    "make": "Tesla",
+    "colour": "Red",
+    "year": 2014,
+    "price": 75397,
+    "model": "X",
+    "drivetrain": "Electric"
+  },
+  {
+    "_id": 6,
+    "make": "Tesla",
+    "colour": "Blue",
+    "year": 2017,
+    "price": 79540,
+    "model": "S",
+    "drivetrain": "Electric"
+  },
+  {
+    "_id": 7,
+    "make": "BMW",
+    "colour": "Black",
+    "year": 2019,
+    "price": 57280,
+    "model": "3-series",
+    "drivetrain": "Petrol"
+  },
+  {
+    "_id": 8,
+    "make": "BMW",
+    "colour": "Silver",
+    "year": 2015,
+    "price": 81177,
+    "model": "3-series",
+    "drivetrain": "Petrol"
+  },
+  {
+    "_id": 9,
+    "make": "Volvo",
+    "colour": "White",
+    "year": 2004,
+    "price": 37512,
+    "model": "XC90",
+    "drivetrain": "Hybrid"
+  }
+];
 
 test('create a little world bank index', t => {
   t.plan(1);
@@ -331,38 +452,87 @@ test('create a little world bank index', t => {
 });
 
 test('can add some worldbank data', t => {
-  var dataSize = 10;
-  const data = wbd.slice(0, dataSize).map(item => {
-    return {
-      _id: item._id.$oid,
-      sectorcode: item.sectorcode.split(','),
-      board_approval_month: item.board_approval_month,
-      impagency: item.impagency,
-      majorsector_percent: item.majorsector_percent,
-      mjsector_namecode: item.mjsector_namecode,
-      sector_namecode: item.sector_namecode,
-      totalamt: item.totalamt
-    }
-  });
-  console.log(JSON.stringify(data.map(item => {
-    return {
-      _id: item._id,
-      board_approval_month: item.board_approval_month,
-      sectorcode: item.sectorcode
-    }
-  }), null, 2));
   t.plan(1);
   global[indexName].PUT(data).then(t.pass);
 });
 
 test('can GET a single bucket', t => {
   t.plan(1);
-  global[indexName].BUCKET('sectorcode:BZ')
-    .then(result => {
+  global[indexName].BUCKET({
+    field: 'make',
+    value: 'Volvo'
+  }).then(result => {
       t.looseEqual(result, {
-        gte: 'sectorcode:BZ',
-        lte: 'sectorcode:BZ',
-        _id: [ '52b213b38594d8a2be17c781', '52b213b38594d8a2be17c789' ]
+        field: 'make',
+        value: {
+          gte: 'Volvo',
+          lte: 'Volvo'
+        },
+        _id: [ '1', '2', '3', '9' ]
       });
     });
 });
+
+test('can GET a single bucket with gte lte', t => {
+  t.plan(1);
+  global[indexName].BUCKET({
+    field: 'make',
+    value: {
+      gte: 'Volvo',
+      lte: 'Volvo'
+    }
+  }).then(result => {
+      t.looseEqual(result, {
+        field: 'make',
+        value: {
+          gte: 'Volvo',
+          lte: 'Volvo'
+        },
+        _id: [ '1', '2', '3', '9' ]
+      });
+    });
+});
+
+test('can get DISTINCT values', t => {
+  t.plan(1);
+  global[indexName].DISTINCT({
+    field:'make'
+  }).then(result => t.looseEquals(result, [
+    { field: 'make', value: 'BMW' },
+    { field: 'make', value: 'Tesla' },
+    { field: 'make', value: 'Volvo' }
+  ]));
+});
+
+test('can get DISTINCT values with gte', t => {
+  t.plan(1);
+  global[indexName].DISTINCT({
+    field: 'make',
+    value: {
+      gte: 'C'
+    }
+  }).then(result => t.looseEquals(result, [
+    { field: 'make', value: 'Tesla' },
+    { field: 'make', value: 'Volvo' }
+  ]));
+});
+
+test('can get DISTINCT values with gte and lte', t => {
+  t.plan(1);
+  global[indexName].DISTINCT({
+    field: 'make',
+    value: {
+      gte: 'C',
+      lte: 'U'
+    }
+  }).then(result => t.looseEquals(result, [
+    { field: 'make', value: 'Tesla' }
+  ]));
+});
+
+
+
+// TODO
+
+// Can specifiy a "field" param
+// Nice error message if field doesnt exist

@@ -27,6 +27,15 @@ db.PUT([ /* my array of objects to be searched */ ]).then(doStuff)
 // get all object IDs where land=SCOTLAND and colour=GREEN
 db.AND('land:SCOTLAND', 'colour:GREEN').then(result)
 
+// the query strings above can alternatively be expressed using JSON objects
+db.AND({
+  field: 'land'
+  value: 'SCOTLAND'
+}, {
+  field: 'colour',
+  value: 'GREEN'
+}).then(result)
+
 // as above, but return whole objects
 db.AND('land:SCOTLAND', 'colour:GREEN').then(db.OBJECT).then(result)
 

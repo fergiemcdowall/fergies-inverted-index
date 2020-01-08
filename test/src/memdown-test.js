@@ -31,11 +31,13 @@ test('create a fii with memdown', t => {
   }), (err, store) => {
     t.error(err)
     db = fii({ store: store })
-//    t.ok(!fs.existsSync('test/' + indexName))
     db.PUT(data).then(() => {
       t.pass('ok')
     }).then(() => {
-      db.GET('board_approval_month:November')
+      db.GET({
+        field: 'board_approval_month',
+        value: 'November'
+      })
         .then(result => {
           t.looseEqual(result, [
             { _id: '52b213b38594d8a2be17c780',
@@ -49,5 +51,4 @@ test('create a fii with memdown', t => {
     })
   })
   
-
 })

@@ -24,7 +24,7 @@ const invertDoc = function (obj) {
     }
   })
   return {
-    _id: obj._id || ++incrementalId, // generate _id if not present
+    _id: obj._id || incrementalId, // generate _id if not present
     keys: keys
   }
 }
@@ -65,13 +65,11 @@ const createMergedReverseIndex = (index, db, mode) => {
   }))
 }
 
-const objectIndex = (docs, mode) => docs.map(doc => {
-  return {
-    key: '￮DOC￮' + doc._id + '￮',
-    type: mode,
-    value: doc
-  }
-})
+const objectIndex = (docs, mode) => docs.map(doc => ({
+  key: '￮DOC￮' + doc._id + '￮',
+  type: mode,
+  value: doc
+}))
 
 const reverseIndex = (acc, cur) => {
   cur.keys.forEach(key => {
@@ -89,33 +87,40 @@ const checkID = doc => {
   if (typeof doc._id === 'string') return doc
   if (typeof doc._id === 'number') return doc
   // else
-  doc._id = incrementalId++
+  doc._id = ++incrementalId
   return doc
 }
 
-const writer = (docs, db, mode) => {
+const availableFields = reverseIndex => [
+  ...new Set(
+    reverseIndex.map(item => item.key.split(':')[0])
+  )
+].map(f => ({
+  type: 'put',
+  key: '￮FIELD￮' + f + '￮',
+  value: true
+}))
+
+const writer = (docs, db, mode) => new Promise((resolve, reject) => {
   // check for _id field, autogenerate if necessary
   docs = docs.map(checkID)
-  return new Promise((resolve, reject) => {
-    createMergedReverseIndex(createDeltaReverseIndex(docs), db, mode)
-      .then(mergedReverseIndex => {
-        db.batch(mergedReverseIndex.concat(objectIndex(docs, mode)), e => resolve(docs))
-      })
-  })
-}
+  createMergedReverseIndex(
+    createDeltaReverseIndex(docs), db, mode
+  ).then(mergedReverseIndex => db.batch(
+    mergedReverseIndex
+      .concat(objectIndex(docs, mode))
+      .concat(availableFields(mergedReverseIndex))
+    , e => resolve(docs)
+  ))
+})
 
 export default function init (db) {
   // docs needs to be an array of ids (strings)
   // first do an 'objects' call to get all of the documents to be
   // deleted
-  const DELETE = _ids =>
-    reader(db).OBJECT(
-      _ids.map(_id => {
-        return {
-          _id: _id
-        }
-      })
-    ).then(docs => writer(docs, db, 'del'))
+  const DELETE = _ids => reader(db).OBJECT(
+    _ids.map(_id => ({ _id: _id }))
+  ).then(docs => writer(docs, db, 'del'))
 
   const PUT = docs => writer(docs, db, 'put')
 
