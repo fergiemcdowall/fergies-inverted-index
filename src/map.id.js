@@ -1,20 +1,35 @@
 export default function init (db) {
   const isString = s => (typeof s === 'string')
-//  const isObject = o => ((typeof o === 'object') && (o !== null))
 
+  // key might be object or string like this
+  // <fieldname>:<value>. Turn key into json object that is of the
+  // format {field: ..., value: {gte: ..., lte ...}}
+  
+  const parseKey = key => {
+    if (isString(key)) key = {
+      field: key.split(':')[0],
+      value: {
+        gte: key.split(':')[1],
+        lte: key.split(':')[1]
+      }
+    }
+    
+    key.value = {
+      gte: key.field + ':' + ((key.value.gte || key.value) || ''),
+      lte: key.field + ':' + ((key.value.lte || key.value) || '') + '￮'
+    }
+    return key
+  }
+  
   const GET = key => new Promise((resolve, reject) => {
     if (key instanceof Promise) return resolve(key) // MAGIC! Enables nested promises
     // takes objects in the form of
     // {
     //   field: ...,
-    //   value: ...
+    //   value: ... (either a string or gte/lte)
     // }
-    if (key.value) key = {
-      gte: key.field + ':' + (key.value || ''),
-      lte: key.field + ':' + (key.value || '') + '￮'
-    }
-    if (isString(key)) key = { gte: key, lte: key + '￮' }
-    return RANGE(key).then(resolve)
+  
+    return RANGE(parseKey(key)).then(resolve)
   })
 
   // OR
@@ -52,9 +67,9 @@ export default function init (db) {
   // document ids together with the tokens that they have matched (a
   // document can match more than one token in a range)
   const RANGE = ops => new Promise(resolve => {
-    console.log(ops)
+
     const rs = {} // resultset
-    db.createReadStream(ops)
+    db.createReadStream(ops.value)
       .on('data', token => token.value.forEach(docId => {
         rs[docId] = [...(rs[docId] || []), token.key]
         return rs
@@ -66,6 +81,7 @@ export default function init (db) {
           _match: rs[id]
         }))
       ))
+
   })
 
   // TODO: put in some validation here
@@ -93,11 +109,17 @@ export default function init (db) {
     //   }
     // }
     // TODO: some kind of verification of key object
+    key = parseKey(key)
     return Object.assign(key, {
-      _id: [...result.reduce((acc, cur) => acc.add(cur._id), new Set())].sort()
+      _id: [...result.reduce((acc, cur) => acc.add(cur._id), new Set())].sort(),
+      value: {
+        gte: key.value.gte.split(':').pop(),
+        lte: key.value.lte.split(':').pop().replace(/￮/g, '')
+      }
     })
   })
 
+  
   return {
     AGGREGATE: AGGREGATE,
     BUCKET: BUCKET,

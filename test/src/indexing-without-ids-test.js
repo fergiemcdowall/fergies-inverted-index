@@ -4,7 +4,7 @@ import test from 'tape'
 const sandbox = 'test/sandbox/'
 const indexName = sandbox + 'indexing-without-ids-test'
 
-test('create a little world bank index', t => {
+test('create a tiny test index', t => {
   t.plan(1)
   fii({ name: indexName }, (err, idx) => {
     global[indexName] = idx
@@ -29,17 +29,17 @@ test('can add some worldbank data', t => {
 
 test('can GET with string', t => {
   var result = [
-    { key: 'colour:GREEN', value: [ 1, 3 ] },
-    { key: 'land:IRELAND', value: [ 1 ] },
-    { key: 'land:SCOTLAND', value: [ 3 ] },
-    { key: '￮DOC￮0￮',
-      value: { land: 'SCOTLAND', colour: 'GREEN', _id: 0 } },
+    { key: 'colour:GREEN', value: [ 1, 2 ] },
+    { key: 'land:IRELAND', value: [ 2 ] },
+    { key: 'land:SCOTLAND', value: [ 1 ] },
     { key: '￮DOC￮1￮',
-      value: { land: 'IRELAND', colour: 'GREEN', _id: 1 } },
+      value: { land: 'SCOTLAND', colour: 'GREEN', _id: 1 } },
+    { key: '￮DOC￮2￮',
+      value: { land: 'IRELAND', colour: 'GREEN', _id: 2 } },
     { key: '￮FIELD￮colour￮', value: true },
     { key: '￮FIELD￮land￮', value: true },
   ]
   t.plan(result.length)
   global[indexName].STORE.createReadStream()
-                   .on('data', d => t.looseEqual(d, result.shift()))
+    .on('data', d => t.looseEqual(d, result.shift()))
 })

@@ -52,7 +52,10 @@ test('can add some worldbank data', t => {
 
 test('can GET with string', t => {
   t.plan(1)
-  global[indexName].GET('board_approval_month:November')
+  global[indexName].GET({
+    field: 'board_approval_month',
+    value: 'November'
+  })
     .then(result => {
       t.looseEqual(result, [
         { _id: '52b213b38594d8a2be17c780', _match: [ 'board_approval_month:November' ] },
@@ -103,11 +106,14 @@ test('can get with OBJECT', t => {
   })
 })
 
-test('can GET with object', t => {
+test('can GET with object having deleted two docs', t => {
   t.plan(1)
   global[indexName].GET({
-    gte: 'board_approval_month:November',
-    lte: 'board_approval_month:November'
+    field: 'board_approval_month',
+    value: {
+      gte: 'November',
+      lte: 'November'
+    }
   })
     .then(result => {
       t.looseEqual(result, [

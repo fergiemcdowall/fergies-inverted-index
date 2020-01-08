@@ -118,7 +118,10 @@ test('can GET a single bucket', t => {
   }).then(result => {
       t.looseEqual(result, {
         field: 'make',
-        value: 'Volvo',
+        value: {
+          gte: 'Volvo',
+          lte: 'Volvo'
+        },
         _id: [ '1', '2', '3', '9' ]
       })
     })
@@ -128,12 +131,17 @@ test('can GET a single bucket with gte lte', t => {
   t.plan(1)
   global[indexName].BUCKET({
     field: 'make',
-    gte: 'Volvo',
-    lte: 'Volvo'
+    value: {
+      gte: 'Volvo',
+      lte: 'Volvo'
+    }
   }).then(result => {
       t.looseEqual(result, {
         field: 'make',
-        value: 'Volvo',
+        value: {
+          gte: 'Volvo',
+          lte: 'Volvo'
+        },
         _id: [ '1', '2', '3', '9' ]
       })
     })
@@ -154,7 +162,9 @@ test('can get DISTINCT values with gte', t => {
   t.plan(1)
   global[indexName].DISTINCT({
     field: 'make',
-    gte: 'C'
+    value: {
+      gte: 'C'
+    }
   }).then(result => t.looseEquals(result, [
     { field: 'make', value: 'Tesla' },
     { field: 'make', value: 'Volvo' }
@@ -165,8 +175,10 @@ test('can get DISTINCT values with gte and lte', t => {
   t.plan(1)
   global[indexName].DISTINCT({
     field: 'make',
-    gte: 'C',
-    lte: 'U'
+    value: {
+      gte: 'C',
+      lte: 'U'
+    }
   }).then(result => t.looseEquals(result, [
     { field: 'make', value: 'Tesla' }
   ]))
