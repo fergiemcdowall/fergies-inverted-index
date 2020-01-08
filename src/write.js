@@ -98,7 +98,7 @@ const availableFields = reverseIndex => [
 ].map(f => ({
   type: 'put',
   key: '￮FIELD￮' + f + '￮',
-  value: true
+  value: f
 }))
 
 const writer = (docs, db, mode) => new Promise((resolve, reject) => {

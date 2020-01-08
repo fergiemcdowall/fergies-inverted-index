@@ -8,6 +8,7 @@ import writer from './write.js'
 const makeAFii = db => {
   return {
     AGGREGATE: idMap(db).AGGREGATE,
+    AVAILABLE_FIELDS: idMap(db).AVAILABLE_FIELDS,
     AND: idMap(db).INTERSECTION,
     BUCKET: idMap(db).BUCKET,
     BUCKETFILTER: idMap(db).AGGREGATE,

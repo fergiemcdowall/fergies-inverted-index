@@ -73,25 +73,71 @@ function init (db) {
     item => result[1].map(item => item._id).indexOf(item._id)
   ));
 
-  // Accepts a range of tokens (gte, lte) and returns an array of
-  // document ids together with the tokens that they have matched (a
-  // document can match more than one token in a range)
+  // Accepts a range of tokens (field, value {gte, lte}) and returns
+  // an array of document ids together with the tokens that they have
+  // matched (a document can match more than one token in a range)
   const RANGE = ops => new Promise(resolve => {
+
+    console.log('doing RANGE with ->');
+    console.log(ops);
+
+
+
+    // TODO: if no field specified then search in all fields
+
+
     const rs = {}; // resultset
-    db.createReadStream(ops.value)
-      .on('data', token => token.value.forEach(docId => {
-        rs[docId] = [...(rs[docId] || []), token.key];
-        return rs
-      }))
-      .on('end', () => resolve(
+
+    Promise.all(
+      ['make', 'brand', 'manufacturer'].map(
+        fieldName => new Promise(resolve => {
+          db.createReadStream({
+            gte: fieldName + ':Tesla',
+            lte: fieldName + ':Tesla￮',
+          })
+            .on('data', token => token.value.forEach(docId => {
+              rs[docId] = [...(rs[docId] || []), token.key];
+              return rs
+            }))
+            .on('end', resolve);
+        })
+      )
+    ).then(result => resolve(
         // convert map into array
         Object.keys(rs).map(id => ({
           _id: id,
           _match: rs[id]
         }))
-      ));
+      )
+    );
+
+    
+    // const rs = {} // resultset
+    // db.createReadStream(ops.value)
+    //   .on('data', token => token.value.forEach(docId => {
+    //     rs[docId] = [...(rs[docId] || []), token.key]
+    //     return rs
+    //   }))
+    //   .on('end', () => resolve(
+    //     // convert map into array
+    //     Object.keys(rs).map(id => ({
+    //       _id: id,
+    //       _match: rs[id]
+    //     }))
+    //   ))
+
   });
 
+  const AVAILABLE_FIELDS = () => new Promise(resolve => {
+    const fieldNames = [];
+    db.createReadStream({
+      gte: '￮FIELD￮',
+      lte: '￮FIELD￮￮'
+    })
+      .on('data', d => fieldNames.push(d.value))
+      .on('end', () => resolve(fieldNames));
+  });
+  
   // TODO: put in some validation here
   // arg 1: an aggregration
   // arg 2: a filter set- return only results of arg 1 that intersect with arg 2
@@ -129,6 +175,7 @@ function init (db) {
 
   return {
     AGGREGATE: AGGREGATE,
+    AVAILABLE_FIELDS: AVAILABLE_FIELDS,
     BUCKET: BUCKET,
     GET: GET,
     INTERSECTION: INTERSECTION,
@@ -282,7 +329,7 @@ const availableFields = reverseIndex => [
 ].map(f => ({
   type: 'put',
   key: '￮FIELD￮' + f + '￮',
-  value: true
+  value: f
 }));
 
 const writer = (docs, db, mode) => new Promise((resolve, reject) => {
@@ -317,6 +364,7 @@ function init$3 (db) {
 const makeAFii = db => {
   return {
     AGGREGATE: init(db).AGGREGATE,
+    AVAILABLE_FIELDS: init(db).AVAILABLE_FIELDS,
     AND: init(db).INTERSECTION,
     BUCKET: init(db).BUCKET,
     BUCKETFILTER: init(db).AGGREGATE,
