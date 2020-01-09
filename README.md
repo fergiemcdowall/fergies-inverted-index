@@ -167,18 +167,38 @@ db.DISTINCT({ gte: 'h', lte: 'l' }).then(result)
 `db.GET` returns all object ids for objects that contain the given
 property, aggregated by object id.
 
-For example get all names between `h` and `l`:
+For example to get all Teslas do:
 
 ```javascript
-db.GET({ gte: 'h', lte: 'l' }).then(result)
+db.GET('Tesla').then(result)  // get all documents that contain Tesla, somewhere in their structure
 ```
 
-Or to get all objects that have a `name` property that begins with 'h'
+Perhaps you want to be more specific and only return documents that contain `Tesla` in the `make` field
 
 ```javascript
-db.GET('h').then(result)
+db.GET('make:Tesla').then(result)
 ```
 
+which is equivalent to:
+
+```javascript
+db.GET({
+  field: 'make',
+  value: 'Tesla'
+}).then(result)
+```
+
+You can get all cars that begin with `O` to `V` in which case you could do
+
+```javascript
+db.GET({
+  field: 'make',
+  value: {
+    gte: 'O',   // gte == greater than or equal to
+    lte: 'V'    // lte == less than or equal to
+  }
+}).then(result)
+```
 
 <a name="MAX"></a>
 
