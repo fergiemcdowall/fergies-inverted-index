@@ -23,8 +23,10 @@ const invertDoc = function (obj) {
       keys.push(key)
     }
   })
+  // Bump all _ids to strings. Prevents _id='0' causing problems amongst other things
+  if (!isNaN(obj._id)) obj._id = obj._id + ''
   return {
-    _id: obj._id || incrementalId, // generate _id if not present
+    _id: obj._id || incrementalId + '', // generate _id if not present
     keys: keys
   }
 }
@@ -98,7 +100,7 @@ const availableFields = reverseIndex => [
 ].map(f => ({
   type: 'put',
   key: '￮FIELD￮' + f + '￮',
-  value: true
+  value: f
 }))
 
 const writer = (docs, db, mode) => new Promise((resolve, reject) => {

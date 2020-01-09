@@ -4,21 +4,34 @@ export default function init (db) {
   // key might be object or string like this
   // <fieldname>:<value>. Turn key into json object that is of the
   // format {field: ..., value: {gte: ..., lte ...}}
-
   const parseKey = key => {
     if (isString(key)) {
-      key = {
-        field: key.split(':')[0],
-        value: {
-          gte: key.split(':')[1],
-          lte: key.split(':')[1]
+      if (key.indexOf(':') > -1) {
+        // string is expressing a specified field to search in
+        key = {
+          field: [ key.split(':')[0] ],
+          value: {
+            gte: key.split(':')[1],
+            lte: key.split(':')[1]
+          }
+        }
+      } else {
+      // string is not specifying a field (search in ALL fields)
+        key = {
+          value: {
+            gte: key,
+            lte: key
+          }
         }
       }
-    }
-
-    key.value = {
-      gte: key.field + ':' + ((key.value.gte || key.value) || ''),
-      lte: key.field + ':' + ((key.value.lte || key.value) || '') + '￮'
+    } else {
+      // key is object, but key.value is string
+      if (isString(key.value)) {
+        key.value = {
+          gte: key.value,
+          lte: key.value
+        }
+      }
     }
     return key
   }
@@ -30,7 +43,6 @@ export default function init (db) {
     //   field: ...,
     //   value: ... (either a string or gte/lte)
     // }
-
     return RANGE(parseKey(key)).then(resolve)
   })
 
@@ -65,23 +77,45 @@ export default function init (db) {
     item => result[1].map(item => item._id).indexOf(item._id)
   ))
 
-  // Accepts a range of tokens (gte, lte) and returns an array of
-  // document ids together with the tokens that they have matched (a
-  // document can match more than one token in a range)
+  // Accepts a range of tokens (field, value {gte, lte}) and returns
+  // an array of document ids together with the tokens that they have
+  // matched (a document can match more than one token in a range)
   const RANGE = ops => new Promise(resolve => {
     const rs = {} // resultset
-    db.createReadStream(ops.value)
-      .on('data', token => token.value.forEach(docId => {
-        rs[docId] = [...(rs[docId] || []), token.key]
-        return rs
+    new Promise(
+      resolve => ops.field // is a field specified?
+        ? resolve(isString(ops.field) ? [ ops.field ] : ops.field) // use specified field (if String push to Array)
+        : AVAILABLE_FIELDS() // else get ALL available fields from store
+          .then(resolve)).then(
+      fields => Promise.all(
+        fields.map(
+          fieldName => new Promise(resolve => db.createReadStream({
+            gte: fieldName + ':' + ops.value.gte,
+            lte: fieldName + ':' + ops.value.lte + '￮'
+          }).on('data', token => token.value.forEach(docId => {
+            rs[docId] = [...(rs[docId] || []), token.key]
+            return rs
+          })).on('end', resolve))
+        )
+      )
+    ).then(() => resolve(
+      // convert map into array
+      Object.keys(rs).map(id => ({
+        _id: id,
+        _match: rs[id].sort()
       }))
-      .on('end', () => resolve(
-        // convert map into array
-        Object.keys(rs).map(id => ({
-          _id: id,
-          _match: rs[id]
-        }))
-      ))
+    )
+    )
+  })
+
+  const AVAILABLE_FIELDS = () => new Promise(resolve => {
+    const fieldNames = []
+    db.createReadStream({
+      gte: '￮FIELD￮',
+      lte: '￮FIELD￮￮'
+    })
+      .on('data', d => fieldNames.push(d.value))
+      .on('end', () => resolve(fieldNames))
   })
 
   // TODO: put in some validation here
@@ -121,6 +155,7 @@ export default function init (db) {
 
   return {
     AGGREGATE: AGGREGATE,
+    AVAILABLE_FIELDS: AVAILABLE_FIELDS,
     BUCKET: BUCKET,
     GET: GET,
     INTERSECTION: INTERSECTION,

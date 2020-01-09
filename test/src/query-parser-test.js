@@ -514,7 +514,7 @@ test('can do bucket', t => {
   t.plan(1)
   global[indexName].BUCKET('totalamt:1').then(result => {
     t.looseEqual(result, {
-      field: 'totalamt',
+      field: [ 'totalamt' ],
       value: { gte: '1', lte: '1' },
       _id: [
         '52b213b38594d8a2be17c780',
@@ -531,16 +531,16 @@ test('can do custom buckets', t => {
   Promise.all(
     [1, 2, 3, 4, 5].map(item => global[indexName].BUCKET('totalamt:' + item))
   ).then(result => t.looseEqual(result, [
-    { field: 'totalamt', value: { gte: '1', lte: '1' }, _id: [
+    { field: [ 'totalamt' ], value: { gte: '1', lte: '1' }, _id: [
       '52b213b38594d8a2be17c780',
       '52b213b38594d8a2be17c784',
       '52b213b38594d8a2be17c785',
       '52b213b38594d8a2be17c788'
     ] },
-    { field: 'totalamt', value: { gte: '2', lte: '2' }, _id: [ '52b213b38594d8a2be17c789' ] },
-    { field: 'totalamt', value: { gte: '3', lte: '3' }, _id: [] },
-    { field: 'totalamt', value: { gte: '4', lte: '4' }, _id: [] },
-    { field: 'totalamt', value: { gte: '5', lte: '5' }, _id: [ '52b213b38594d8a2be17c786' ] }
+    { field: [ 'totalamt' ], value: { gte: '2', lte: '2' }, _id: [ '52b213b38594d8a2be17c789' ] },
+    { field: [ 'totalamt' ], value: { gte: '3', lte: '3' }, _id: [] },
+    { field: [ 'totalamt' ], value: { gte: '4', lte: '4' }, _id: [] },
+    { field: [ 'totalamt' ], value: { gte: '5', lte: '5' }, _id: [ '52b213b38594d8a2be17c786' ] }
   ]))
 })
 
@@ -552,8 +552,8 @@ test('can do custom buckets and agreggate, only count docs with "board_approval_
     ),
     global[indexName].GET('board_approval_month:October')
   ).then(result => t.looseEqual(result, [
-    { field: 'totalamt', value: { gte: '1', lte: '1' }, _id: [ '52b213b38594d8a2be17c784', '52b213b38594d8a2be17c785', '52b213b38594d8a2be17c788' ] },
-    { field: 'totalamt', value: { gte: '2', lte: '2' }, _id: [ '52b213b38594d8a2be17c789' ] },
-    { field: 'totalamt', value: { gte: '5', lte: '5' }, _id: [ '52b213b38594d8a2be17c786' ] }
+    { field: [ 'totalamt' ], value: { gte: '1', lte: '1' }, _id: [ '52b213b38594d8a2be17c784', '52b213b38594d8a2be17c785', '52b213b38594d8a2be17c788' ] },
+    { field: [ 'totalamt' ], value: { gte: '2', lte: '2' }, _id: [ '52b213b38594d8a2be17c789' ] },
+    { field: [ 'totalamt' ], value: { gte: '5', lte: '5' }, _id: [ '52b213b38594d8a2be17c786' ] }
   ]))
 })
