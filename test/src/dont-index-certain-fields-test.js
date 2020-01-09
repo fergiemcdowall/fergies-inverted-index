@@ -58,7 +58,7 @@ test('analyse index', t => {
         { _id: '52b213b38594d8a2be17c782',
           '!board_approval_month': 'November',
           impagency: 'MINISTRY OF TRANSPORT AND COMMUNICATIONS' } },
-    { key: '￮FIELD￮impagency￮', value: true }
+    { key: '￮FIELD￮impagency￮', value: 'impagency' }
   ]
   t.plan(storeState.length)
   const r = global[indexName].STORE.createReadStream()

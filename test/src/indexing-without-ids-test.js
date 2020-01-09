@@ -36,8 +36,8 @@ test('can GET with string', t => {
       value: { land: 'SCOTLAND', colour: 'GREEN', _id: 1 } },
     { key: '￮DOC￮2￮',
       value: { land: 'IRELAND', colour: 'GREEN', _id: 2 } },
-    { key: '￮FIELD￮colour￮', value: true },
-    { key: '￮FIELD￮land￮', value: true },
+    { key: '￮FIELD￮colour￮', value: 'colour' },
+    { key: '￮FIELD￮land￮', value: 'land' },
   ]
   t.plan(result.length)
   global[indexName].STORE.createReadStream()

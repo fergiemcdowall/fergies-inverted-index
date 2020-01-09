@@ -93,8 +93,27 @@ test('get AVAILABLE_FIELDS', t => {
 
 })
 
+// test('can dump store', t => {
+//   t.plan(1)
+//   global[indexName].STORE.createReadStream()
+//     .on('data', console.log)
+//     .on('end', resolve => t.pass('ended'))
+// })
 
-test('can GET with string', t => {
+test('can GET with string specifying a field', t => {
+  t.plan(1)
+  global[indexName].GET('make:Tesla')
+    .then(result => {
+      t.looseEqual(result, [
+        { _id: '0', _match: [ 'make:Tesla' ] },
+        { _id: '2', _match: [ 'make:Tesla' ] },
+        { _id: '3', _match: [ 'make:Tesla' ] },
+        { _id: '6', _match: [ 'make:Tesla' ] },
+      ])
+    })
+})
+
+test('can GET with string without specifying field (GET from all fields)', t => {
   t.plan(1)
   global[indexName].GET('Tesla')
     .then(result => {
@@ -107,6 +126,82 @@ test('can GET with string', t => {
         { _id: '7', _match: [ 'brand:Tesla', 'manufacturer:Tesla' ] },
         { _id: '8', _match: [ 'brand:Tesla' ] },
         { _id: '9', _match: [ 'manufacturer:Tesla' ] } 
+      ])
+    })
+})
+
+test('can GET without specifying field (GET from all fields)', t => {
+  t.plan(1)
+  global[indexName].GET({
+    value: {
+      gte: 'Tesla',
+      lte: 'Tesla'
+    }
+  })
+    .then(result => {
+      t.looseEqual(result, [
+        { _id: '0', _match: [ 'make:Tesla' ] },
+        { _id: '2', _match: [ 'make:Tesla', 'manufacturer:Tesla' ] },
+        { _id: '3', _match: [ 'make:Tesla' ] },
+        { _id: '5', _match: [ 'manufacturer:Tesla' ] },
+        { _id: '6', _match: [ 'make:Tesla', 'manufacturer:Tesla' ] },
+        { _id: '7', _match: [ 'brand:Tesla', 'manufacturer:Tesla' ] },
+        { _id: '8', _match: [ 'brand:Tesla' ] },
+        { _id: '9', _match: [ 'manufacturer:Tesla' ] } 
+      ])
+    })
+})
+
+
+test('can GET specifying 2 fields (GET from all fields)', t => {
+  t.plan(1)
+  global[indexName].GET({
+    field: ['brand', 'manufacturer'],
+    value: {
+      gte: 'Tesla',
+      lte: 'Tesla'
+    }
+  })
+    .then(result => {
+      t.looseEqual(result, [
+        { _id: '2', _match: [ 'manufacturer:Tesla' ] },
+        { _id: '5', _match: [ 'manufacturer:Tesla' ] },
+        { _id: '6', _match: [ 'manufacturer:Tesla' ] },
+        { _id: '7', _match: [ 'brand:Tesla', 'manufacturer:Tesla' ] },
+        { _id: '8', _match: [ 'brand:Tesla' ] },
+        { _id: '9', _match: [ 'manufacturer:Tesla' ] } 
+      ])
+    })
+})
+
+test('can GET specifying 2 fields (GET from all fields)', t => {
+  t.plan(1)
+  global[indexName].GET({
+    field: 'brand',
+    value: {
+      gte: 'Tesla',
+      lte: 'Tesla'
+    }
+  })
+    .then(result => {
+      t.looseEqual(result, [
+        { _id: '7', _match: [ 'brand:Tesla' ] },
+        { _id: '8', _match: [ 'brand:Tesla' ] },
+      ])
+    })
+})
+
+
+test('can GET specifying 2 fields (GET from all fields)', t => {
+  t.plan(1)
+  global[indexName].GET({
+    field: 'brand',
+    value: 'Tesla'
+  })
+    .then(result => {
+      t.looseEqual(result, [
+        { _id: '7', _match: [ 'brand:Tesla' ] },
+        { _id: '8', _match: [ 'brand:Tesla' ] },
       ])
     })
 })
