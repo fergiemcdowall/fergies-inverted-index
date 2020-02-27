@@ -127,17 +127,23 @@ function init (db) {
   });
 
   // TODO: put in some validation here
-  // arg 1: an aggregration
+  // arg 1: an array of BUCKETS
   // arg 2: a filter set- return only results of arg 1 that intersect with arg 2
-  // TODO: should this use spread syntax? Maybe 2 args instead?
-  const AGGREGATE = (...args) => Promise.all(args).then(result => {
-    var aggregation = new Set(result[1].map(item => item._id));
-    return result[0].map(
-      item => Object.assign(item, {
-        _id: [...new Set([...item._id].filter(x => aggregation.has(x)))]
-      })
-    ).filter(item => item._id.length)
-  });
+  const BUCKETFILTER = (buckets, filter) => {
+    // buckets can be either an Array of BUCKETs or a Promise that returns
+    // an array of buckets
+    if (Array.isArray(buckets)) buckets = Promise.all(buckets);
+    return buckets.then(
+      buckets => Promise.all([...buckets, filter])
+    ).then(result => {
+      var filterSet = new Set(result.pop().map(item => item._id));
+      return result.map(
+        bucket => Object.assign(bucket, {
+          _id: [...new Set([...bucket._id].filter(x => filterSet.has(x)))]
+        })
+      )
+    })
+  };
 
   // return a bucket of IDs. Key is an object like this:
   // {gte:..., lte:...} (gte/lte == greater/less than or equal)
@@ -162,9 +168,9 @@ function init (db) {
   });
 
   return {
-    AGGREGATE: AGGREGATE,
     AVAILABLE_FIELDS: AVAILABLE_FIELDS,
     BUCKET: BUCKET,
+    BUCKETFILTER: BUCKETFILTER,
     GET: GET,
     INTERSECTION: INTERSECTION,
     SET_DIFFERENCE: SET_DIFFERENCE,
@@ -353,11 +359,10 @@ function init$3 (db) {
 
 const makeAFii = db => {
   return {
-    AGGREGATE: init(db).AGGREGATE,
     AVAILABLE_FIELDS: init(db).AVAILABLE_FIELDS,
     AND: init(db).INTERSECTION,
     BUCKET: init(db).BUCKET,
-    BUCKETFILTER: init(db).AGGREGATE,
+    BUCKETFILTER: init(db).BUCKETFILTER,
     DELETE: init$3(db).DELETE,
     DISTINCT: init$2(db).DIST,
     GET: init(db).GET,
