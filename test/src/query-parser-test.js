@@ -480,12 +480,17 @@ test('can aggregate totalamt', t => {
   global[indexName].BUCKETFILTER(
     global[indexName].DISTINCT({
       field: 'totalamt'
-    }).then(result => Promise.all(result.map(global[indexName].BUCKET))),
+    }).then(result => result.map(global[indexName].BUCKET)),
     global[indexName].GET('board_approval_month:November')
   ).then(result => {
     t.looseEqual(result, [
       { field: 'totalamt', value: { gte: '0', lte: '0' }, _id: [ '52b213b38594d8a2be17c781' ] },
+      { field: 'totalamt', value: { gte: '10000000', lte: '10000000' }, _id: [] },
       { field: 'totalamt', value: { gte: '130000000', lte: '130000000' }, _id: [ '52b213b38594d8a2be17c780' ] },
+      { field: 'totalamt', value: { gte: '13100000', lte: '13100000' }, _id: [] },
+      { field: 'totalamt', value: { gte: '160000000', lte: '160000000' }, _id: [] },
+      { field: 'totalamt', value: { gte: '200000000', lte: '200000000' }, _id: [] },
+      { field: 'totalamt', value: { gte: '500000000', lte: '500000000' }, _id: [] },
       { field: 'totalamt', value: { gte: '6060000', lte: '6060000' }, _id: [ '52b213b38594d8a2be17c782' ] }
     ])
   })
@@ -496,16 +501,18 @@ test('can aggregate totalamt, on docs with "board_approval_month:October"', t =>
   global[indexName].BUCKETFILTER(
     global[indexName].DISTINCT({
       field: 'totalamt'
-    }).then(result => Promise.all(result.map(global[indexName].BUCKET))),
+    }).then(result => result.map(global[indexName].BUCKET)),
     global[indexName].GET('board_approval_month:October')
   ).then(result => {
     t.looseEqual(result, [
       { field: 'totalamt', value: { gte: '0', lte: '0' }, _id: [ '52b213b38594d8a2be17c783', '52b213b38594d8a2be17c787' ] },
       { field: 'totalamt', value: { gte: '10000000', lte: '10000000' }, _id: [ '52b213b38594d8a2be17c785' ] },
+      { field: 'totalamt', value: { gte: '130000000', lte: '130000000' }, _id: [] },
       { field: 'totalamt', value: { gte: '13100000', lte: '13100000' }, _id: [ '52b213b38594d8a2be17c784' ] },
       { field: 'totalamt', value: { gte: '160000000', lte: '160000000' }, _id: [ '52b213b38594d8a2be17c788' ] },
       { field: 'totalamt', value: { gte: '200000000', lte: '200000000' }, _id: [ '52b213b38594d8a2be17c789' ] },
-      { field: 'totalamt', value: { gte: '500000000', lte: '500000000' }, _id: [ '52b213b38594d8a2be17c786' ] }
+      { field: 'totalamt', value: { gte: '500000000', lte: '500000000' }, _id: [ '52b213b38594d8a2be17c786' ] },
+      { field: 'totalamt', value: { gte: '6060000', lte: '6060000' }, _id: [] } 
     ])
   })
 })
@@ -547,13 +554,13 @@ test('can do custom buckets', t => {
 test('can do custom buckets and agreggate, only count docs with "board_approval_month:October"', t => {
   t.plan(1)
   global[indexName].BUCKETFILTER(
-    Promise.all(
-      [1, 2, 3, 4, 5].map(item => global[indexName].BUCKET('totalamt:' + item))
-    ),
+    [1, 2, 3, 4, 5].map(item => global[indexName].BUCKET('totalamt:' + item)),
     global[indexName].GET('board_approval_month:October')
   ).then(result => t.looseEqual(result, [
     { field: [ 'totalamt' ], value: { gte: '1', lte: '1' }, _id: [ '52b213b38594d8a2be17c784', '52b213b38594d8a2be17c785', '52b213b38594d8a2be17c788' ] },
     { field: [ 'totalamt' ], value: { gte: '2', lte: '2' }, _id: [ '52b213b38594d8a2be17c789' ] },
+    { field: [ 'totalamt' ], value: { gte: '3', lte: '3' }, _id: [] },
+    { field: [ 'totalamt' ], value: { gte: '4', lte: '4' }, _id: [] },
     { field: [ 'totalamt' ], value: { gte: '5', lte: '5' }, _id: [ '52b213b38594d8a2be17c786' ] }
   ]))
 })
