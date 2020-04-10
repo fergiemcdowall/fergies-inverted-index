@@ -77,13 +77,13 @@ function init (db) {
     )
   );
 
-  // NOT
-  const SET_DIFFERENCE = (a, b) => Promise.all([
+  // NOT (set a minus set b)
+  const SET_SUBTRACTION = (a, b) => Promise.all([
     isString(a) ? GET(a) : a,
     isString(b) ? GET(b) : b
-  ]).then(result => result[0].filter(
-    item => result[1].map(item => item._id).indexOf(item._id)
-  ));
+  ]).then(([a, b]) => a.filter(
+    aItem => b.map(bItem => bItem._id).indexOf(aItem._id) === -1)
+  );
 
   // Accepts a range of tokens (field, value {gte, lte}) and returns
   // an array of document ids together with the tokens that they have
@@ -173,7 +173,8 @@ function init (db) {
     BUCKETFILTER: BUCKETFILTER,
     GET: GET,
     INTERSECTION: INTERSECTION,
-    SET_DIFFERENCE: SET_DIFFERENCE,
+    //    SET_DIFFERENCE: SET_DIFFERENCE,
+    SET_SUBTRACTION: SET_SUBTRACTION,
     UNION: UNION
   }
 }
@@ -368,10 +369,12 @@ const makeAFii = db => {
     GET: init(db).GET,
     MAX: init$2(db).MAX,
     MIN: init$2(db).MIN,
-    NOT: init(db).SET_DIFFERENCE,
+    //    NOT: idMap(db).SET_DIFFERENCE,
+    NOT: init(db).SET_SUBTRACTION,
     OBJECT: init$1(db).OBJECT,
     OR: init(db).UNION,
     PUT: init$3(db).PUT,
+    SET_SUBTRACTION: init(db).SET_SUBTRACTION,
     STORE: db
   }
 };

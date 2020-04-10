@@ -16,10 +16,12 @@ const makeAFii = db => {
     GET: idMap(db).GET,
     MAX: propMap(db).MAX,
     MIN: propMap(db).MIN,
-    NOT: idMap(db).SET_DIFFERENCE,
+    //    NOT: idMap(db).SET_DIFFERENCE,
+    NOT: idMap(db).SET_SUBTRACTION,
     OBJECT: objMap(db).OBJECT,
     OR: idMap(db).UNION,
     PUT: writer(db).PUT,
+    SET_SUBTRACTION: idMap(db).SET_SUBTRACTION,
     STORE: db
   }
 }

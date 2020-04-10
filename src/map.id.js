@@ -69,13 +69,13 @@ export default function init (db) {
     )
   )
 
-  // NOT
-  const SET_DIFFERENCE = (a, b) => Promise.all([
+  // NOT (set a minus set b)
+  const SET_SUBTRACTION = (a, b) => Promise.all([
     isString(a) ? GET(a) : a,
     isString(b) ? GET(b) : b
-  ]).then(result => result[0].filter(
-    item => result[1].map(item => item._id).indexOf(item._id)
-  ))
+  ]).then(([a, b]) => a.filter(
+    aItem => b.map(bItem => bItem._id).indexOf(aItem._id) === -1)
+  )
 
   // Accepts a range of tokens (field, value {gte, lte}) and returns
   // an array of document ids together with the tokens that they have
@@ -165,7 +165,8 @@ export default function init (db) {
     BUCKETFILTER: BUCKETFILTER,
     GET: GET,
     INTERSECTION: INTERSECTION,
-    SET_DIFFERENCE: SET_DIFFERENCE,
+    //    SET_DIFFERENCE: SET_DIFFERENCE,
+    SET_SUBTRACTION: SET_SUBTRACTION,
     UNION: UNION
   }
 }
