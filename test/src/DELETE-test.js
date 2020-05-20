@@ -36,16 +36,16 @@ test('can add some worldbank data', t => {
   t.plan(1)
   global[indexName].PUT(data).then(result => {
     t.looseEqual(result, [
-      { _id: '52b213b38594d8a2be17c780', board_approval_month: 'November', totalamt: 130000000 },
-      { _id: '52b213b38594d8a2be17c781', board_approval_month: 'November', totalamt: 0 },
-      { _id: '52b213b38594d8a2be17c782', board_approval_month: 'November', totalamt: 6060000 },
-      { _id: '52b213b38594d8a2be17c783', board_approval_month: 'October', totalamt: 0 },
-      { _id: '52b213b38594d8a2be17c784', board_approval_month: 'October', totalamt: 13100000 },
-      { _id: '52b213b38594d8a2be17c785', board_approval_month: 'October', totalamt: 10000000 },
-      { _id: '52b213b38594d8a2be17c786', board_approval_month: 'October', totalamt: 500000000 },
-      { _id: '52b213b38594d8a2be17c787', board_approval_month: 'October', totalamt: 0 },
-      { _id: '52b213b38594d8a2be17c788', board_approval_month: 'October', totalamt: 160000000 },
-      { _id: '52b213b38594d8a2be17c789', board_approval_month: 'October', totalamt: 200000000 }
+      { _id: '52b213b38594d8a2be17c780', status: 'OK', operation: 'PUT' },
+      { _id: '52b213b38594d8a2be17c781', status: 'OK', operation: 'PUT' },
+      { _id: '52b213b38594d8a2be17c782', status: 'OK', operation: 'PUT' },
+      { _id: '52b213b38594d8a2be17c783', status: 'OK', operation: 'PUT' },
+      { _id: '52b213b38594d8a2be17c784', status: 'OK', operation: 'PUT' },
+      { _id: '52b213b38594d8a2be17c785', status: 'OK', operation: 'PUT' },
+      { _id: '52b213b38594d8a2be17c786', status: 'OK', operation: 'PUT' },
+      { _id: '52b213b38594d8a2be17c787', status: 'OK', operation: 'PUT' },
+      { _id: '52b213b38594d8a2be17c788', status: 'OK', operation: 'PUT' },
+      { _id: '52b213b38594d8a2be17c789', status: 'OK', operation: 'PUT' } 
     ])
   })
 })
@@ -82,11 +82,13 @@ test('can DELETE', t => {
   t.plan(1)
   global[indexName].DELETE([
     '52b213b38594d8a2be17c781',
+    'thisIDNotFound',
     '52b213b38594d8a2be17c782'
   ]).then(result => {
     t.looseEqual(result, [
-      { _id: '52b213b38594d8a2be17c781', board_approval_month: 'November', totalamt: 0 },
-      { _id: '52b213b38594d8a2be17c782', board_approval_month: 'November', totalamt: 6060000 }
+      { _id: '52b213b38594d8a2be17c781', status: 'OK', operation: 'DELETE' },
+      { _id: 'thisIDNotFound', status: 'OK', operation: 'DELETE' },
+      { _id: '52b213b38594d8a2be17c782', status: 'OK', operation: 'DELETE' }
     ])
   })
 })
@@ -115,9 +117,9 @@ test('can GET with object having deleted two docs', t => {
       lte: 'November'
     }
   })
-    .then(result => {
-      t.looseEqual(result, [
-        { _id: '52b213b38594d8a2be17c780', _match: [ 'board_approval_month:November' ] }
-      ])
-    })
+   .then(result => {
+     t.looseEqual(result, [
+       { _id: '52b213b38594d8a2be17c780', _match: [ 'board_approval_month:November' ] }
+     ])
+   })
 })

@@ -348,9 +348,34 @@ function init$3 (db) {
   // deleted
   const DELETE = _ids => init$1(db).OBJECT(
     _ids.map(_id => ({ _id: _id }))
-  ).then(docs => writer(docs, db, 'del'));
+  ).then(
+    docs => writer(docs.map((doc, i) => {
+      if (doc === null) {
+        return {
+          _id: _ids[i], status: 'NOT FOUND', mode: 'DELETE'
+        }
+      }
+      return doc
+    }), db, 'del')
+  ).then(
+    docs => docs.map(
+      doc => ({
+        _id: doc._id,
+        status: 'OK',
+        operation: 'DELETE'
+      })
+    )
+  );
 
-  const PUT = docs => writer(docs, db, 'put');
+  const PUT = docs => writer(docs, db, 'put').then(
+    docs => docs.map(
+      doc => ({
+        _id: doc._id,
+        status: 'OK',
+        operation: 'PUT'
+      })
+    )
+  );
 
   return {
     DELETE: DELETE,
