@@ -6,7 +6,7 @@ var level = _interopDefault(require('level'));
 var trav = _interopDefault(require('traverse'));
 var test = _interopDefault(require('tape'));
 
-function init (db) {
+function init (db, ops) {
   const isString = s => (typeof s === 'string');
 
   // key might be object or string like this
@@ -40,6 +40,15 @@ function init (db) {
           lte: key.value
         };
       }
+    }
+    // token append allows in practice token spaces to be split up on
+    // a character when being read. Useful when stuffing scores into
+    // tokens
+    if (key.value.gte.slice(-1) !== ops.tokenAppend) {
+      key.value.gte = key.value.gte + ops.tokenAppend;
+    }
+    if (key.value.lte.slice(-1) !== ops.tokenAppend) {
+      key.value.lte = key.value.lte + ops.tokenAppend;
     }
     return key
   };
@@ -156,13 +165,13 @@ function init (db) {
     //     lte: key
     //   }
     // }
-    // TODO: some kind of verification of key object
     key = parseKey(key);
+    const re = new RegExp('[￮' + ops.tokenAppend + ']', 'g');
     return Object.assign(key, {
       _id: [...result.reduce((acc, cur) => acc.add(cur._id), new Set())].sort(),
       value: {
-        gte: key.value.gte.split(':').pop(),
-        lte: key.value.lte.split(':').pop().replace(/￮/g, '')
+        gte: key.value.gte.split(':').pop().replace(re, ''),
+        lte: key.value.lte.split(':').pop().replace(re, '')
       }
     })
   });
@@ -383,38 +392,46 @@ function init$3 (db) {
   }
 }
 
-const makeAFii = db => {
-  return {
-    AVAILABLE_FIELDS: init(db).AVAILABLE_FIELDS,
-    AND: init(db).INTERSECTION,
-    BUCKET: init(db).BUCKET,
-    BUCKETFILTER: init(db).BUCKETFILTER,
-    DELETE: init$3(db).DELETE,
-    DISTINCT: init$2(db).DIST,
-    GET: init(db).GET,
-    MAX: init$2(db).MAX,
-    MIN: init$2(db).MIN,
-    //    NOT: idMap(db).SET_DIFFERENCE,
-    NOT: init(db).SET_SUBTRACTION,
-    OBJECT: init$1(db).OBJECT,
-    OR: init(db).UNION,
-    PUT: init$3(db).PUT,
-    SET_SUBTRACTION: init(db).SET_SUBTRACTION,
-    STORE: db
-  }
-};
+const makeAFii = (db, ops) => ({
+  AVAILABLE_FIELDS: init(db, ops).AVAILABLE_FIELDS,
+  AND: init(db, ops).INTERSECTION,
+  BUCKET: init(db, ops).BUCKET,
+  BUCKETFILTER: init(db, ops).BUCKETFILTER,
+  DELETE: init$3(db).DELETE,
+  DISTINCT: init$2(db).DIST,
+  GET: init(db, ops).GET,
+  MAX: init$2(db).MAX,
+  MIN: init$2(db).MIN,
+  //    NOT: idMap(db).SET_DIFFERENCE,
+  NOT: init(db, ops).SET_SUBTRACTION,
+  OBJECT: init$1(db).OBJECT,
+  OR: init(db, ops).UNION,
+  PUT: init$3(db).PUT,
+  SET_SUBTRACTION: init(db, ops).SET_SUBTRACTION,
+  STORE: db
+});
 
 function fii (ops, callback) {
   ops = Object.assign({}, {
-    name: 'fii'
+    name: 'fii',
+    // tokenAppend can be used to create 'comment' spaces in
+    // tokens. For example using '#' allows tokens like boom#1.00 to
+    // be retrieved by using "boom". If tokenAppend wasnt used, then
+    // {gte: 'boom', lte: 'boom'} would also return stuff like
+    // boomness#1.00 etc
+    tokenAppend: ''
   }, ops);
   // if no callback provided, "lazy load"
   if (!callback) {
-    return makeAFii(ops.store || level(ops.name, { valueEncoding: 'json' }))
+    return makeAFii(
+      (ops.store || level(ops.name, { valueEncoding: 'json' })),
+      ops
+    )
   } else {
     if (ops.store) return callback(new Error('When initing with a store use "lazy loading"'), null)
     // use callback to provide a notification that db is opened
-    level(ops.name, { valueEncoding: 'json' }, (err, store) => callback(err, makeAFii(store)));
+    level(ops.name, { valueEncoding: 'json' }, (err, store) =>
+      callback(err, makeAFii(store, ops)));
   }
 }
 

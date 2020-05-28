@@ -1,4 +1,4 @@
-export default function init (db) {
+export default function init (db, ops) {
   const isString = s => (typeof s === 'string')
 
   // key might be object or string like this
@@ -32,6 +32,15 @@ export default function init (db) {
           lte: key.value
         }
       }
+    }
+    // token append allows in practice token spaces to be split up on
+    // a character when being read. Useful when stuffing scores into
+    // tokens
+    if (key.value.gte.slice(-1) !== ops.tokenAppend) {
+      key.value.gte = key.value.gte + ops.tokenAppend
+    }
+    if (key.value.lte.slice(-1) !== ops.tokenAppend) {
+      key.value.lte = key.value.lte + ops.tokenAppend
     }
     return key
   }
@@ -148,13 +157,13 @@ export default function init (db) {
     //     lte: key
     //   }
     // }
-    // TODO: some kind of verification of key object
     key = parseKey(key)
+    const re = new RegExp('[￮' + ops.tokenAppend + ']', 'g')
     return Object.assign(key, {
       _id: [...result.reduce((acc, cur) => acc.add(cur._id), new Set())].sort(),
       value: {
-        gte: key.value.gte.split(':').pop(),
-        lte: key.value.lte.split(':').pop().replace(/￮/g, '')
+        gte: key.value.gte.split(':').pop().replace(re, ''),
+        lte: key.value.lte.split(':').pop().replace(re, '')
       }
     })
   })
