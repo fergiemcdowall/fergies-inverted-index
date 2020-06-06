@@ -395,6 +395,8 @@ function init$3 (db) {
   }
 }
 
+// _match is nested by default so that AND and OR work correctly under
+// the bonnet. Flatten array before presenting to consumer
 const flattenMatchArrayInResults = results => results.map(result => {
   result._match = result._match.flat(Infinity);
   return result
