@@ -41,13 +41,13 @@ test('can add some worldbank data', t => {
 test('can GET with string', t => {
   t.plan(1)
   global[indexName].GET('board_approval_month:November')
-    .then(result => {
-      t.looseEqual(result, [
-        { _id: '52b213b38594d8a2be17c780', _match: [ 'board_approval_month:November' ] },
-        { _id: '52b213b38594d8a2be17c781', _match: [ 'board_approval_month:November' ] },
-        { _id: '52b213b38594d8a2be17c782', _match: [ 'board_approval_month:November' ] }
-      ])
-    })
+   .then(result => {
+     t.looseEqual(result, [
+       { _id: '52b213b38594d8a2be17c780', _match: [ 'board_approval_month:November' ] },
+       { _id: '52b213b38594d8a2be17c781', _match: [ 'board_approval_month:November' ] },
+       { _id: '52b213b38594d8a2be17c782', _match: [ 'board_approval_month:November' ] }
+     ])
+   })
 })
 
 test('can GET with object', t => {
@@ -56,13 +56,13 @@ test('can GET with object', t => {
     field: 'board_approval_month',
     value: 'November'
   })
-    .then(result => {
-      t.looseEqual(result, [
-        { _id: '52b213b38594d8a2be17c780', _match: [ 'board_approval_month:November' ] },
-        { _id: '52b213b38594d8a2be17c781', _match: [ 'board_approval_month:November' ] },
-        { _id: '52b213b38594d8a2be17c782', _match: [ 'board_approval_month:November' ] }
-      ])
-    })
+   .then(result => {
+     t.looseEqual(result, [
+       { _id: '52b213b38594d8a2be17c780', _match: [ 'board_approval_month:November' ] },
+       { _id: '52b213b38594d8a2be17c781', _match: [ 'board_approval_month:November' ] },
+       { _id: '52b213b38594d8a2be17c782', _match: [ 'board_approval_month:November' ] }
+     ])
+   })
 })
 
 test('can do some AND searches', t => {
@@ -72,14 +72,18 @@ test('can do some AND searches', t => {
     'sectorcode:BZ',
     'board_approval_month:November'
   )
-    .then(result => {
-      t.looseEqual(result, [
-        {
-          _id: '52b213b38594d8a2be17c781',
-         _match: [ [ 'sectorcode:BS' ], [ 'sectorcode:BZ' ], [ 'board_approval_month:November' ] ]
-        }
-      ])
-    })
+   .then(result => {
+     t.looseEqual(result, [
+       {
+         _id: '52b213b38594d8a2be17c781',
+         _match: [
+           'sectorcode:BS',
+           'sectorcode:BZ',
+           'board_approval_month:November'
+         ]
+       }
+     ])
+   })
 })
 
 test('can do some OR searches', t => {
@@ -90,13 +94,14 @@ test('can do some OR searches', t => {
     'board_approval_month:November'
   ).then(result => {
     t.looseEqual(result, [
-      { _id: '52b213b38594d8a2be17c780', _match: [ [ 'sectorcode:BS' ], [ 'board_approval_month:November' ] ] },
-      { _id: '52b213b38594d8a2be17c781', _match: [ [ 'sectorcode:BS' ], [ 'sectorcode:BZ' ], [ 'board_approval_month:November' ] ] },
-      { _id: '52b213b38594d8a2be17c789', _match: [ [ 'sectorcode:BZ' ] ] },
-      { _id: '52b213b38594d8a2be17c782', _match: [ [ 'board_approval_month:November' ] ] }
+      { _id: '52b213b38594d8a2be17c780', _match: [ 'sectorcode:BS', 'board_approval_month:November' ] },
+      { _id: '52b213b38594d8a2be17c781', _match: [ 'sectorcode:BS', 'sectorcode:BZ', 'board_approval_month:November' ] },
+      { _id: '52b213b38594d8a2be17c789', _match: [ 'sectorcode:BZ' ] },
+      { _id: '52b213b38594d8a2be17c782', _match: [ 'board_approval_month:November' ] }
     ])
   })
 })
+
 
 test('can do some OR searches', t => {
   t.plan(1)
@@ -105,11 +110,11 @@ test('can do some OR searches', t => {
     'sectorcode:TI'
   ).then(result => {
     t.looseEqual(result, [
-      { _id: '52b213b38594d8a2be17c781', _match: [ [ 'sectorcode:BZ' ] ] },
-      { _id: '52b213b38594d8a2be17c789', _match: [ [ 'sectorcode:BZ' ] ] },
-      { _id: '52b213b38594d8a2be17c782', _match: [ [ 'sectorcode:TI' ] ] },
-      { _id: '52b213b38594d8a2be17c786', _match: [ [ 'sectorcode:TI' ] ] },
-      { _id: '52b213b38594d8a2be17c788', _match: [ [ 'sectorcode:TI' ] ] }
+      { _id: '52b213b38594d8a2be17c781', _match: [ 'sectorcode:BZ' ] },
+      { _id: '52b213b38594d8a2be17c789', _match: [ 'sectorcode:BZ' ] },
+      { _id: '52b213b38594d8a2be17c782', _match: [ 'sectorcode:TI' ] },
+      { _id: '52b213b38594d8a2be17c786', _match: [ 'sectorcode:TI' ] },
+      { _id: '52b213b38594d8a2be17c788', _match: [ 'sectorcode:TI' ] }
     ])
   })
 })
@@ -122,12 +127,13 @@ test('can do AND with nested OR', t => {
   ).then(result => {
     t.looseEqual(result, [
       { _id: '52b213b38594d8a2be17c781',
-       _match: [ [ 'board_approval_month:November' ], [ [ 'sectorcode:BZ' ] ] ] },
+        _match: [ 'board_approval_month:November', 'sectorcode:BZ' ] },
       { _id: '52b213b38594d8a2be17c782',
-       _match: [ [ 'board_approval_month:November' ], [ [ 'sectorcode:TI' ] ] ] }
+        _match: [ 'board_approval_month:November', 'sectorcode:TI' ] }
     ])
   })
 })
+
 
 test('can do AND with embedded AND', t => {
   t.plan(1)
@@ -141,19 +147,20 @@ test('can do AND with embedded AND', t => {
     t.looseEqual(result, [
       {
         _id: '52b213b38594d8a2be17c786',
-       _match: [ [ 'board_approval_month:October' ], [ [ 'sectorcode:TI' ] ] ]
+        _match: [ 'board_approval_month:October', 'sectorcode:TI' ]
       },
       {
         _id: '52b213b38594d8a2be17c788',
-       _match: [ [ 'board_approval_month:October' ], [ [ 'sectorcode:TI' ] ] ]
+        _match: [ 'board_approval_month:October', 'sectorcode:TI' ]
       },
       {
         _id: '52b213b38594d8a2be17c789',
-       _match: [ [ 'board_approval_month:October' ], [ [ [ 'sectorcode:BZ' ], [ 'sectorcode:BC' ] ] ] ]
+        _match: [ 'board_approval_month:October', 'sectorcode:BZ', 'sectorcode:BC' ]
       }
     ])
   })
 })
+
 
 test('can do AND', t => {
   t.plan(1)
@@ -161,11 +168,76 @@ test('can do AND', t => {
     'board_approval_month:November',
     global[indexName].OR('sectorcode:BZ', 'sectorcode:TI')
   ).then(global[indexName].OBJECT)
-    .then(result => {
-      t.looseEqual(result, [
-        { _id: '52b213b38594d8a2be17c781', sectorcode: [ 'BZ', 'BS' ], board_approval_month: 'November', impagency: 'MINISTRY OF FINANCE', majorsector_percent: [ { Name: 'Public Administration, Law, and Justice', Percent: 70 }, { Name: 'Public Administration, Law, and Justice', Percent: 30 } ], mjsector_namecode: [ { name: 'Public Administration, Law, and Justice', code: 'BX' }, { name: 'Public Administration, Law, and Justice', code: 'BX' } ], sector_namecode: [ { name: 'Public administration- Other social services', code: 'BS' }, { name: 'General public administration sector', code: 'BZ' } ], totalamt: 0 }, { _id: '52b213b38594d8a2be17c782', sectorcode: [ 'TI' ], board_approval_month: 'November', impagency: 'MINISTRY OF TRANSPORT AND COMMUNICATIONS', majorsector_percent: [ { Name: 'Transportation', Percent: 100 } ], mjsector_namecode: [ { name: 'Transportation', code: 'TX' } ], sector_namecode: [ { name: 'Rural and Inter-Urban Roads and Highways', code: 'TI' } ], totalamt: 6060000 }
-      ])
-    })
+   .then(result => {
+     t.looseEqual(result, [
+       { _id: '52b213b38594d8a2be17c781',
+         _match: [ 'board_approval_month:November', 'sectorcode:BZ' ],
+         _object: {
+           _id: '52b213b38594d8a2be17c781',
+           sectorcode: [ 'BZ', 'BS' ],
+           board_approval_month: 'November',
+           impagency: 'MINISTRY OF FINANCE',
+           majorsector_percent: [
+             {
+               Name: 'Public Administration, Law, and Justice',
+               Percent: 70
+             },
+             {
+               Name: 'Public Administration, Law, and Justice',
+               Percent: 30
+             }
+           ],
+           mjsector_namecode: [
+             {
+               name: 'Public Administration, Law, and Justice',
+               code: 'BX'
+             }, {
+               name: 'Public Administration, Law, and Justice',
+               code: 'BX' }
+           ],
+           sector_namecode: [
+             {
+               name: 'Public administration- Other social services',
+               code: 'BS'
+             },
+             {
+               name: 'General public administration sector',
+               code: 'BZ'
+             }
+           ],
+           totalamt: 0
+         }
+       },
+       {
+         _id: '52b213b38594d8a2be17c782',
+         _match: [ 'board_approval_month:November', 'sectorcode:TI' ],
+         _object: {
+           _id: '52b213b38594d8a2be17c782',
+           sectorcode: [ 'TI' ],
+           board_approval_month: 'November',
+           impagency: 'MINISTRY OF TRANSPORT AND COMMUNICATIONS',
+           majorsector_percent: [ {
+             Name: 'Transportation',
+             Percent: 100
+           }
+           ],
+           mjsector_namecode: [
+             {
+               name: 'Transportation',
+               code: 'TX'
+             }
+           ],
+           sector_namecode: [
+             {
+               name: 'Rural and Inter-Urban Roads and Highways',
+               code: 'TI'
+             }
+           ],
+           totalamt: 6060000
+         }
+       }
+     ])
+   })
 })
 
 test('can do AND with embedded OR search', t => {
@@ -177,28 +249,30 @@ test('can do AND with embedded OR search', t => {
       global[indexName].AND('sectorcode:BC', 'sectorcode:BM')
     )
   ).then(global[indexName].OBJECT)
-    .then(result => {
-      t.looseEqual(result, [
-        { _id: '52b213b38594d8a2be17c787', sectorcode: [ 'LR' ], board_approval_month: 'October', impagency: 'NATIONAL ENERGY ADMINISTRATION', majorsector_percent: [ { Name: 'Energy and mining', Percent: 100 } ], mjsector_namecode: [ { name: 'Energy and mining', code: 'LX' } ], sector_namecode: [ { name: 'Other Renewable Energy', code: 'LR' } ], totalamt: 0 },
-        { _id: '52b213b38594d8a2be17c789', sectorcode: [ 'BM', 'BC', 'BZ' ], board_approval_month: 'October', impagency: 'MINISTRY OF FINANCE', majorsector_percent: [ { Name: 'Public Administration, Law, and Justice', Percent: 34 }, { Name: 'Public Administration, Law, and Justice', Percent: 33 }, { Name: 'Public Administration, Law, and Justice', Percent: 33 } ], mjsector_namecode: [ { name: 'Public Administration, Law, and Justice', code: 'BX' }, { name: 'Public Administration, Law, and Justice', code: 'BX' }, { name: 'Public Administration, Law, and Justice', code: 'BX' } ], sector_namecode: [ { name: 'General public administration sector', code: 'BZ' }, { name: 'Central government administration', code: 'BC' }, { name: 'Public administration- Information and communications', code: 'BM' } ], totalamt: 200000000 }
-      ])
-    })
+   .then(result => {
+     t.looseEqual(result, [
+       
+       { _id: '52b213b38594d8a2be17c787', _match: [ 'board_approval_month:October', 'sectorcode:LR' ], _object: { _id: '52b213b38594d8a2be17c787', sectorcode: [ 'LR' ], board_approval_month: 'October', impagency: 'NATIONAL ENERGY ADMINISTRATION', majorsector_percent: [ { Name: 'Energy and mining', Percent: 100 } ], mjsector_namecode: [ { name: 'Energy and mining', code: 'LX' } ], sector_namecode: [ { name: 'Other Renewable Energy', code: 'LR' } ], totalamt: 0 } },
+       { _id: '52b213b38594d8a2be17c789', _match: [ 'board_approval_month:October', 'sectorcode:BC', 'sectorcode:BM' ], _object: { _id: '52b213b38594d8a2be17c789', sectorcode: [ 'BM', 'BC', 'BZ' ], board_approval_month: 'October', impagency: 'MINISTRY OF FINANCE', majorsector_percent: [ { Name: 'Public Administration, Law, and Justice', Percent: 34 }, { Name: 'Public Administration, Law, and Justice', Percent: 33 }, { Name: 'Public Administration, Law, and Justice', Percent: 33 } ], mjsector_namecode: [ { name: 'Public Administration, Law, and Justice', code: 'BX' }, { name: 'Public Administration, Law, and Justice', code: 'BX' }, { name: 'Public Administration, Law, and Justice', code: 'BX' } ], sector_namecode: [{ name: 'General public administration sector', code: 'BZ' }, { name: 'Central government administration', code: 'BC' }, { name: 'Public administration- Information and communications', code: 'BM' } ], totalamt: 200000000 } }
+       
+     ])
+   })
 })
 
 test('can get highest value of totalamt (MAX)', t => {
   t.plan(1)
   global[indexName].MAX('totalamt')
-    .then(result => {
-      t.equal(result, 'totalamt:6060000')
-    })
+   .then(result => {
+     t.equal(result, 'totalamt:6060000')
+   })
 })
 
 test('can get lowest value of totalamt (MIN)', t => {
   t.plan(1)
   global[indexName].MIN('totalamt')
-    .then(result => {
-      t.equal(result, 'totalamt:0')
-    })
+   .then(result => {
+     t.equal(result, 'totalamt:0')
+   })
 })
 
 test('can get all values of totalamt (DIST)', t => {
@@ -206,18 +280,18 @@ test('can get all values of totalamt (DIST)', t => {
   global[indexName].DISTINCT({
     field: 'totalamt'
   })
-    .then(result => {
-      t.looseEqual(result, [
-        { field: 'totalamt', value: '0' },
-        { field: 'totalamt', value: '10000000' },
-        { field: 'totalamt', value: '130000000' },
-        { field: 'totalamt', value: '13100000' },
-        { field: 'totalamt', value: '160000000' },
-        { field: 'totalamt', value: '200000000' },
-        { field: 'totalamt', value: '500000000' },
-        { field: 'totalamt', value: '6060000' }
-      ])
-    })
+   .then(result => {
+     t.looseEqual(result, [
+       { field: 'totalamt', value: '0' },
+       { field: 'totalamt', value: '10000000' },
+       { field: 'totalamt', value: '130000000' },
+       { field: 'totalamt', value: '13100000' },
+       { field: 'totalamt', value: '160000000' },
+       { field: 'totalamt', value: '200000000' },
+       { field: 'totalamt', value: '500000000' },
+       { field: 'totalamt', value: '6060000' }
+     ])
+   })
 })
 
 // TODO: make DISTINCT accept the structure {field: ..., value {gte: ..., lte: ...}}
@@ -228,19 +302,19 @@ test('can aggregate totalamt', t => {
     gte: '',
     lte: '~'
   })
-    .then(result => Promise.all(result.map(global[indexName].BUCKET)))
-    .then(result => {
-      t.looseEqual(result, [
-        { field: 'totalamt', value: { gte: '0', lte: '0' }, _id: [ '52b213b38594d8a2be17c781', '52b213b38594d8a2be17c783', '52b213b38594d8a2be17c787' ] },
-        { field: 'totalamt', value: { gte: '10000000', lte: '10000000' }, _id: [ '52b213b38594d8a2be17c785' ] },
-        { field: 'totalamt', value: { gte: '130000000', lte: '130000000' }, _id: [ '52b213b38594d8a2be17c780' ] },
-        { field: 'totalamt', value: { gte: '13100000', lte: '13100000' }, _id: [ '52b213b38594d8a2be17c784' ] },
-        { field: 'totalamt', value: { gte: '160000000', lte: '160000000' }, _id: [ '52b213b38594d8a2be17c788' ] },
-        { field: 'totalamt', value: { gte: '200000000', lte: '200000000' }, _id: [ '52b213b38594d8a2be17c789' ] },
-        { field: 'totalamt', value: { gte: '500000000', lte: '500000000' }, _id: [ '52b213b38594d8a2be17c786' ] },
-        { field: 'totalamt', value: { gte: '6060000', lte: '6060000' }, _id: [ '52b213b38594d8a2be17c782' ] }
-      ])
-    })
+   .then(result => Promise.all(result.map(global[indexName].BUCKET)))
+   .then(result => {
+     t.looseEqual(result, [
+       { field: 'totalamt', value: { gte: '0', lte: '0' }, _id: [ '52b213b38594d8a2be17c781', '52b213b38594d8a2be17c783', '52b213b38594d8a2be17c787' ] },
+       { field: 'totalamt', value: { gte: '10000000', lte: '10000000' }, _id: [ '52b213b38594d8a2be17c785' ] },
+       { field: 'totalamt', value: { gte: '130000000', lte: '130000000' }, _id: [ '52b213b38594d8a2be17c780' ] },
+       { field: 'totalamt', value: { gte: '13100000', lte: '13100000' }, _id: [ '52b213b38594d8a2be17c784' ] },
+       { field: 'totalamt', value: { gte: '160000000', lte: '160000000' }, _id: [ '52b213b38594d8a2be17c788' ] },
+       { field: 'totalamt', value: { gte: '200000000', lte: '200000000' }, _id: [ '52b213b38594d8a2be17c789' ] },
+       { field: 'totalamt', value: { gte: '500000000', lte: '500000000' }, _id: [ '52b213b38594d8a2be17c786' ] },
+       { field: 'totalamt', value: { gte: '6060000', lte: '6060000' }, _id: [ '52b213b38594d8a2be17c782' ] }
+     ])
+   })
 })
 
 test('can aggregate totalamt (showing ID count)', t => {
@@ -248,21 +322,21 @@ test('can aggregate totalamt (showing ID count)', t => {
   global[indexName].DISTINCT({
     field: 'totalamt'
   })
-    .then(result => Promise.all(result.map(global[indexName].BUCKET)))
-    .then(result => t.looseEqual(result.map(item => ({
-      field: item.field,
-      value: item.value,
-      count: item._id.length
-    })), [
-      { field: 'totalamt', value: { gte: '0', lte: '0' }, count: 3 },
-      { field: 'totalamt', value: { gte: '10000000', lte: '10000000' }, count: 1 },
-      { field: 'totalamt', value: { gte: '130000000', lte: '130000000' }, count: 1 },
-      { field: 'totalamt', value: { gte: '13100000', lte: '13100000' }, count: 1 },
-      { field: 'totalamt', value: { gte: '160000000', lte: '160000000' }, count: 1 },
-      { field: 'totalamt', value: { gte: '200000000', lte: '200000000' }, count: 1 },
-      { field: 'totalamt', value: { gte: '500000000', lte: '500000000' }, count: 1 },
-      { field: 'totalamt', value: { gte: '6060000', lte: '6060000' }, count: 1 } 
-    ]))
+   .then(result => Promise.all(result.map(global[indexName].BUCKET)))
+   .then(result => t.looseEqual(result.map(item => ({
+     field: item.field,
+     value: item.value,
+     count: item._id.length
+   })), [
+     { field: 'totalamt', value: { gte: '0', lte: '0' }, count: 3 },
+     { field: 'totalamt', value: { gte: '10000000', lte: '10000000' }, count: 1 },
+     { field: 'totalamt', value: { gte: '130000000', lte: '130000000' }, count: 1 },
+     { field: 'totalamt', value: { gte: '13100000', lte: '13100000' }, count: 1 },
+     { field: 'totalamt', value: { gte: '160000000', lte: '160000000' }, count: 1 },
+     { field: 'totalamt', value: { gte: '200000000', lte: '200000000' }, count: 1 },
+     { field: 'totalamt', value: { gte: '500000000', lte: '500000000' }, count: 1 },
+     { field: 'totalamt', value: { gte: '6060000', lte: '6060000' }, count: 1 } 
+   ]))
 })
 
 test('can aggregate totalamt in a given range (showing ID count)', t => {
@@ -274,18 +348,18 @@ test('can aggregate totalamt in a given range (showing ID count)', t => {
       lte: '4'
     }
   })
-    .then(result => Promise.all(result.map(global[indexName].BUCKET)))
-    .then(result => t.looseEqual(result.map(item => ({
-      field: item.field,
-      value: item.value,
-      count: item._id.length
-    })), [
-      { field: 'totalamt', value: { gte: '10000000', lte: '10000000' }, count: 1 },
-      { field: 'totalamt', value: { gte: '130000000', lte: '130000000' }, count: 1 },
-      { field: 'totalamt', value: { gte: '13100000', lte: '13100000' }, count: 1 },
-      { field: 'totalamt', value: { gte: '160000000', lte: '160000000' }, count: 1 },
-      { field: 'totalamt', value: { gte: '200000000', lte: '200000000' }, count: 1 }
-    ]))          
+   .then(result => Promise.all(result.map(global[indexName].BUCKET)))
+   .then(result => t.looseEqual(result.map(item => ({
+     field: item.field,
+     value: item.value,
+     count: item._id.length
+   })), [
+     { field: 'totalamt', value: { gte: '10000000', lte: '10000000' }, count: 1 },
+     { field: 'totalamt', value: { gte: '130000000', lte: '130000000' }, count: 1 },
+     { field: 'totalamt', value: { gte: '13100000', lte: '13100000' }, count: 1 },
+     { field: 'totalamt', value: { gte: '160000000', lte: '160000000' }, count: 1 },
+     { field: 'totalamt', value: { gte: '200000000', lte: '200000000' }, count: 1 }
+   ]))          
 })
 
 test('can get documents with properties in a range', t => {
@@ -317,22 +391,22 @@ test('can get documents with properties in a range', t => {
   }).then(result => {
     t.looseEqual(result, [
       { _id: '52b213b38594d8a2be17c789',
-       _match: [
+        _match: [
           'sectorcode:BC',
           'sectorcode:BM',
           'sectorcode:BZ' ] },
       { _id: '52b213b38594d8a2be17c780',
-       _match: [
+        _match: [
           'sectorcode:BS',
           'sectorcode:EP',
           'sectorcode:ES',
           'sectorcode:ET' ] },
       { _id: '52b213b38594d8a2be17c781',
-       _match: [
+        _match: [
           'sectorcode:BS',
           'sectorcode:BZ' ] },
       { _id: '52b213b38594d8a2be17c784',
-       _match: [
+        _match: [
           'sectorcode:FH' ] }
     ])
   })
@@ -342,7 +416,7 @@ test('can get documents with properties in a range and the NOT some out', t => {
   t.plan(1)
   global[indexName].NOT(
     global[indexName].GET({
-    field: 'sectorcode',
+      field: 'sectorcode',
       value: {
         gte: 'A',
         lte: 'G'
@@ -404,36 +478,28 @@ test('can do OR with gte/lte', t => {
       {
         '_id': '52b213b38594d8a2be17c789',
         '_match': [
-          [
-            'sectorcode:BC',
-            'sectorcode:BM',
-            'sectorcode:BZ'
-          ]
+          'sectorcode:BC',
+          'sectorcode:BM',
+          'sectorcode:BZ'
         ]
       },
       {
         '_id': '52b213b38594d8a2be17c780',
         '_match': [
-          [
-            'sectorcode:BS'
-          ]
+          'sectorcode:BS'
         ]
       },
       {
         '_id': '52b213b38594d8a2be17c781',
         '_match': [
-          [
-            'sectorcode:BS',
-            'sectorcode:BZ'
-          ]
+          'sectorcode:BS',
+          'sectorcode:BZ'
         ]
       },
       {
         '_id': '52b213b38594d8a2be17c787',
         '_match': [
-          [
-            'sectorcode:LR'
-          ]
+          'sectorcode:LR'
         ]
       }
     ])
@@ -462,13 +528,9 @@ test('can do AND with gte/lte', t => {
       {
         '_id': '52b213b38594d8a2be17c784',
         '_match': [
-          [
-            'sectorcode:FH'
-          ],
-          [
-            'sectorcode:YW',
-            'sectorcode:YZ'
-          ]
+          'sectorcode:FH',
+          'sectorcode:YW',
+          'sectorcode:YZ'
         ]
       }
     ])

@@ -5,9 +5,18 @@ import objMap from './map.obj.js'
 import propMap from './map.prop.js'
 import writer from './write.js'
 
+// _match is nested by default so that AND and OR work correctly under
+// the bonnet. Flatten array before presenting to consumer
+const flattenMatchArrayInResults = results => results.map(result => {
+  result._match = result._match.flat(Infinity)
+  return result
+})
+
 const makeAFii = (db, ops) => ({
   AVAILABLE_FIELDS: idMap(db, ops).AVAILABLE_FIELDS,
-  AND: idMap(db, ops).INTERSECTION,
+  AND: (...keys) => idMap(db, ops).INTERSECTION(...keys).then(
+    flattenMatchArrayInResults
+  ),
   BUCKET: idMap(db, ops).BUCKET,
   BUCKETFILTER: idMap(db, ops).BUCKETFILTER,
   DELETE: writer(db, ops).DELETE,
@@ -15,10 +24,13 @@ const makeAFii = (db, ops) => ({
   GET: idMap(db, ops).GET,
   MAX: propMap(db, ops).MAX,
   MIN: propMap(db, ops).MIN,
-  //    NOT: idMap(db).SET_DIFFERENCE,
-  NOT: idMap(db, ops).SET_SUBTRACTION,
+  NOT: (...keys) => idMap(db, ops).SET_SUBTRACTION(...keys).then(
+    flattenMatchArrayInResults
+  ),
   OBJECT: objMap(db, ops).OBJECT,
-  OR: idMap(db, ops).UNION,
+  OR: (...keys) => idMap(db, ops).UNION(...keys).then(
+    flattenMatchArrayInResults
+  ),
   PUT: writer(db, ops).PUT,
   SET_SUBTRACTION: idMap(db, ops).SET_SUBTRACTION,
   STORE: db

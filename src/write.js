@@ -124,12 +124,12 @@ export default function init (db) {
     _ids.map(_id => ({ _id: _id }))
   ).then(
     docs => writer(docs.map((doc, i) => {
-      if (doc === null) {
+      if (doc._object === null) {
         return {
           _id: _ids[i], status: 'NOT FOUND', mode: 'DELETE'
         }
       }
-      return doc
+      return doc._object
     }), db, 'del')
   ).then(
     docs => docs.map(

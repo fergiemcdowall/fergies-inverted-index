@@ -194,7 +194,10 @@ function init$1 (db) {
       _ids.map(
         id => db.get('￮DOC￮' + id._id + '￮').catch(reason => null)
       )
-    )
+    ).then(_objects => _ids.map((_id, i) => {
+      _id._object = _objects[i];
+      return _id
+    }))
   }
 }
 
@@ -359,12 +362,12 @@ function init$3 (db) {
     _ids.map(_id => ({ _id: _id }))
   ).then(
     docs => writer(docs.map((doc, i) => {
-      if (doc === null) {
+      if (doc._object === null) {
         return {
           _id: _ids[i], status: 'NOT FOUND', mode: 'DELETE'
         }
       }
-      return doc
+      return doc._object
     }), db, 'del')
   ).then(
     docs => docs.map(
@@ -392,9 +395,16 @@ function init$3 (db) {
   }
 }
 
+const flattenMatchArrayInResults = results => results.map(result => {
+  result._match = result._match.flat(Infinity);
+  return result
+});
+
 const makeAFii = (db, ops) => ({
   AVAILABLE_FIELDS: init(db, ops).AVAILABLE_FIELDS,
-  AND: init(db, ops).INTERSECTION,
+  AND: (...keys) => init(db, ops).INTERSECTION(...keys).then(
+    flattenMatchArrayInResults
+  ),
   BUCKET: init(db, ops).BUCKET,
   BUCKETFILTER: init(db, ops).BUCKETFILTER,
   DELETE: init$3(db).DELETE,
@@ -402,10 +412,13 @@ const makeAFii = (db, ops) => ({
   GET: init(db, ops).GET,
   MAX: init$2(db).MAX,
   MIN: init$2(db).MIN,
-  //    NOT: idMap(db).SET_DIFFERENCE,
-  NOT: init(db, ops).SET_SUBTRACTION,
+  NOT: (...keys) => init(db, ops).SET_SUBTRACTION(...keys).then(
+    flattenMatchArrayInResults
+  ),
   OBJECT: init$1(db).OBJECT,
-  OR: init(db, ops).UNION,
+  OR: (...keys) => init(db, ops).UNION(...keys).then(
+    flattenMatchArrayInResults
+  ),
   PUT: init$3(db).PUT,
   SET_SUBTRACTION: init(db, ops).SET_SUBTRACTION,
   STORE: db
