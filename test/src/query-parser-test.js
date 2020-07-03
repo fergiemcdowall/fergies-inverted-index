@@ -299,8 +299,10 @@ test('can aggregate totalamt', t => {
   t.plan(1)
   global[indexName].DISTINCT({
     field: 'totalamt',
-    gte: '',
-    lte: '~'
+    value: {
+      gte: '',
+      lte: '~'
+    }
   })
    .then(result => Promise.all(result.map(global[indexName].BUCKET)))
    .then(result => {

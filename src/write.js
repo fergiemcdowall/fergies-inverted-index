@@ -5,10 +5,10 @@ import reader from './map.obj.js'
 var incrementalId = 0
 
 // use trav lib to find all leaf nodes with corresponding paths
-const invertDoc = function (obj) {
-  var keys = []
+const invertDoc = obj => {
+  const keys = []
   trav(obj).forEach(function (node) {
-    var searchable = true
+    let searchable = true
     this.path.forEach(item => {
       // make fields beginning with ! non-searchable
       if (item.substring(0, 1) === '!') searchable = false
@@ -16,11 +16,11 @@ const invertDoc = function (obj) {
       if (item === '_id') searchable = false
     })
     if (searchable && this.isLeaf) {
-      var key = this.path.join('.') + ':' + this.node
-      if (Array.isArray(this.parent.node)) {
-        key = this.path.slice(0, this.path.length - 1).join('.') + ':' + this.node
-      }
-      keys.push(key)
+      keys.push(this.path
+      // allowing numbers in path names create ambiguity with arrays
+      // just strip numbers from path names
+        .filter(item => !Number.isInteger(+item))
+        .join('.') + ':' + this.node)
     }
   })
   // Bump all _ids to strings. Prevents _id='0' causing problems amongst other things
