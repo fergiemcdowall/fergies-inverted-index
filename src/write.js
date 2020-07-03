@@ -18,15 +18,13 @@ const invertDoc = obj => {
     if (searchable && this.isLeaf) {
       keys.push(this.path
       // allowing numbers in path names create ambiguity with arrays
-      // just strip numbers from path names
+      // so just strip numbers from path names
         .filter(item => !Number.isInteger(+item))
         .join('.') + ':' + this.node)
     }
   })
-  // Bump all _ids to strings. Prevents _id='0' causing problems amongst other things
-  if (!isNaN(obj._id)) obj._id = obj._id + ''
   return {
-    _id: obj._id || incrementalId + '', // generate _id if not present
+    _id: obj._id,
     keys: keys
   }
 }

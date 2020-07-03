@@ -244,7 +244,7 @@ var incrementalId = 0;
 
 // use trav lib to find all leaf nodes with corresponding paths
 const invertDoc = obj => {
-  const keys = [];
+  const keys = [];  
   trav(obj).forEach(function (node) {
     let searchable = true;
     this.path.forEach(item => {
@@ -256,18 +256,17 @@ const invertDoc = obj => {
     if (searchable && this.isLeaf) {
       keys.push(this.path
       // allowing numbers in path names create ambiguity with arrays
-      // just string numbers from path names
+      // so just strip numbers from path names
         .filter(item => !Number.isInteger(+item))
         .join('.') + ':' + this.node);
     }
   });
-  // Bump all _ids to strings. Prevents _id='0' causing problems amongst other things
-  if (!isNaN(obj._id)) obj._id = obj._id + '';
   return {
-    _id: obj._id || incrementalId + '', // generate _id if not present
+    _id: obj._id,
     keys: keys
   }
 };
+
 
 // TODO: merging indexes needs a proper test
 const createMergedReverseIndex = (index, db, mode) => {
