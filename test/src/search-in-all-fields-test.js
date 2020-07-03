@@ -133,9 +133,9 @@ test('can GET with string without specifying field (GET from all fields)', t => 
 test('can GET without specifying field (GET from all fields)', t => {
   t.plan(1)
   global[indexName].GET({
-    value: {
-      gte: 'Tesla',
-      lte: 'Tesla'
+    VALUE: {
+      GTE: 'Tesla',
+      LTE: 'Tesla'
     }
   })
     .then(result => {
@@ -156,10 +156,10 @@ test('can GET without specifying field (GET from all fields)', t => {
 test('can GET specifying 2 fields (GET from all fields)', t => {
   t.plan(1)
   global[indexName].GET({
-    field: ['brand', 'manufacturer'],
-    value: {
-      gte: 'Tesla',
-      lte: 'Tesla'
+    FIELD: ['brand', 'manufacturer'],
+    VALUE: {
+      GTE: 'Tesla',
+      LTE: 'Tesla'
     }
   })
     .then(result => {
@@ -177,10 +177,10 @@ test('can GET specifying 2 fields (GET from all fields)', t => {
 test('can GET specifying 2 fields (GET from all fields)', t => {
   t.plan(1)
   global[indexName].GET({
-    field: 'brand',
-    value: {
-      gte: 'Tesla',
-      lte: 'Tesla'
+    FIELD: 'brand',
+    VALUE: {
+      GTE: 'Tesla',
+      LTE: 'Tesla'
     }
   })
     .then(result => {
@@ -195,8 +195,8 @@ test('can GET specifying 2 fields (GET from all fields)', t => {
 test('can GET specifying 2 fields (GET from all fields)', t => {
   t.plan(1)
   global[indexName].GET({
-    field: 'brand',
-    value: 'Tesla'
+    FIELD: 'brand',
+    VALUE: 'Tesla'
   })
     .then(result => {
       t.looseEqual(result, [

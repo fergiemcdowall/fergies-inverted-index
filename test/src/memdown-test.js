@@ -35,8 +35,8 @@ test('create a fii with memdown', t => {
       t.pass('ok')
     }).then(() => {
       db.GET({
-        field: 'board_approval_month',
-        value: 'November'
+        FIELD: 'board_approval_month',
+        VALUE: 'November'
       })
         .then(result => {
           t.looseEqual(result, [

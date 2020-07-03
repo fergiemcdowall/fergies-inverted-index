@@ -29,11 +29,11 @@ db.AND('land:SCOTLAND', 'colour:GREEN').then(result)
 
 // the query strings above can alternatively be expressed using JSON objects
 db.AND({
-  field: 'land'
-  value: 'SCOTLAND'
+  FIELD: 'land'
+  VALUE: 'SCOTLAND'
 }, {
-  field: 'colour',
-  value: 'GREEN'
+  FIELD: 'colour',
+  VALUE: 'GREEN'
 }).then(result)
 
 // as above, but return whole objects
@@ -152,12 +152,12 @@ Deletes all objects by ID
 ### `db.DISTINCT(options).then(result)`
 
 `db.DISTINCT` returns every value in the db that is greater than equal
-to `gte` and less than or equal to `lte` (sorted alphabetically)
+to `GTE` and less than or equal to `LTE` (sorted alphabetically)
 
 For example- get all names between `h` and `l`:
 
 ```javascript
-db.DISTINCT({ gte: 'h', lte: 'l' }).then(result)
+db.DISTINCT({ GTE: 'h', LTE: 'l' }).then(result)
 ```
 
 <a name="GET"></a>
@@ -173,7 +173,7 @@ For example to get all Teslas do:
 db.GET('Tesla').then(result)  // get all documents that contain Tesla, somewhere in their structure
 ```
 
-Perhaps you want to be more specific and only return documents that contain `Tesla` in the `make` field
+Perhaps you want to be more specific and only return documents that contain `Tesla` in the `make` FIELD
 
 ```javascript
 db.GET('make:Tesla').then(result)
@@ -183,8 +183,8 @@ which is equivalent to:
 
 ```javascript
 db.GET({
-  field: 'make',
-  value: 'Tesla'
+  FIELD: 'make',
+  VALUE: 'Tesla'
 }).then(result)
 ```
 
@@ -192,10 +192,10 @@ You can get all cars that begin with `O` to `V` in which case you could do
 
 ```javascript
 db.GET({
-  field: 'make',
-  value: {
-    gte: 'O',   // gte == greater than or equal to
-    lte: 'V'    // lte == less than or equal to
+  FIELD: 'make',
+  VALUE: {
+    GTE: 'O',   // GTE == greater than or equal to
+    LTE: 'V'    // LTE == less than or equal to
   }
 }).then(result)
 ```

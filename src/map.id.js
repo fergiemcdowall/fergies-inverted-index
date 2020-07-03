@@ -9,38 +9,38 @@ export default function init (db, ops) {
       if (key.indexOf(':') > -1) {
         // string is expressing a specified field to search in
         key = {
-          field: [ key.split(':')[0] ],
-          value: {
-            gte: key.split(':')[1],
-            lte: key.split(':')[1]
+          FIELD: [ key.split(':')[0] ],
+          VALUE: {
+            GTE: key.split(':')[1],
+            LTE: key.split(':')[1]
           }
         }
       } else {
       // string is not specifying a field (search in ALL fields)
         key = {
-          value: {
-            gte: key,
-            lte: key
+          VALUE: {
+            GTE: key,
+            LTE: key
           }
         }
       }
     } else {
       // key is object, but key.value is string
-      if (isString(key.value)) {
-        key.value = {
-          gte: key.value,
-          lte: key.value
+      if (isString(key.VALUE)) {
+        key.VALUE = {
+          GTE: key.VALUE,
+          LTE: key.VALUE
         }
       }
     }
     // token append allows in practice token spaces to be split up on
     // a character when being read. Useful when stuffing scores into
     // tokens
-    if (key.value.gte.slice(-1) !== ops.tokenAppend) {
-      key.value.gte = key.value.gte + ops.tokenAppend
+    if (key.VALUE.GTE.slice(-1) !== ops.tokenAppend) {
+      key.VALUE.GTE = key.VALUE.GTE + ops.tokenAppend
     }
-    if (key.value.lte.slice(-1) !== ops.tokenAppend) {
-      key.value.lte = key.value.lte + ops.tokenAppend
+    if (key.VALUE.LTE.slice(-1) !== ops.tokenAppend) {
+      key.VALUE.LTE = key.VALUE.LTE + ops.tokenAppend
     }
     return key
   }
@@ -92,15 +92,15 @@ export default function init (db, ops) {
   const RANGE = ops => new Promise(resolve => {
     const rs = {} // resultset
     new Promise(
-      resolve => ops.field // is a field specified?
-        ? resolve(isString(ops.field) ? [ ops.field ] : ops.field) // use specified field (if String push to Array)
+      resolve => ops.FIELD // is a field specified?
+        ? resolve(isString(ops.FIELD) ? [ ops.FIELD ] : ops.FIELD) // use specified field (if String push to Array)
         : AVAILABLE_FIELDS() // else get ALL available fields from store
           .then(resolve)).then(
       fields => Promise.all(
         fields.map(
           fieldName => new Promise(resolve => db.createReadStream({
-            gte: fieldName + ':' + ops.value.gte,
-            lte: fieldName + ':' + ops.value.lte + '￮'
+            gte: fieldName + ':' + ops.VALUE.GTE,
+            lte: fieldName + ':' + ops.VALUE.LTE + '￮'
           }).on('data', token => token.value.forEach(docId => {
             rs[docId] = [...(rs[docId] || []), token.key]
             return rs
@@ -161,9 +161,9 @@ export default function init (db, ops) {
     const re = new RegExp('[￮' + ops.tokenAppend + ']', 'g')
     return Object.assign(key, {
       _id: [...result.reduce((acc, cur) => acc.add(cur._id), new Set())].sort(),
-      value: {
-        gte: key.value.gte.split(':').pop().replace(re, ''),
-        lte: key.value.lte.split(':').pop().replace(re, '')
+      VALUE: {
+        GTE: key.VALUE.GTE.split(':').pop().replace(re, ''),
+        LTE: key.VALUE.LTE.split(':').pop().replace(re, '')
       }
     })
   })

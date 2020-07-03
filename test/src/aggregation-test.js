@@ -113,34 +113,34 @@ test('can add some worldbank data', t => {
 test('can GET a single bucket', t => {
   t.plan(1)
   global[indexName].BUCKET({
-    field: 'make',
-    value: 'Volvo'
+    FIELD: 'make',
+    VALUE: 'Volvo'
   }).then(result => {
       t.looseEqual(result, {
-        field: 'make',
-        value: {
-          gte: 'Volvo',
-          lte: 'Volvo'
+        FIELD: 'make',
+        VALUE: {
+          GTE: 'Volvo',
+          LTE: 'Volvo'
         },
         _id: [ '1', '2', '3', '9' ]
       })
     })
 })
 
-test('can GET a single bucket with gte lte', t => {
+test('can GET a single bucket with gte LTE', t => {
   t.plan(1)
   global[indexName].BUCKET({
-    field: 'make',
-    value: {
-      gte: 'Volvo',
-      lte: 'Volvo'
+    FIELD: 'make',
+    VALUE: {
+      GTE: 'Volvo',
+      LTE: 'Volvo'
     }
   }).then(result => {
       t.looseEqual(result, {
-        field: 'make',
-        value: {
-          gte: 'Volvo',
-          lte: 'Volvo'
+        FIELD: 'make',
+        VALUE: {
+          GTE: 'Volvo',
+          LTE: 'Volvo'
         },
         _id: [ '1', '2', '3', '9' ]
       })
@@ -150,43 +150,41 @@ test('can GET a single bucket with gte lte', t => {
 test('can get DISTINCT values', t => {
   t.plan(1)
   global[indexName].DISTINCT({
-    field:'make'
+    FIELD:'make'
   }).then(result => t.looseEquals(result, [
-    { field: 'make', value: 'BMW' },
-    { field: 'make', value: 'Tesla' },
-    { field: 'make', value: 'Volvo' }
+    { FIELD: 'make', VALUE: 'BMW' },
+    { FIELD: 'make', VALUE: 'Tesla' },
+    { FIELD: 'make', VALUE: 'Volvo' }
   ]))
 })
 
 test('can get DISTINCT values with gte', t => {
   t.plan(1)
   global[indexName].DISTINCT({
-    field: 'make',
-    value: {
-      gte: 'C'
+    FIELD: 'make',
+    VALUE: {
+      GTE: 'C'
     }
   }).then(result => t.looseEquals(result, [
-    { field: 'make', value: 'Tesla' },
-    { field: 'make', value: 'Volvo' }
+    { FIELD: 'make', VALUE: 'Tesla' },
+    { FIELD: 'make', VALUE: 'Volvo' }
   ]))
 })
 
-test('can get DISTINCT values with gte and lte', t => {
+test('can get DISTINCT VALUEs with GTE and LTE', t => {
   t.plan(1)
   global[indexName].DISTINCT({
-    field: 'make',
-    value: {
-      gte: 'C',
-      lte: 'U'
+    FIELD: 'make',
+    VALUE: {
+      GTE: 'C',
+      LTE: 'U'
     }
   }).then(result => t.looseEquals(result, [
-    { field: 'make', value: 'Tesla' }
+    { FIELD: 'make', VALUE: 'Tesla' }
   ]))
 })
 
 
 
 // TODO
-
-// Can specifiy a "field" param
 // Nice error message if field doesnt exist

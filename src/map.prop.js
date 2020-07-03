@@ -22,11 +22,11 @@ export default function init (db) {
   })
 
   const DIST = ops => getRange({
-    gte: ops.field + ':' + ((ops.value && ops.value.gte) || ''),
-    lte: ops.field + ':' + ((ops.value && ops.value.lte) || '') + '￮'
+    gte: ops.FIELD + ':' + ((ops.VALUE && ops.VALUE.GTE) || ''),
+    lte: ops.FIELD + ':' + ((ops.VALUE && ops.VALUE.LTE) || '') + '￮'
   }).then(items => items.map(item => ({
-    field: item.split(/:(.+)/)[0],
-    value: item.split(/:(.+)/)[1]
+    FIELD: item.split(/:(.+)/)[0],
+    VALUE: item.split(/:(.+)/)[1]
   })))
 
   return {
