@@ -24,7 +24,7 @@ function init (db, ops) {
           }
         };
       } else {
-      // string is not specifying a field (search in ALL fields)
+        // string is not specifying a field (search in ALL fields)
         key = {
           VALUE: {
             GTE: key,
@@ -101,28 +101,28 @@ function init (db, ops) {
     const rs = {}; // resultset
     new Promise(
       resolve => ops.FIELD // is a field specified?
-        ? resolve(isString(ops.FIELD) ? [ ops.FIELD ] : ops.FIELD) // use specified field (if String push to Array)
-        : AVAILABLE_FIELDS() // else get ALL available fields from store
-          .then(resolve)).then(
-      fields => Promise.all(
-        fields.map(
-          fieldName => new Promise(resolve => db.createReadStream({
-            gte: fieldName + ':' + ops.VALUE.GTE,
-            lte: fieldName + ':' + ops.VALUE.LTE + '￮'
-          }).on('data', token => token.value.forEach(docId => {
-            rs[docId] = [...(rs[docId] || []), token.key];
-            return rs
-          })).on('end', resolve))
-        )
-      )
-    ).then(() => resolve(
-      // convert map into array
-      Object.keys(rs).map(id => ({
-        _id: id,
-        _match: rs[id].sort()
-      }))
-    )
-    );
+             ? resolve(isString(ops.FIELD) ? [ ops.FIELD ] : ops.FIELD) // use specified field (if String push to Array)
+             : AVAILABLE_FIELDS() // else get ALL available fields from store
+               .then(resolve)).then(
+                 fields => Promise.all(
+                   fields.map(
+                     fieldName => new Promise(resolve => db.createReadStream({
+                       gte: fieldName + ':' + ops.VALUE.GTE,
+                       lte: fieldName + ':' + ops.VALUE.LTE + '￮'
+                     }).on('data', token => token.value.forEach(docId => {
+                       rs[docId] = [...(rs[docId] || []), token.key];
+                       return rs
+                     })).on('end', resolve))
+                   )
+                 )
+               ).then(() => resolve(
+                 // convert map into array
+                 Object.keys(rs).map(id => ({
+                   _id: id,
+                   _match: rs[id].sort()
+                 }))
+               )
+               );
   });
 
   const AVAILABLE_FIELDS = () => new Promise(resolve => {
@@ -176,32 +176,15 @@ function init (db, ops) {
     })
   });
 
-  return {
-    AVAILABLE_FIELDS: AVAILABLE_FIELDS,
-    BUCKET: BUCKET,
-    BUCKETFILTER: BUCKETFILTER,
-    GET: GET,
-    INTERSECTION: INTERSECTION,
-    //    SET_DIFFERENCE: SET_DIFFERENCE,
-    SET_SUBTRACTION: SET_SUBTRACTION,
-    UNION: UNION
-  }
-}
+  const OBJECT = _ids => Promise.all(
+    _ids.map(
+      id => db.get('￮DOC￮' + id._id + '￮').catch(reason => null)
+    )
+  ).then(_objects => _ids.map((_id, i) => {
+    _id._object = _objects[i];
+    return _id
+  }));
 
-function init$1 (db) {
-  return {
-    OBJECT: _ids => Promise.all(
-      _ids.map(
-        id => db.get('￮DOC￮' + id._id + '￮').catch(reason => null)
-      )
-    ).then(_objects => _ids.map((_id, i) => {
-      _id._object = _objects[i];
-      return _id
-    }))
-  }
-}
-
-function init$2 (db) {
   const getRange = ops => new Promise((resolve, reject) => {
     const keys = [];
     db.createKeyStream(ops)
@@ -232,10 +215,32 @@ function init$2 (db) {
     VALUE: item.split(/:(.+)/)[1]
   })));
 
+  
   return {
+    AVAILABLE_FIELDS: AVAILABLE_FIELDS,
+    BUCKET: BUCKET,
+    BUCKETFILTER: BUCKETFILTER,
     DIST: DIST,
+    GET: GET,
+    INTERSECTION: INTERSECTION,
     MAX: MAX,
-    MIN: MIN
+    MIN: MIN,
+    OBJECT: OBJECT,
+    SET_SUBTRACTION: SET_SUBTRACTION,
+    UNION: UNION
+  }
+}
+
+function init$1 (db) {
+  return {
+    OBJECT: _ids => Promise.all(
+      _ids.map(
+        id => db.get('￮DOC￮' + id._id + '￮').catch(reason => null)
+      )
+    ).then(_objects => _ids.map((_id, i) => {
+      _id._object = _objects[i];
+      return _id
+    }))
   }
 }
 
@@ -352,7 +357,7 @@ const writer = (docs, db, mode) => new Promise((resolve, reject) => {
   ));
 });
 
-function init$3 (db) {
+function init$2 (db) {
   // docs needs to be an array of ids (strings)
   // first do an 'objects' call to get all of the documents to be
   // deleted
@@ -407,19 +412,19 @@ const makeAFii = (db, ops) => ({
   ),
   BUCKET: init(db, ops).BUCKET,
   BUCKETFILTER: init(db, ops).BUCKETFILTER,
-  DELETE: init$3(db).DELETE,
-  DISTINCT: init$2(db).DIST,
+  DELETE: init$2(db).DELETE,
+  DISTINCT: init(db, ops).DIST,
   GET: init(db, ops).GET,
-  MAX: init$2(db).MAX,
-  MIN: init$2(db).MIN,
+  MAX: init(db, ops).MAX,
+  MIN: init(db, ops).MIN,
   NOT: (...keys) => init(db, ops).SET_SUBTRACTION(...keys).then(
     flattenMatchArrayInResults
   ),
-  OBJECT: init$1(db).OBJECT,
+  OBJECT: init(db, ops).OBJECT,
   OR: (...keys) => init(db, ops).UNION(...keys).then(
     flattenMatchArrayInResults
   ),
-  PUT: init$3(db).PUT,
+  PUT: init$2(db).PUT,
   SET_SUBTRACTION: init(db, ops).SET_SUBTRACTION,
   STORE: db
 });

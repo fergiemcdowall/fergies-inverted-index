@@ -1,9 +1,11 @@
 import level from 'level'
 
-import idMap from './map.id.js'
-import objMap from './map.obj.js'
-import propMap from './map.prop.js'
-import writer from './write.js'
+/* import idMap from './map.id.js'
+ * import objMap from './map.obj.js'
+ * import propMap from './map.prop.js' */
+
+import read from './read.js'
+import write from './write.js'
 
 // _match is nested by default so that AND and OR work correctly under
 // the bonnet. Flatten array before presenting to consumer
@@ -13,26 +15,26 @@ const flattenMatchArrayInResults = results => results.map(result => {
 })
 
 const makeAFii = (db, ops) => ({
-  AVAILABLE_FIELDS: idMap(db, ops).AVAILABLE_FIELDS,
-  AND: (...keys) => idMap(db, ops).INTERSECTION(...keys).then(
+  AVAILABLE_FIELDS: read(db, ops).AVAILABLE_FIELDS,
+  AND: (...keys) => read(db, ops).INTERSECTION(...keys).then(
     flattenMatchArrayInResults
   ),
-  BUCKET: idMap(db, ops).BUCKET,
-  BUCKETFILTER: idMap(db, ops).BUCKETFILTER,
-  DELETE: writer(db, ops).DELETE,
-  DISTINCT: propMap(db, ops).DIST,
-  GET: idMap(db, ops).GET,
-  MAX: propMap(db, ops).MAX,
-  MIN: propMap(db, ops).MIN,
-  NOT: (...keys) => idMap(db, ops).SET_SUBTRACTION(...keys).then(
+  BUCKET: read(db, ops).BUCKET,
+  BUCKETFILTER: read(db, ops).BUCKETFILTER,
+  DELETE: write(db, ops).DELETE,
+  DISTINCT: read(db, ops).DIST,
+  GET: read(db, ops).GET,
+  MAX: read(db, ops).MAX,
+  MIN: read(db, ops).MIN,
+  NOT: (...keys) => read(db, ops).SET_SUBTRACTION(...keys).then(
     flattenMatchArrayInResults
   ),
-  OBJECT: objMap(db, ops).OBJECT,
-  OR: (...keys) => idMap(db, ops).UNION(...keys).then(
+  OBJECT: read(db, ops).OBJECT,
+  OR: (...keys) => read(db, ops).UNION(...keys).then(
     flattenMatchArrayInResults
   ),
-  PUT: writer(db, ops).PUT,
-  SET_SUBTRACTION: idMap(db, ops).SET_SUBTRACTION,
+  PUT: write(db, ops).PUT,
+  SET_SUBTRACTION: read(db, ops).SET_SUBTRACTION,
   STORE: db
 })
 

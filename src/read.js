@@ -16,7 +16,7 @@ export default function init (db, ops) {
           }
         }
       } else {
-      // string is not specifying a field (search in ALL fields)
+        // string is not specifying a field (search in ALL fields)
         key = {
           VALUE: {
             GTE: key,
@@ -168,13 +168,55 @@ export default function init (db, ops) {
     })
   })
 
+  const OBJECT = _ids => Promise.all(
+    _ids.map(
+      id => db.get('￮DOC￮' + id._id + '￮').catch(reason => null)
+    )
+  ).then(_objects => _ids.map((_id, i) => {
+    _id._object = _objects[i]
+    return _id
+  }))
+
+  const getRange = ops => new Promise((resolve, reject) => {
+    const keys = []
+    db.createKeyStream(ops)
+      .on('data', data => { keys.push(data) })
+      .on('end', () => resolve(keys))
+  })
+
+  const MIN = key => new Promise((resolve, reject) => {
+    db.createKeyStream({
+      limit: 1,
+      gte: key + '!'
+    }).on('data', resolve)
+  })
+
+  const MAX = key => new Promise((resolve, reject) => {
+    db.createKeyStream({
+      limit: 1,
+      lte: key + '￮',
+      reverse: true
+    }).on('data', resolve)
+  })
+
+  const DIST = ops => getRange({
+    gte: ops.FIELD + ':' + ((ops.VALUE && ops.VALUE.GTE) || ''),
+    lte: ops.FIELD + ':' + ((ops.VALUE && ops.VALUE.LTE) || '') + '￮'
+  }).then(items => items.map(item => ({
+    FIELD: item.split(/:(.+)/)[0],
+    VALUE: item.split(/:(.+)/)[1]
+  })))
+
   return {
     AVAILABLE_FIELDS: AVAILABLE_FIELDS,
     BUCKET: BUCKET,
     BUCKETFILTER: BUCKETFILTER,
+    DIST: DIST,
     GET: GET,
     INTERSECTION: INTERSECTION,
-    //    SET_DIFFERENCE: SET_DIFFERENCE,
+    MAX: MAX,
+    MIN: MIN,
+    OBJECT: OBJECT,
     SET_SUBTRACTION: SET_SUBTRACTION,
     UNION: UNION
   }
