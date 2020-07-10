@@ -70,6 +70,7 @@ db.MAX('population').then(result)
 - <a href="#BUCKETFILTER"><code>db.<b>BUCKETFILTER()</b></code></a>
 - <a href="#DELETE"><code>db.<b>DELETE()</b></code></a>
 - <a href="#DISTINCT"><code>db.<b>DISTINCT()</b></code></a>
+- <a href="#FIELDS"><code>db.<b>FIELDS()</b></code></a>
 - <a href="#GET"><code>db.<b>GET()</b></code></a>
 - <a href="#MAX"><code>db.<b>MAX()</b></code></a>
 - <a href="#MIN"><code>db.<b>MIN()</b></code></a>
@@ -159,6 +160,17 @@ For example- get all names between `h` and `l`:
 ```javascript
 db.DISTINCT({ GTE: 'h', LTE: 'l' }).then(result)
 ```
+
+<a name="FIELDS"></a>
+
+### `db.FIELDS(options).then(result)`
+
+`db.FIELDS` returns all available fields
+
+```javascript
+db.FIELDS().then(result) // 'result' is an array containing all available fields
+```
+
 
 <a name="GET"></a>
 

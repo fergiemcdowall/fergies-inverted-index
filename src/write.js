@@ -1,5 +1,5 @@
 import trav from 'traverse'
-import reader from './map.obj.js'
+import reader from './read.js'
 
 // TODO: set reset this to the max value every time the DB is restarted
 var incrementalId = 0

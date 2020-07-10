@@ -82,9 +82,9 @@ test('can add some worldbank data', t => {
 })
 
 
-test('get AVAILABLE_FIELDS', t => {
+test('get FIELDS', t => {
   t.plan(1)
-  global[indexName].AVAILABLE_FIELDS()
+  global[indexName].FIELDS()
     .then(result => {
       t.looseEqual(result, [
         'brand', 'make', 'manufacturer'

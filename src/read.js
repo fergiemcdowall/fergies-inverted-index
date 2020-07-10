@@ -208,7 +208,7 @@ export default function init (db, ops) {
   })))
 
   return {
-    AVAILABLE_FIELDS: AVAILABLE_FIELDS,
+    FIELDS: AVAILABLE_FIELDS,
     BUCKET: BUCKET,
     BUCKETFILTER: BUCKETFILTER,
     DIST: DIST,

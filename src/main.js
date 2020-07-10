@@ -1,9 +1,4 @@
 import level from 'level'
-
-/* import idMap from './map.id.js'
- * import objMap from './map.obj.js'
- * import propMap from './map.prop.js' */
-
 import read from './read.js'
 import write from './write.js'
 
@@ -15,7 +10,6 @@ const flattenMatchArrayInResults = results => results.map(result => {
 })
 
 const makeAFii = (db, ops) => ({
-  AVAILABLE_FIELDS: read(db, ops).AVAILABLE_FIELDS,
   AND: (...keys) => read(db, ops).INTERSECTION(...keys).then(
     flattenMatchArrayInResults
   ),
@@ -23,6 +17,7 @@ const makeAFii = (db, ops) => ({
   BUCKETFILTER: read(db, ops).BUCKETFILTER,
   DELETE: write(db, ops).DELETE,
   DISTINCT: read(db, ops).DIST,
+  FIELDS: read(db, ops).FIELDS,
   GET: read(db, ops).GET,
   MAX: read(db, ops).MAX,
   MIN: read(db, ops).MIN,
