@@ -62,5 +62,5 @@ test('analyse index', t => {
   ]
   t.plan(storeState.length)
   const r = global[indexName].STORE.createReadStream()
-  r.on('data', d => t.looseEquals(d, storeState.shift()))
+  r.on('data', d => t.deepEqual(d, storeState.shift()))
 })

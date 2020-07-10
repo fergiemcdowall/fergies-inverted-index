@@ -77,7 +77,7 @@ test('fields are indexed correctly when there are nested arrays involved', t => 
   global[indexName].STORE.createReadStream({
     gte: '￮FIELD￮',
     lte: '￮FIELD￮￮',
-  }).on('data', d => t.looseEqual(d, expected.shift()))
+  }).on('data', d => t.deepEqual(d, expected.shift()))
 })
 
 
@@ -115,6 +115,6 @@ test('tokens are indexed correctly when there are nested arrays involved', t => 
   t.plan(expected.length)
   global[indexName].STORE.createReadStream({
     lte: '￮',
-  }).on('data', d => t.looseEqual(d, expected.shift()))
+  }).on('data', d => t.deepEqual(d, expected.shift()))
 })
 

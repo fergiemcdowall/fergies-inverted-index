@@ -35,7 +35,7 @@ test('can add some worldbank data', t => {
   }), null, 2))
   t.plan(1)
   global[indexName].PUT(data).then(result => {
-    t.looseEqual(result, [
+    t.deepEqual(result, [
       { _id: '52b213b38594d8a2be17c780', status: 'OK', operation: 'PUT' },
       { _id: '52b213b38594d8a2be17c781', status: 'OK', operation: 'PUT' },
       { _id: '52b213b38594d8a2be17c782', status: 'OK', operation: 'PUT' },
@@ -53,11 +53,11 @@ test('can add some worldbank data', t => {
 test('can GET with string', t => {
   t.plan(1)
   global[indexName].GET({
-    field: 'board_approval_month',
-    value: 'November'
+    FIELD: 'board_approval_month',
+    VALUE: 'November'
   })
     .then(result => {
-      t.looseEqual(result, [
+      t.deepEqual(result, [
         { _id: '52b213b38594d8a2be17c780', _match: [ 'board_approval_month:November' ] },
         { _id: '52b213b38594d8a2be17c781', _match: [ 'board_approval_month:November' ] },
         { _id: '52b213b38594d8a2be17c782', _match: [ 'board_approval_month:November' ] }
@@ -71,7 +71,7 @@ test('can get with OBJECT', t => {
     {_id:'52b213b38594d8a2be17c781'},
     {_id:'52b213b38594d8a2be17c782'}
   ]).then(result => {
-    t.looseEqual(result, [
+    t.deepEqual(result, [
       { _id: '52b213b38594d8a2be17c781',
         _object: { _id: '52b213b38594d8a2be17c781', board_approval_month: 'November', totalamt: 0 }
       }, {
@@ -91,7 +91,7 @@ test('can DELETE', t => {
     'thisIDNotFound',
     '52b213b38594d8a2be17c782'
   ]).then(result => {
-    t.looseEqual(result, [
+    t.deepEqual(result, [
       { _id: '52b213b38594d8a2be17c781', status: 'OK', operation: 'DELETE' },
       { _id: 'thisIDNotFound', status: 'OK', operation: 'DELETE' },
       { _id: '52b213b38594d8a2be17c782', status: 'OK', operation: 'DELETE' }
@@ -106,7 +106,7 @@ test('can get with OBJECT', t => {
     { _id: '52b213b38594d8a2be17c781'},
     { _id: '52b213b38594d8a2be17c782'}
   ]).then(result => {
-    t.looseEqual(result, [
+    t.deepEqual(result, [
       
       { _id: '52b213b38594d8a2be17c780',
         _object: { _id: '52b213b38594d8a2be17c780', board_approval_month: 'November', totalamt: 130000000 }
@@ -120,14 +120,14 @@ test('can get with OBJECT', t => {
 test('can GET with object having deleted two docs', t => {
   t.plan(1)
   global[indexName].GET({
-    field: 'board_approval_month',
-    value: {
-      gte: 'November',
-      lte: 'November'
+    FIELD: 'board_approval_month',
+    VALUE: {
+      GTE: 'November',
+      LTE: 'November'
     }
   })
    .then(result => {
-     t.looseEqual(result, [
+     t.deepEqual(result, [
        { _id: '52b213b38594d8a2be17c780', _match: [ 'board_approval_month:November' ] }
      ])
    })

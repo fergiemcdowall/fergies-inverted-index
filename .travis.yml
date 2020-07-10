@@ -11,9 +11,6 @@ node_js:
   - '12'
 before_script:
   - npm prune
-branches:
-  except:
-    - /^v\d+\.\d+\.\d+$/
 addons:
   apt:
     packages:

@@ -29,9 +29,9 @@ test('can add some worldbank data', t => {
 
 test('can GET with string', t => {
   var result = [
-    { key: 'colour:GREEN', value: [ 1, 2 ] },
-    { key: 'land:IRELAND', value: [ 2 ] },
-    { key: 'land:SCOTLAND', value: [ 1 ] },
+    { key: 'colour:GREEN', value: [ '1', '2' ] },
+    { key: 'land:IRELAND', value: [ '2' ] },
+    { key: 'land:SCOTLAND', value: [ '1' ] },
     { key: '￮DOC￮1￮',
       value: { land: 'SCOTLAND', colour: 'GREEN', _id: 1 } },
     { key: '￮DOC￮2￮',
@@ -41,5 +41,5 @@ test('can GET with string', t => {
   ]
   t.plan(result.length)
   global[indexName].STORE.createReadStream()
-    .on('data', d => t.looseEqual(d, result.shift()))
+    .on('data', d => t.deepEqual(d, result.shift()))
 })

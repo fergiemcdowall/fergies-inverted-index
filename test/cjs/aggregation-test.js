@@ -17,38 +17,38 @@ function init (db, ops) {
       if (key.indexOf(':') > -1) {
         // string is expressing a specified field to search in
         key = {
-          field: [ key.split(':')[0] ],
-          value: {
-            gte: key.split(':')[1],
-            lte: key.split(':')[1]
+          FIELD: [key.split(':')[0]],
+          VALUE: {
+            GTE: key.split(':')[1],
+            LTE: key.split(':')[1]
           }
         };
       } else {
-      // string is not specifying a field (search in ALL fields)
+        // string is not specifying a field (search in ALL fields)
         key = {
-          value: {
-            gte: key,
-            lte: key
+          VALUE: {
+            GTE: key,
+            LTE: key
           }
         };
       }
     } else {
       // key is object, but key.value is string
-      if (isString(key.value)) {
-        key.value = {
-          gte: key.value,
-          lte: key.value
+      if (isString(key.VALUE)) {
+        key.VALUE = {
+          GTE: key.VALUE,
+          LTE: key.VALUE
         };
       }
     }
     // token append allows in practice token spaces to be split up on
     // a character when being read. Useful when stuffing scores into
     // tokens
-    if (key.value.gte.slice(-1) !== ops.tokenAppend) {
-      key.value.gte = key.value.gte + ops.tokenAppend;
+    if (key.VALUE.GTE.slice(-1) !== ops.tokenAppend) {
+      key.VALUE.GTE = key.VALUE.GTE + ops.tokenAppend;
     }
-    if (key.value.lte.slice(-1) !== ops.tokenAppend) {
-      key.value.lte = key.value.lte + ops.tokenAppend;
+    if (key.VALUE.LTE.slice(-1) !== ops.tokenAppend) {
+      key.VALUE.LTE = key.VALUE.LTE + ops.tokenAppend;
     }
     return key
   };
@@ -100,15 +100,15 @@ function init (db, ops) {
   const RANGE = ops => new Promise(resolve => {
     const rs = {}; // resultset
     new Promise(
-      resolve => ops.field // is a field specified?
-        ? resolve(isString(ops.field) ? [ ops.field ] : ops.field) // use specified field (if String push to Array)
+      resolve => ops.FIELD // is a field specified?
+        ? resolve(isString(ops.FIELD) ? [ops.FIELD] : ops.FIELD) // use specified field (if String push to Array)
         : AVAILABLE_FIELDS() // else get ALL available fields from store
           .then(resolve)).then(
       fields => Promise.all(
         fields.map(
           fieldName => new Promise(resolve => db.createReadStream({
-            gte: fieldName + ':' + ops.value.gte,
-            lte: fieldName + ':' + ops.value.lte + '￮'
+            gte: fieldName + ':' + ops.VALUE.GTE,
+            lte: fieldName + ':' + ops.VALUE.LTE + '￮'
           }).on('data', token => token.value.forEach(docId => {
             rs[docId] = [...(rs[docId] || []), token.key];
             return rs
@@ -169,39 +169,22 @@ function init (db, ops) {
     const re = new RegExp('[￮' + ops.tokenAppend + ']', 'g');
     return Object.assign(key, {
       _id: [...result.reduce((acc, cur) => acc.add(cur._id), new Set())].sort(),
-      value: {
-        gte: key.value.gte.split(':').pop().replace(re, ''),
-        lte: key.value.lte.split(':').pop().replace(re, '')
+      VALUE: {
+        GTE: key.VALUE.GTE.split(':').pop().replace(re, ''),
+        LTE: key.VALUE.LTE.split(':').pop().replace(re, '')
       }
     })
   });
 
-  return {
-    AVAILABLE_FIELDS: AVAILABLE_FIELDS,
-    BUCKET: BUCKET,
-    BUCKETFILTER: BUCKETFILTER,
-    GET: GET,
-    INTERSECTION: INTERSECTION,
-    //    SET_DIFFERENCE: SET_DIFFERENCE,
-    SET_SUBTRACTION: SET_SUBTRACTION,
-    UNION: UNION
-  }
-}
+  const OBJECT = _ids => Promise.all(
+    _ids.map(
+      id => db.get('￮DOC￮' + id._id + '￮').catch(reason => null)
+    )
+  ).then(_objects => _ids.map((_id, i) => {
+    _id._object = _objects[i];
+    return _id
+  }));
 
-function init$1 (db) {
-  return {
-    OBJECT: _ids => Promise.all(
-      _ids.map(
-        id => db.get('￮DOC￮' + id._id + '￮').catch(reason => null)
-      )
-    ).then(_objects => _ids.map((_id, i) => {
-      _id._object = _objects[i];
-      return _id
-    }))
-  }
-}
-
-function init$2 (db) {
   const getRange = ops => new Promise((resolve, reject) => {
     const keys = [];
     db.createKeyStream(ops)
@@ -224,18 +207,33 @@ function init$2 (db) {
     }).on('data', resolve);
   });
 
-  const DIST = ops => getRange({
-    gte: ops.field + ':' + ((ops.value && ops.value.gte) || ''),
-    lte: ops.field + ':' + ((ops.value && ops.value.lte) || '') + '￮'
-  }).then(items => items.map(item => ({
-    field: item.split(/:(.+)/)[0],
-    value: item.split(/:(.+)/)[1]
-  })));
+  const DIST = ops => new Promise(
+    resolve => (ops || {}).FIELD
+    // bump string or Array to Array
+      ? resolve([ops.FIELD].flat(Infinity))
+      : AVAILABLE_FIELDS().then(resolve)
+  ).then(fields => Promise.all(
+    fields.map(field => getRange({
+      gte: field + ':' + ((ops && ops.VALUE && ops.VALUE.GTE) || ''),
+      lte: field + ':' + ((ops && ops.VALUE && ops.VALUE.LTE) || '') + '￮'
+    }).then(items => items.map(item => ({
+      FIELD: item.split(/:(.+)/)[0],
+      VALUE: item.split(/:(.+)/)[1]
+    }))))
+  )).then(result => result.flat());
 
   return {
+    FIELDS: AVAILABLE_FIELDS,
+    BUCKET: BUCKET,
+    BUCKETFILTER: BUCKETFILTER,
     DIST: DIST,
+    GET: GET,
+    INTERSECTION: INTERSECTION,
     MAX: MAX,
-    MIN: MIN
+    MIN: MIN,
+    OBJECT: OBJECT,
+    SET_SUBTRACTION: SET_SUBTRACTION,
+    UNION: UNION
   }
 }
 
@@ -244,7 +242,7 @@ var incrementalId = 0;
 
 // use trav lib to find all leaf nodes with corresponding paths
 const invertDoc = obj => {
-  const keys = [];  
+  const keys = [];
   trav(obj).forEach(function (node) {
     let searchable = true;
     this.path.forEach(item => {
@@ -262,11 +260,10 @@ const invertDoc = obj => {
     }
   });
   return {
-    _id: obj._id,
+    _id: obj._id + '', // cast to string
     keys: keys
   }
 };
-
 
 // TODO: merging indexes needs a proper test
 const createMergedReverseIndex = (index, db, mode) => {
@@ -353,11 +350,11 @@ const writer = (docs, db, mode) => new Promise((resolve, reject) => {
   ));
 });
 
-function init$3 (db) {
+function init$1 (db) {
   // docs needs to be an array of ids (strings)
   // first do an 'objects' call to get all of the documents to be
   // deleted
-  const DELETE = _ids => init$1(db).OBJECT(
+  const DELETE = _ids => init(db).OBJECT(
     _ids.map(_id => ({ _id: _id }))
   ).then(
     docs => writer(docs.map((doc, i) => {
@@ -402,25 +399,25 @@ const flattenMatchArrayInResults = results => results.map(result => {
 });
 
 const makeAFii = (db, ops) => ({
-  AVAILABLE_FIELDS: init(db, ops).AVAILABLE_FIELDS,
   AND: (...keys) => init(db, ops).INTERSECTION(...keys).then(
     flattenMatchArrayInResults
   ),
   BUCKET: init(db, ops).BUCKET,
   BUCKETFILTER: init(db, ops).BUCKETFILTER,
-  DELETE: init$3(db).DELETE,
-  DISTINCT: init$2(db).DIST,
+  DELETE: init$1(db).DELETE,
+  DISTINCT: init(db, ops).DIST,
+  FIELDS: init(db, ops).FIELDS,
   GET: init(db, ops).GET,
-  MAX: init$2(db).MAX,
-  MIN: init$2(db).MIN,
+  MAX: init(db, ops).MAX,
+  MIN: init(db, ops).MIN,
   NOT: (...keys) => init(db, ops).SET_SUBTRACTION(...keys).then(
     flattenMatchArrayInResults
   ),
-  OBJECT: init$1(db).OBJECT,
+  OBJECT: init(db, ops).OBJECT,
   OR: (...keys) => init(db, ops).UNION(...keys).then(
     flattenMatchArrayInResults
   ),
-  PUT: init$3(db).PUT,
+  PUT: init$1(db).PUT,
   SET_SUBTRACTION: init(db, ops).SET_SUBTRACTION,
   STORE: db
 });
@@ -545,7 +542,7 @@ const data = [
   }
 ];
 
-test('create a little world bank index', t => {
+test('create an index', t => {
   t.plan(1);
   fii({ name: indexName }, (err, idx) => {
     global[indexName] = idx;
@@ -553,7 +550,7 @@ test('create a little world bank index', t => {
   });
 });
 
-test('can add some worldbank data', t => {
+test('can add some data', t => {
   t.plan(1);
   global[indexName].PUT(data).then(t.pass);
 });
@@ -561,34 +558,34 @@ test('can add some worldbank data', t => {
 test('can GET a single bucket', t => {
   t.plan(1);
   global[indexName].BUCKET({
-    field: 'make',
-    value: 'Volvo'
+    FIELD: 'make',
+    VALUE: 'Volvo'
   }).then(result => {
-      t.looseEqual(result, {
-        field: 'make',
-        value: {
-          gte: 'Volvo',
-          lte: 'Volvo'
+      t.deepEqual(result, {
+        FIELD: 'make',
+        VALUE: {
+          GTE: 'Volvo',
+          LTE: 'Volvo'
         },
         _id: [ '1', '2', '3', '9' ]
       });
     });
 });
 
-test('can GET a single bucket with gte lte', t => {
+test('can GET a single bucket with gte LTE', t => {
   t.plan(1);
   global[indexName].BUCKET({
-    field: 'make',
-    value: {
-      gte: 'Volvo',
-      lte: 'Volvo'
+    FIELD: 'make',
+    VALUE: {
+      GTE: 'Volvo',
+      LTE: 'Volvo'
     }
   }).then(result => {
-      t.looseEqual(result, {
-        field: 'make',
-        value: {
-          gte: 'Volvo',
-          lte: 'Volvo'
+      t.deepEqual(result, {
+        FIELD: 'make',
+        VALUE: {
+          GTE: 'Volvo',
+          LTE: 'Volvo'
         },
         _id: [ '1', '2', '3', '9' ]
       });
@@ -598,43 +595,41 @@ test('can GET a single bucket with gte lte', t => {
 test('can get DISTINCT values', t => {
   t.plan(1);
   global[indexName].DISTINCT({
-    field:'make'
-  }).then(result => t.looseEquals(result, [
-    { field: 'make', value: 'BMW' },
-    { field: 'make', value: 'Tesla' },
-    { field: 'make', value: 'Volvo' }
+    FIELD:'make'
+  }).then(result => t.deepEquals(result, [
+    { FIELD: 'make', VALUE: 'BMW' },
+    { FIELD: 'make', VALUE: 'Tesla' },
+    { FIELD: 'make', VALUE: 'Volvo' }
   ]));
 });
 
 test('can get DISTINCT values with gte', t => {
   t.plan(1);
   global[indexName].DISTINCT({
-    field: 'make',
-    value: {
-      gte: 'C'
+    FIELD: 'make',
+    VALUE: {
+      GTE: 'C'
     }
-  }).then(result => t.looseEquals(result, [
-    { field: 'make', value: 'Tesla' },
-    { field: 'make', value: 'Volvo' }
+  }).then(result => t.deepEquals(result, [
+    { FIELD: 'make', VALUE: 'Tesla' },
+    { FIELD: 'make', VALUE: 'Volvo' }
   ]));
 });
 
-test('can get DISTINCT values with gte and lte', t => {
+test('can get DISTINCT VALUEs with GTE and LTE', t => {
   t.plan(1);
   global[indexName].DISTINCT({
-    field: 'make',
-    value: {
-      gte: 'C',
-      lte: 'U'
+    FIELD: 'make',
+    VALUE: {
+      GTE: 'C',
+      LTE: 'U'
     }
-  }).then(result => t.looseEquals(result, [
-    { field: 'make', value: 'Tesla' }
+  }).then(result => t.deepEquals(result, [
+    { FIELD: 'make', VALUE: 'Tesla' }
   ]));
 });
 
 
 
 // TODO
-
-// Can specifiy a "field" param
 // Nice error message if field doesnt exist
