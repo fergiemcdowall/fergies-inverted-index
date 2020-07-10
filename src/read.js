@@ -199,13 +199,20 @@ export default function init (db, ops) {
     }).on('data', resolve)
   })
 
-  const DIST = ops => getRange({
-    gte: ops.FIELD + ':' + ((ops.VALUE && ops.VALUE.GTE) || ''),
-    lte: ops.FIELD + ':' + ((ops.VALUE && ops.VALUE.LTE) || '') + '￮'
-  }).then(items => items.map(item => ({
-    FIELD: item.split(/:(.+)/)[0],
-    VALUE: item.split(/:(.+)/)[1]
-  })))
+  const DIST = ops => new Promise(
+    resolve => (ops || {}).FIELD
+    // bump string or Array to Array
+      ? resolve([ ops.FIELD ].flat(Infinity))
+      : AVAILABLE_FIELDS().then(resolve)
+  ).then(fields => Promise.all(
+    fields.map(field => getRange({
+      gte: field + ':' + ((ops && ops.VALUE && ops.VALUE.GTE) || ''),
+      lte: field + ':' + ((ops && ops.VALUE && ops.VALUE.LTE) || '') + '￮'
+    }).then(items => items.map(item => ({
+      FIELD: item.split(/:(.+)/)[0],
+      VALUE: item.split(/:(.+)/)[1]
+    }))))
+  )).then(result => result.flat())
 
   return {
     FIELDS: AVAILABLE_FIELDS,

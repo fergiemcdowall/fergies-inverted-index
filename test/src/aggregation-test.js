@@ -97,7 +97,7 @@ const data = [
   }
 ]
 
-test('create a little world bank index', t => {
+test('create an index', t => {
   t.plan(1)
   fii({ name: indexName }, (err, idx) => {
     global[indexName] = idx
@@ -105,7 +105,7 @@ test('create a little world bank index', t => {
   })
 })
 
-test('can add some worldbank data', t => {
+test('can add some data', t => {
   t.plan(1)
   global[indexName].PUT(data).then(t.pass)
 })
