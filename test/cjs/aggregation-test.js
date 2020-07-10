@@ -17,7 +17,7 @@ function init (db, ops) {
       if (key.indexOf(':') > -1) {
         // string is expressing a specified field to search in
         key = {
-          FIELD: [ key.split(':')[0] ],
+          FIELD: [key.split(':')[0]],
           VALUE: {
             GTE: key.split(':')[1],
             LTE: key.split(':')[1]
@@ -101,7 +101,7 @@ function init (db, ops) {
     const rs = {}; // resultset
     new Promise(
       resolve => ops.FIELD // is a field specified?
-        ? resolve(isString(ops.FIELD) ? [ ops.FIELD ] : ops.FIELD) // use specified field (if String push to Array)
+        ? resolve(isString(ops.FIELD) ? [ops.FIELD] : ops.FIELD) // use specified field (if String push to Array)
         : AVAILABLE_FIELDS() // else get ALL available fields from store
           .then(resolve)).then(
       fields => Promise.all(
@@ -210,7 +210,7 @@ function init (db, ops) {
   const DIST = ops => new Promise(
     resolve => (ops || {}).FIELD
     // bump string or Array to Array
-      ? resolve([ ops.FIELD ].flat(Infinity))
+      ? resolve([ops.FIELD].flat(Infinity))
       : AVAILABLE_FIELDS().then(resolve)
   ).then(fields => Promise.all(
     fields.map(field => getRange({
