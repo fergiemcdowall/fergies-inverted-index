@@ -114,7 +114,7 @@ test('get DISTINCT values for one field', t => {
   t.plan(1)
   global[indexName].DISTINCT({
     FIELD: 'drivetrain'
-  }).then(result => t.looseEqual(result, [
+  }).then(result => t.deepEqual(result, [
     { FIELD: 'drivetrain', VALUE: 'Diesel' },
     { FIELD: 'drivetrain', VALUE: 'Electric' },
     { FIELD: 'drivetrain', VALUE: 'Hybrid' },
@@ -126,7 +126,7 @@ test('get DISTINCT values for two fields', t => {
   t.plan(1)
   global[indexName].DISTINCT({
     FIELD: [ 'drivetrain', 'make' ]
-  }).then(result => t.looseEqual(result, [
+  }).then(result => t.deepEqual(result, [
     { FIELD: 'drivetrain', VALUE: 'Diesel' },
     { FIELD: 'drivetrain', VALUE: 'Electric' },
     { FIELD: 'drivetrain', VALUE: 'Hybrid' },
@@ -141,7 +141,7 @@ test('get DISTINCT values for three fields', t => {
   t.plan(1)
   global[indexName].DISTINCT({
     FIELD: [ 'drivetrain', 'make', 'colour' ]
-  }).then(result => t.looseEqual(result, [
+  }).then(result => t.deepEqual(result, [
     { FIELD: 'drivetrain', VALUE: 'Diesel' },
     { FIELD: 'drivetrain', VALUE: 'Electric' },
     { FIELD: 'drivetrain', VALUE: 'Hybrid' },
@@ -159,7 +159,7 @@ test('get DISTINCT values for three fields', t => {
 
 test('get DISTINCT values for ALL fields using {}', t => {
   t.plan(1)
-  global[indexName].DISTINCT({}).then(result => t.looseEqual(result, [
+  global[indexName].DISTINCT({}).then(result => t.deepEqual(result, [
     { FIELD: 'colour', VALUE: 'Black' },
     { FIELD: 'colour', VALUE: 'Blue' },
     { FIELD: 'colour', VALUE: 'Red' },
@@ -203,7 +203,7 @@ test('get DISTINCT values for ALL fields using {}', t => {
 
 test('get DISTINCT values for ALL fields using no param (DISTINCT())', t => {
   t.plan(1)
-  global[indexName].DISTINCT().then(result => t.looseEqual(result, [
+  global[indexName].DISTINCT().then(result => t.deepEqual(result, [
     { FIELD: 'colour', VALUE: 'Black' },
     { FIELD: 'colour', VALUE: 'Blue' },
     { FIELD: 'colour', VALUE: 'Red' },

@@ -24,7 +24,7 @@ const invertDoc = obj => {
     }
   })
   return {
-    _id: obj._id,
+    _id: obj._id + '', // cast to string
     keys: keys
   }
 }

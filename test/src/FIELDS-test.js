@@ -113,7 +113,7 @@ test('can add some data', t => {
 test('can show the fields', t => {
   t.plan(1)
   global[indexName].FIELDS().then(fields =>
-    t.looseEqual(
+    t.deepEqual(
       fields,
       [ 'colour', 'drivetrain', 'make', 'model', 'price', 'year' ]
     )

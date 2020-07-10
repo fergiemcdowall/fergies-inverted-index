@@ -42,7 +42,7 @@ test('can GET with string', t => {
   t.plan(1)
   global[indexName].GET('board_approval_month:November')
    .then(result => {
-     t.looseEqual(result, [
+     t.deepEqual(result, [
        { _id: '52b213b38594d8a2be17c780', _match: [ 'board_approval_month:November' ] },
        { _id: '52b213b38594d8a2be17c781', _match: [ 'board_approval_month:November' ] },
        { _id: '52b213b38594d8a2be17c782', _match: [ 'board_approval_month:November' ] }
@@ -57,7 +57,7 @@ test('can GET with object', t => {
     VALUE: 'November'
   })
    .then(result => {
-     t.looseEqual(result, [
+     t.deepEqual(result, [
        { _id: '52b213b38594d8a2be17c780', _match: [ 'board_approval_month:November' ] },
        { _id: '52b213b38594d8a2be17c781', _match: [ 'board_approval_month:November' ] },
        { _id: '52b213b38594d8a2be17c782', _match: [ 'board_approval_month:November' ] }
@@ -73,7 +73,7 @@ test('can do some AND searches', t => {
     'board_approval_month:November'
   )
    .then(result => {
-     t.looseEqual(result, [
+     t.deepEqual(result, [
        {
          _id: '52b213b38594d8a2be17c781',
          _match: [
@@ -93,7 +93,7 @@ test('can do some OR searches', t => {
     'sectorcode:BZ',
     'board_approval_month:November'
   ).then(result => {
-    t.looseEqual(result, [
+    t.deepEqual(result, [
       { _id: '52b213b38594d8a2be17c780', _match: [ 'sectorcode:BS', 'board_approval_month:November' ] },
       { _id: '52b213b38594d8a2be17c781', _match: [ 'sectorcode:BS', 'sectorcode:BZ', 'board_approval_month:November' ] },
       { _id: '52b213b38594d8a2be17c789', _match: [ 'sectorcode:BZ' ] },
@@ -109,7 +109,7 @@ test('can do some OR searches', t => {
     'sectorcode:BZ',
     'sectorcode:TI'
   ).then(result => {
-    t.looseEqual(result, [
+    t.deepEqual(result, [
       { _id: '52b213b38594d8a2be17c781', _match: [ 'sectorcode:BZ' ] },
       { _id: '52b213b38594d8a2be17c789', _match: [ 'sectorcode:BZ' ] },
       { _id: '52b213b38594d8a2be17c782', _match: [ 'sectorcode:TI' ] },
@@ -125,7 +125,7 @@ test('can do AND with nested OR', t => {
     'board_approval_month:November',
     global[indexName].OR('sectorcode:BZ', 'sectorcode:TI')
   ).then(result => {
-    t.looseEqual(result, [
+    t.deepEqual(result, [
       { _id: '52b213b38594d8a2be17c781',
         _match: [ 'board_approval_month:November', 'sectorcode:BZ' ] },
       { _id: '52b213b38594d8a2be17c782',
@@ -144,7 +144,7 @@ test('can do AND with embedded AND', t => {
       'sectorcode:TI'
     )
   ).then(result => {
-    t.looseEqual(result, [
+    t.deepEqual(result, [
       {
         _id: '52b213b38594d8a2be17c786',
         _match: [ 'board_approval_month:October', 'sectorcode:TI' ]
@@ -169,7 +169,7 @@ test('can do AND', t => {
     global[indexName].OR('sectorcode:BZ', 'sectorcode:TI')
   ).then(global[indexName].OBJECT)
    .then(result => {
-     t.looseEqual(result, [
+     t.deepEqual(result, [
        { _id: '52b213b38594d8a2be17c781',
          _match: [ 'board_approval_month:November', 'sectorcode:BZ' ],
          _object: {
@@ -250,7 +250,7 @@ test('can do AND with embedded OR search', t => {
     )
   ).then(global[indexName].OBJECT)
    .then(result => {
-     t.looseEqual(result, [
+     t.deepEqual(result, [
        
        { _id: '52b213b38594d8a2be17c787', _match: [ 'board_approval_month:October', 'sectorcode:LR' ], _object: { _id: '52b213b38594d8a2be17c787', sectorcode: [ 'LR' ], board_approval_month: 'October', impagency: 'NATIONAL ENERGY ADMINISTRATION', majorsector_percent: [ { Name: 'Energy and mining', Percent: 100 } ], mjsector_namecode: [ { name: 'Energy and mining', code: 'LX' } ], sector_namecode: [ { name: 'Other Renewable Energy', code: 'LR' } ], totalamt: 0 } },
        { _id: '52b213b38594d8a2be17c789', _match: [ 'board_approval_month:October', 'sectorcode:BC', 'sectorcode:BM' ], _object: { _id: '52b213b38594d8a2be17c789', sectorcode: [ 'BM', 'BC', 'BZ' ], board_approval_month: 'October', impagency: 'MINISTRY OF FINANCE', majorsector_percent: [ { Name: 'Public Administration, Law, and Justice', Percent: 34 }, { Name: 'Public Administration, Law, and Justice', Percent: 33 }, { Name: 'Public Administration, Law, and Justice', Percent: 33 } ], mjsector_namecode: [ { name: 'Public Administration, Law, and Justice', code: 'BX' }, { name: 'Public Administration, Law, and Justice', code: 'BX' }, { name: 'Public Administration, Law, and Justice', code: 'BX' } ], sector_namecode: [{ name: 'General public administration sector', code: 'BZ' }, { name: 'Central government administration', code: 'BC' }, { name: 'Public administration- Information and communications', code: 'BM' } ], totalamt: 200000000 } }
@@ -281,7 +281,7 @@ test('can get all VALUEs of totalamt (DIST)', t => {
     FIELD: 'totalamt'
   })
    .then(result => {
-     t.looseEqual(result, [
+     t.deepEqual(result, [
        { FIELD: 'totalamt', VALUE: '0' },
        { FIELD: 'totalamt', VALUE: '10000000' },
        { FIELD: 'totalamt', VALUE: '130000000' },
@@ -306,7 +306,7 @@ test('can aggregate totalamt', t => {
   })
    .then(result => Promise.all(result.map(global[indexName].BUCKET)))
    .then(result => {
-     t.looseEqual(result, [
+     t.deepEqual(result, [
        { FIELD: 'totalamt', VALUE: { GTE: '0', LTE: '0' }, _id: [ '52b213b38594d8a2be17c781', '52b213b38594d8a2be17c783', '52b213b38594d8a2be17c787' ] },
        { FIELD: 'totalamt', VALUE: { GTE: '10000000', LTE: '10000000' }, _id: [ '52b213b38594d8a2be17c785' ] },
        { FIELD: 'totalamt', VALUE: { GTE: '130000000', LTE: '130000000' }, _id: [ '52b213b38594d8a2be17c780' ] },
@@ -325,7 +325,7 @@ test('can aggregate totalamt (showing ID count)', t => {
     FIELD: 'totalamt'
   })
    .then(result => Promise.all(result.map(global[indexName].BUCKET)))
-   .then(result => t.looseEqual(result.map(item => ({
+   .then(result => t.deepEqual(result.map(item => ({
      FIELD: item.FIELD,
      VALUE: item.VALUE,
      count: item._id.length
@@ -351,7 +351,7 @@ test('can aggregate totalamt in a given range (showing ID count)', t => {
     }
   })
    .then(result => Promise.all(result.map(global[indexName].BUCKET)))
-   .then(result => t.looseEqual(result.map(item => ({
+   .then(result => t.deepEqual(result.map(item => ({
      FIELD: item.FIELD,
      VALUE: item.VALUE,
      count: item._id.length
@@ -373,7 +373,7 @@ test('can get documents with properties in a range', t => {
       LTE: '4'
     }
   }).then(result => {
-    t.looseEqual(result, [
+    t.deepEqual(result, [
       { _id: '52b213b38594d8a2be17c785', _match: [ 'totalamt:10000000' ] },
       { _id: '52b213b38594d8a2be17c780', _match: [ 'totalamt:130000000' ] },
       { _id: '52b213b38594d8a2be17c784', _match: [ 'totalamt:13100000' ] },
@@ -391,7 +391,7 @@ test('can get documents with properties in a range', t => {
       LTE: 'G'
     }
   }).then(result => {
-    t.looseEqual(result, [
+    t.deepEqual(result, [
       { _id: '52b213b38594d8a2be17c789',
         _match: [
           'sectorcode:BC',
@@ -426,7 +426,7 @@ test('can get documents with properties in a range and the NOT some out', t => {
     }),
     'sectorcode:YZ'
   ).then(result => {
-    t.looseEqual(result, [
+    t.deepEqual(result, [
       { _id: '52b213b38594d8a2be17c789',
         _match: [
           'sectorcode:BC',
@@ -452,7 +452,7 @@ test('can get documents with properties in a range and the NOT some out', t => {
     'sectorcode:BS',
     'sectorcode:ET'
   ).then(result => {
-    t.looseEqual(result, [
+    t.deepEqual(result, [
       { _id: '52b213b38594d8a2be17c781', _match: [ 'sectorcode:BS' ] }
     ])
   })
@@ -476,7 +476,7 @@ test('can do OR with GTE/LTE', t => {
       }
     }
   ).then(result => {
-    t.looseEqual(result, [
+    t.deepEqual(result, [
       {
         '_id': '52b213b38594d8a2be17c789',
         '_match': [
@@ -526,7 +526,7 @@ test('can do AND with GTE/LTE', t => {
       }
     }
   ).then(result => {
-    t.looseEqual(result, [
+    t.deepEqual(result, [
       {
         '_id': '52b213b38594d8a2be17c784',
         '_match': [
@@ -547,7 +547,7 @@ test('can aggregate totalamt', t => {
     }).then(result => result.map(global[indexName].BUCKET)),
     global[indexName].GET('board_approval_month:November')
   ).then(result => {
-    t.looseEqual(result, [
+    t.deepEqual(result, [
       { FIELD: 'totalamt', VALUE: { GTE: '0', LTE: '0' }, _id: [ '52b213b38594d8a2be17c781' ] },
       { FIELD: 'totalamt', VALUE: { GTE: '10000000', LTE: '10000000' }, _id: [] },
       { FIELD: 'totalamt', VALUE: { GTE: '130000000', LTE: '130000000' }, _id: [ '52b213b38594d8a2be17c780' ] },
@@ -568,7 +568,7 @@ test('can aggregate totalamt, on docs with "board_approval_month:October"', t =>
     }).then(result => result.map(global[indexName].BUCKET)),
     global[indexName].GET('board_approval_month:October')
   ).then(result => {
-    t.looseEqual(result, [
+    t.deepEqual(result, [
       { FIELD: 'totalamt', VALUE: { GTE: '0', LTE: '0' }, _id: [ '52b213b38594d8a2be17c783', '52b213b38594d8a2be17c787' ] },
       { FIELD: 'totalamt', VALUE: { GTE: '10000000', LTE: '10000000' }, _id: [ '52b213b38594d8a2be17c785' ] },
       { FIELD: 'totalamt', VALUE: { GTE: '130000000', LTE: '130000000' }, _id: [] },
@@ -584,7 +584,7 @@ test('can aggregate totalamt, on docs with "board_approval_month:October"', t =>
 test('can do bucket', t => {
   t.plan(1)
   global[indexName].BUCKET('totalamt:1').then(result => {
-    t.looseEqual(result, {
+    t.deepEqual(result, {
       FIELD: [ 'totalamt' ],
       VALUE: { GTE: '1', LTE: '1' },
       _id: [
@@ -601,7 +601,7 @@ test('can do custom buckets', t => {
   t.plan(1)
   Promise.all(
     [1, 2, 3, 4, 5].map(item => global[indexName].BUCKET('totalamt:' + item))
-  ).then(result => t.looseEqual(result, [
+  ).then(result => t.deepEqual(result, [
     { FIELD: [ 'totalamt' ], VALUE: { GTE: '1', LTE: '1' }, _id: [
       '52b213b38594d8a2be17c780',
       '52b213b38594d8a2be17c784',
@@ -620,7 +620,7 @@ test('can do custom buckets and agreggate, only count docs with "board_approval_
   global[indexName].BUCKETFILTER(
     [1, 2, 3, 4, 5].map(item => global[indexName].BUCKET('totalamt:' + item)),
     global[indexName].GET('board_approval_month:October')
-  ).then(result => t.looseEqual(result, [
+  ).then(result => t.deepEqual(result, [
     { FIELD: [ 'totalamt' ], VALUE: { GTE: '1', LTE: '1' }, _id: [ '52b213b38594d8a2be17c784', '52b213b38594d8a2be17c785', '52b213b38594d8a2be17c788' ] },
     { FIELD: [ 'totalamt' ], VALUE: { GTE: '2', LTE: '2' }, _id: [ '52b213b38594d8a2be17c789' ] },
     { FIELD: [ 'totalamt' ], VALUE: { GTE: '3', LTE: '3' }, _id: [] },

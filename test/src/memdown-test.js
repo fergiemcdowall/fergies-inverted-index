@@ -39,7 +39,7 @@ test('create a fii with memdown', t => {
         VALUE: 'November'
       })
         .then(result => {
-          t.looseEqual(result, [
+          t.deepEqual(result, [
             { _id: '52b213b38594d8a2be17c780',
               _match: [ 'board_approval_month:November' ] },
             { _id: '52b213b38594d8a2be17c781',

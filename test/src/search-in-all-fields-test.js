@@ -86,7 +86,7 @@ test('get FIELDS', t => {
   t.plan(1)
   global[indexName].FIELDS()
     .then(result => {
-      t.looseEqual(result, [
+      t.deepEqual(result, [
         'brand', 'make', 'manufacturer'
       ])
     })
@@ -104,7 +104,7 @@ test('can GET with string specifying a field', t => {
   t.plan(1)
   global[indexName].GET('make:Tesla')
     .then(result => {
-      t.looseEqual(result, [
+      t.deepEqual(result, [
         { _id: '0', _match: [ 'make:Tesla' ] },
         { _id: '2', _match: [ 'make:Tesla' ] },
         { _id: '3', _match: [ 'make:Tesla' ] },
@@ -117,7 +117,7 @@ test('can GET with string without specifying field (GET from all fields)', t => 
   t.plan(1)
   global[indexName].GET('Tesla')
     .then(result => {
-      t.looseEqual(result, [
+      t.deepEqual(result, [
         { _id: '0', _match: [ 'make:Tesla' ] },
         { _id: '2', _match: [ 'make:Tesla', 'manufacturer:Tesla' ] },
         { _id: '3', _match: [ 'make:Tesla' ] },
@@ -139,7 +139,7 @@ test('can GET without specifying field (GET from all fields)', t => {
     }
   })
     .then(result => {
-      t.looseEqual(result, [
+      t.deepEqual(result, [
         { _id: '0', _match: [ 'make:Tesla' ] },
         { _id: '2', _match: [ 'make:Tesla', 'manufacturer:Tesla' ] },
         { _id: '3', _match: [ 'make:Tesla' ] },
@@ -163,7 +163,7 @@ test('can GET specifying 2 fields (GET from all fields)', t => {
     }
   })
     .then(result => {
-      t.looseEqual(result, [
+      t.deepEqual(result, [
         { _id: '2', _match: [ 'manufacturer:Tesla' ] },
         { _id: '5', _match: [ 'manufacturer:Tesla' ] },
         { _id: '6', _match: [ 'manufacturer:Tesla' ] },
@@ -184,7 +184,7 @@ test('can GET specifying 2 fields (GET from all fields)', t => {
     }
   })
     .then(result => {
-      t.looseEqual(result, [
+      t.deepEqual(result, [
         { _id: '7', _match: [ 'brand:Tesla' ] },
         { _id: '8', _match: [ 'brand:Tesla' ] },
       ])
@@ -199,7 +199,7 @@ test('can GET specifying 2 fields (GET from all fields)', t => {
     VALUE: 'Tesla'
   })
     .then(result => {
-      t.looseEqual(result, [
+      t.deepEqual(result, [
         { _id: '7', _match: [ 'brand:Tesla' ] },
         { _id: '8', _match: [ 'brand:Tesla' ] },
       ])
