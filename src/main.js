@@ -30,7 +30,8 @@ const makeAFii = (db, ops) => ({
   ),
   PUT: write(db, ops).PUT,
   SET_SUBTRACTION: read(db, ops).SET_SUBTRACTION,
-  STORE: db
+  STORE: db,
+  parseToken: read(db).parseToken
 })
 
 export default function fii (ops, callback) {

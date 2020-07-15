@@ -282,14 +282,14 @@ test('can get all VALUEs of totalamt (DIST)', t => {
   })
    .then(result => {
      t.deepEqual(result, [
-       { FIELD: 'totalamt', VALUE: '0' },
-       { FIELD: 'totalamt', VALUE: '10000000' },
-       { FIELD: 'totalamt', VALUE: '130000000' },
-       { FIELD: 'totalamt', VALUE: '13100000' },
-       { FIELD: 'totalamt', VALUE: '160000000' },
-       { FIELD: 'totalamt', VALUE: '200000000' },
-       { FIELD: 'totalamt', VALUE: '500000000' },
-       { FIELD: 'totalamt', VALUE: '6060000' }
+       { FIELD: [ 'totalamt' ], VALUE: '0' },
+       { FIELD: [ 'totalamt' ], VALUE: '10000000' },
+       { FIELD: [ 'totalamt' ], VALUE: '130000000' },
+       { FIELD: [ 'totalamt' ], VALUE: '13100000' },
+       { FIELD: [ 'totalamt' ], VALUE: '160000000' },
+       { FIELD: [ 'totalamt' ], VALUE: '200000000' },
+       { FIELD: [ 'totalamt' ], VALUE: '500000000' },
+       { FIELD: [ 'totalamt' ], VALUE: '6060000' }
      ])
    })
 })
@@ -307,14 +307,14 @@ test('can aggregate totalamt', t => {
    .then(result => Promise.all(result.map(global[indexName].BUCKET)))
    .then(result => {
      t.deepEqual(result, [
-       { FIELD: 'totalamt', VALUE: { GTE: '0', LTE: '0' }, _id: [ '52b213b38594d8a2be17c781', '52b213b38594d8a2be17c783', '52b213b38594d8a2be17c787' ] },
-       { FIELD: 'totalamt', VALUE: { GTE: '10000000', LTE: '10000000' }, _id: [ '52b213b38594d8a2be17c785' ] },
-       { FIELD: 'totalamt', VALUE: { GTE: '130000000', LTE: '130000000' }, _id: [ '52b213b38594d8a2be17c780' ] },
-       { FIELD: 'totalamt', VALUE: { GTE: '13100000', LTE: '13100000' }, _id: [ '52b213b38594d8a2be17c784' ] },
-       { FIELD: 'totalamt', VALUE: { GTE: '160000000', LTE: '160000000' }, _id: [ '52b213b38594d8a2be17c788' ] },
-       { FIELD: 'totalamt', VALUE: { GTE: '200000000', LTE: '200000000' }, _id: [ '52b213b38594d8a2be17c789' ] },
-       { FIELD: 'totalamt', VALUE: { GTE: '500000000', LTE: '500000000' }, _id: [ '52b213b38594d8a2be17c786' ] },
-       { FIELD: 'totalamt', VALUE: { GTE: '6060000', LTE: '6060000' }, _id: [ '52b213b38594d8a2be17c782' ] }
+       { FIELD: [ 'totalamt' ], VALUE: { GTE: '0', LTE: '0' }, _id: [ '52b213b38594d8a2be17c781', '52b213b38594d8a2be17c783', '52b213b38594d8a2be17c787' ] },
+       { FIELD: [ 'totalamt' ], VALUE: { GTE: '10000000', LTE: '10000000' }, _id: [ '52b213b38594d8a2be17c785' ] },
+       { FIELD: [ 'totalamt' ], VALUE: { GTE: '130000000', LTE: '130000000' }, _id: [ '52b213b38594d8a2be17c780' ] },
+       { FIELD: [ 'totalamt' ], VALUE: { GTE: '13100000', LTE: '13100000' }, _id: [ '52b213b38594d8a2be17c784' ] },
+       { FIELD: [ 'totalamt' ], VALUE: { GTE: '160000000', LTE: '160000000' }, _id: [ '52b213b38594d8a2be17c788' ] },
+       { FIELD: [ 'totalamt' ], VALUE: { GTE: '200000000', LTE: '200000000' }, _id: [ '52b213b38594d8a2be17c789' ] },
+       { FIELD: [ 'totalamt' ], VALUE: { GTE: '500000000', LTE: '500000000' }, _id: [ '52b213b38594d8a2be17c786' ] },
+       { FIELD: [ 'totalamt' ], VALUE: { GTE: '6060000', LTE: '6060000' }, _id: [ '52b213b38594d8a2be17c782' ] }
      ])
    })
 })
@@ -330,14 +330,14 @@ test('can aggregate totalamt (showing ID count)', t => {
      VALUE: item.VALUE,
      count: item._id.length
    })), [
-     { FIELD: 'totalamt', VALUE: { GTE: '0', LTE: '0' }, count: 3 },
-     { FIELD: 'totalamt', VALUE: { GTE: '10000000', LTE: '10000000' }, count: 1 },
-     { FIELD: 'totalamt', VALUE: { GTE: '130000000', LTE: '130000000' }, count: 1 },
-     { FIELD: 'totalamt', VALUE: { GTE: '13100000', LTE: '13100000' }, count: 1 },
-     { FIELD: 'totalamt', VALUE: { GTE: '160000000', LTE: '160000000' }, count: 1 },
-     { FIELD: 'totalamt', VALUE: { GTE: '200000000', LTE: '200000000' }, count: 1 },
-     { FIELD: 'totalamt', VALUE: { GTE: '500000000', LTE: '500000000' }, count: 1 },
-     { FIELD: 'totalamt', VALUE: { GTE: '6060000', LTE: '6060000' }, count: 1 } 
+     { FIELD: [ 'totalamt' ], VALUE: { GTE: '0', LTE: '0' }, count: 3 },
+     { FIELD: [ 'totalamt' ], VALUE: { GTE: '10000000', LTE: '10000000' }, count: 1 },
+     { FIELD: [ 'totalamt' ], VALUE: { GTE: '130000000', LTE: '130000000' }, count: 1 },
+     { FIELD: [ 'totalamt' ], VALUE: { GTE: '13100000', LTE: '13100000' }, count: 1 },
+     { FIELD: [ 'totalamt' ], VALUE: { GTE: '160000000', LTE: '160000000' }, count: 1 },
+     { FIELD: [ 'totalamt' ], VALUE: { GTE: '200000000', LTE: '200000000' }, count: 1 },
+     { FIELD: [ 'totalamt' ], VALUE: { GTE: '500000000', LTE: '500000000' }, count: 1 },
+     { FIELD: [ 'totalamt' ], VALUE: { GTE: '6060000', LTE: '6060000' }, count: 1 } 
    ]))
 })
 
@@ -356,11 +356,11 @@ test('can aggregate totalamt in a given range (showing ID count)', t => {
      VALUE: item.VALUE,
      count: item._id.length
    })), [
-     { FIELD: 'totalamt', VALUE: { GTE: '10000000', LTE: '10000000' }, count: 1 },
-     { FIELD: 'totalamt', VALUE: { GTE: '130000000', LTE: '130000000' }, count: 1 },
-     { FIELD: 'totalamt', VALUE: { GTE: '13100000', LTE: '13100000' }, count: 1 },
-     { FIELD: 'totalamt', VALUE: { GTE: '160000000', LTE: '160000000' }, count: 1 },
-     { FIELD: 'totalamt', VALUE: { GTE: '200000000', LTE: '200000000' }, count: 1 }
+     { FIELD: [ 'totalamt' ], VALUE: { GTE: '10000000', LTE: '10000000' }, count: 1 },
+     { FIELD: [ 'totalamt' ], VALUE: { GTE: '130000000', LTE: '130000000' }, count: 1 },
+     { FIELD: [ 'totalamt' ], VALUE: { GTE: '13100000', LTE: '13100000' }, count: 1 },
+     { FIELD: [ 'totalamt' ], VALUE: { GTE: '160000000', LTE: '160000000' }, count: 1 },
+     { FIELD: [ 'totalamt' ], VALUE: { GTE: '200000000', LTE: '200000000' }, count: 1 }
    ]))          
 })
 
@@ -548,14 +548,14 @@ test('can aggregate totalamt', t => {
     global[indexName].GET('board_approval_month:November')
   ).then(result => {
     t.deepEqual(result, [
-      { FIELD: 'totalamt', VALUE: { GTE: '0', LTE: '0' }, _id: [ '52b213b38594d8a2be17c781' ] },
-      { FIELD: 'totalamt', VALUE: { GTE: '10000000', LTE: '10000000' }, _id: [] },
-      { FIELD: 'totalamt', VALUE: { GTE: '130000000', LTE: '130000000' }, _id: [ '52b213b38594d8a2be17c780' ] },
-      { FIELD: 'totalamt', VALUE: { GTE: '13100000', LTE: '13100000' }, _id: [] },
-      { FIELD: 'totalamt', VALUE: { GTE: '160000000', LTE: '160000000' }, _id: [] },
-      { FIELD: 'totalamt', VALUE: { GTE: '200000000', LTE: '200000000' }, _id: [] },
-      { FIELD: 'totalamt', VALUE: { GTE: '500000000', LTE: '500000000' }, _id: [] },
-      { FIELD: 'totalamt', VALUE: { GTE: '6060000', LTE: '6060000' }, _id: [ '52b213b38594d8a2be17c782' ] }
+      { FIELD: [ 'totalamt' ], VALUE: { GTE: '0', LTE: '0' }, _id: [ '52b213b38594d8a2be17c781' ] },
+      { FIELD: [ 'totalamt' ], VALUE: { GTE: '10000000', LTE: '10000000' }, _id: [] },
+      { FIELD: [ 'totalamt' ], VALUE: { GTE: '130000000', LTE: '130000000' }, _id: [ '52b213b38594d8a2be17c780' ] },
+      { FIELD: [ 'totalamt' ], VALUE: { GTE: '13100000', LTE: '13100000' }, _id: [] },
+      { FIELD: [ 'totalamt' ], VALUE: { GTE: '160000000', LTE: '160000000' }, _id: [] },
+      { FIELD: [ 'totalamt' ], VALUE: { GTE: '200000000', LTE: '200000000' }, _id: [] },
+      { FIELD: [ 'totalamt' ], VALUE: { GTE: '500000000', LTE: '500000000' }, _id: [] },
+      { FIELD: [ 'totalamt' ], VALUE: { GTE: '6060000', LTE: '6060000' }, _id: [ '52b213b38594d8a2be17c782' ] }
     ])
   })
 })
@@ -569,14 +569,14 @@ test('can aggregate totalamt, on docs with "board_approval_month:October"', t =>
     global[indexName].GET('board_approval_month:October')
   ).then(result => {
     t.deepEqual(result, [
-      { FIELD: 'totalamt', VALUE: { GTE: '0', LTE: '0' }, _id: [ '52b213b38594d8a2be17c783', '52b213b38594d8a2be17c787' ] },
-      { FIELD: 'totalamt', VALUE: { GTE: '10000000', LTE: '10000000' }, _id: [ '52b213b38594d8a2be17c785' ] },
-      { FIELD: 'totalamt', VALUE: { GTE: '130000000', LTE: '130000000' }, _id: [] },
-      { FIELD: 'totalamt', VALUE: { GTE: '13100000', LTE: '13100000' }, _id: [ '52b213b38594d8a2be17c784' ] },
-      { FIELD: 'totalamt', VALUE: { GTE: '160000000', LTE: '160000000' }, _id: [ '52b213b38594d8a2be17c788' ] },
-      { FIELD: 'totalamt', VALUE: { GTE: '200000000', LTE: '200000000' }, _id: [ '52b213b38594d8a2be17c789' ] },
-      { FIELD: 'totalamt', VALUE: { GTE: '500000000', LTE: '500000000' }, _id: [ '52b213b38594d8a2be17c786' ] },
-      { FIELD: 'totalamt', VALUE: { GTE: '6060000', LTE: '6060000' }, _id: [] } 
+      { FIELD: [ 'totalamt' ], VALUE: { GTE: '0', LTE: '0' }, _id: [ '52b213b38594d8a2be17c783', '52b213b38594d8a2be17c787' ] },
+      { FIELD: [ 'totalamt' ], VALUE: { GTE: '10000000', LTE: '10000000' }, _id: [ '52b213b38594d8a2be17c785' ] },
+      { FIELD: [ 'totalamt' ], VALUE: { GTE: '130000000', LTE: '130000000' }, _id: [] },
+      { FIELD: [ 'totalamt' ], VALUE: { GTE: '13100000', LTE: '13100000' }, _id: [ '52b213b38594d8a2be17c784' ] },
+      { FIELD: [ 'totalamt' ], VALUE: { GTE: '160000000', LTE: '160000000' }, _id: [ '52b213b38594d8a2be17c788' ] },
+      { FIELD: [ 'totalamt' ], VALUE: { GTE: '200000000', LTE: '200000000' }, _id: [ '52b213b38594d8a2be17c789' ] },
+      { FIELD: [ 'totalamt' ], VALUE: { GTE: '500000000', LTE: '500000000' }, _id: [ '52b213b38594d8a2be17c786' ] },
+      { FIELD: [ 'totalamt' ], VALUE: { GTE: '6060000', LTE: '6060000' }, _id: [] } 
     ])
   })
 })
