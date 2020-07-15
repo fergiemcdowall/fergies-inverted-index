@@ -15,6 +15,10 @@ function init (db, ops) {
   const parseToken = token => new Promise((resolve, reject) => {
     // case: <value>
     // case: <FIELD>:<VALUE>
+    // case: undefined
+
+    if (typeof token === 'undefined') token = {};
+
     if (typeof token === 'string') {
       const fieldValue = token.split(':');
       const value = fieldValue.pop();
@@ -78,9 +82,9 @@ function init (db, ops) {
   });
 
   const GET = token => (token instanceof Promise)
-                   ? token
-                   : parseToken(token).then(RANGE);
-  
+    ? token
+    : parseToken(token).then(RANGE);
+
   // OR
   const UNION = (...keys) => Promise.all(
     keys.map(key => GET(key))
@@ -112,19 +116,18 @@ function init (db, ops) {
     aItem => b.map(bItem => bItem._id).indexOf(aItem._id) === -1)
   );
 
-
-  const RANGE = ops => new Promise(resolve => {
-    const rs = {}; // resultset    
+  const RANGE = token => new Promise(resolve => {
+    const rs = {}; // resultset
     return Promise.all(
-      ops.FIELD.map(
-        fieldName => new Promise(resolve =>
-          db.createReadStream({
-            gte: fieldName + ':' + ops.VALUE.GTE,
-            lte: fieldName + ':' + ops.VALUE.LTE + '￮'
+      token.FIELD.map(
+        fieldName => new Promise(resolve => {
+          return db.createReadStream({
+            gte: fieldName + ':' + token.VALUE.GTE + ops.tokenAppend,
+            lte: fieldName + ':' + token.VALUE.LTE + ops.tokenAppend + '￮'
           }).on('data', token => token.value.forEach(docId => {
             rs[docId] = [...(rs[docId] || []), token.key];
           })).on('end', resolve)
-        )
+        })
       )
     ).then(() => resolve(
       // convert map into array
@@ -134,7 +137,7 @@ function init (db, ops) {
       }))
     ))
   });
-  
+
   const AVAILABLE_FIELDS = () => new Promise(resolve => {
     const fieldNames = [];
     db.createReadStream({
@@ -178,7 +181,7 @@ function init (db, ops) {
       })
     })
   );
-  
+
   const OBJECT = _ids => Promise.all(
     _ids.map(
       id => db.get('￮DOC￮' + id._id + '￮').catch(reason => null)
@@ -210,21 +213,16 @@ function init (db, ops) {
     }).on('data', resolve);
   });
 
-  const DIST = ops => new Promise(
-    resolve => (ops || {}).FIELD
-    // bump string or Array to Array
-           ? resolve([ops.FIELD].flat(Infinity))
-           : AVAILABLE_FIELDS().then(resolve)
-  ).then(fields => Promise.all(
-    fields.map(field => getRange({
-      gte: field + ':' + ((ops && ops.VALUE && ops.VALUE.GTE) || ''),
-      lte: field + ':' + ((ops && ops.VALUE && ops.VALUE.LTE) || '') + '￮'
+  const DIST = token => parseToken(token).then(token => Promise.all(
+    token.FIELD.map(field => getRange({
+      gte: field + ':' + token.VALUE.GTE,
+      lte: field + ':' + token.VALUE.LTE + '￮'
     }).then(items => items.map(item => ({
-      FIELD: [ item.split(/:(.+)/)[0] ],
+      FIELD: item.split(/:(.+)/)[0],
       VALUE: item.split(/:(.+)/)[1]
     }))))
   )).then(result => result.flat());
-  
+
   return {
     FIELDS: AVAILABLE_FIELDS,
     BUCKET: BUCKET,
@@ -600,11 +598,11 @@ test('can GET a single bucket with gte LTE', t => {
 test('can get DISTINCT values', t => {
   t.plan(1);
   global[indexName].DISTINCT({
-    FIELD:'make'
+    FIELD: 'make'
   }).then(result => t.deepEquals(result, [
-    { FIELD: [ 'make' ], VALUE: 'BMW' },
-    { FIELD: [ 'make' ], VALUE: 'Tesla' },
-    { FIELD: [ 'make' ], VALUE: 'Volvo' }
+    { FIELD: 'make', VALUE: 'BMW' },
+    { FIELD: 'make', VALUE: 'Tesla' },
+    { FIELD: 'make', VALUE: 'Volvo' }
   ]));
 });
 
@@ -616,8 +614,8 @@ test('can get DISTINCT values with gte', t => {
       GTE: 'C'
     }
   }).then(result => t.deepEquals(result, [
-    { FIELD: [ 'make' ], VALUE: 'Tesla' },
-    { FIELD: [ 'make' ], VALUE: 'Volvo' }
+    { FIELD: 'make', VALUE: 'Tesla' },
+    { FIELD: 'make', VALUE: 'Volvo' }
   ]));
 });
 
@@ -630,7 +628,7 @@ test('can get DISTINCT VALUEs with GTE and LTE', t => {
       LTE: 'U'
     }
   }).then(result => t.deepEquals(result, [
-    { FIELD: [ 'make' ], VALUE: 'Tesla' }
+    { FIELD: 'make', VALUE: 'Tesla' }
   ]));
 });
 

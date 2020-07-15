@@ -282,14 +282,14 @@ test('can get all VALUEs of totalamt (DIST)', t => {
   })
    .then(result => {
      t.deepEqual(result, [
-       { FIELD: [ 'totalamt' ], VALUE: '0' },
-       { FIELD: [ 'totalamt' ], VALUE: '10000000' },
-       { FIELD: [ 'totalamt' ], VALUE: '130000000' },
-       { FIELD: [ 'totalamt' ], VALUE: '13100000' },
-       { FIELD: [ 'totalamt' ], VALUE: '160000000' },
-       { FIELD: [ 'totalamt' ], VALUE: '200000000' },
-       { FIELD: [ 'totalamt' ], VALUE: '500000000' },
-       { FIELD: [ 'totalamt' ], VALUE: '6060000' }
+       { FIELD: 'totalamt', VALUE: '0' },
+       { FIELD: 'totalamt', VALUE: '10000000' },
+       { FIELD: 'totalamt', VALUE: '130000000' },
+       { FIELD: 'totalamt', VALUE: '13100000' },
+       { FIELD: 'totalamt', VALUE: '160000000' },
+       { FIELD: 'totalamt', VALUE: '200000000' },
+       { FIELD: 'totalamt', VALUE: '500000000' },
+       { FIELD: 'totalamt', VALUE: '6060000' }
      ])
    })
 })
