@@ -49,12 +49,14 @@ export default function init (db, ops) {
         LTE: token.VALUE
       }
     }
+
     if (typeof token.VALUE === 'undefined') {
       token.VALUE = {
         GTE: '!',
         LTE: '￮'
       }
     }
+
     token.VALUE = Object.assign(token.VALUE, {
       GTE: token.VALUE.GTE || '!',
       LTE: token.VALUE.LTE || '￮'
@@ -68,8 +70,10 @@ export default function init (db, ops) {
         })
       ))
     }
+
     // Allow FIELD to be an array or a string
     token.FIELD = [token.FIELD].flat()
+
     return resolve(token)
   })
 
@@ -79,14 +83,15 @@ export default function init (db, ops) {
 
   // OR
   const UNION = (...keys) => Promise.all(
-    keys.map(key => GET(key))
+    keys.map(GET)
   ).then(sets => {
-    // flatten
-    sets = [].concat.apply([], sets)
-    var setObject = sets.reduce((acc, cur) => {
-      acc[cur._id] = [...(acc[cur._id] || []), cur._match]
-      return acc
-    }, {})
+    const setObject = sets.flat(Infinity).reduce(
+      (acc, cur) => {
+        acc[cur._id] = [...(acc[cur._id] || []), cur._match]
+        return acc
+      },
+      {}
+    )
     return Object.keys(setObject).map(id => ({
       _id: id,
       _match: setObject[id]
@@ -94,11 +99,10 @@ export default function init (db, ops) {
   })
 
   // AND
-  const INTERSECTION = (...keys) => UNION(...keys).then(
-    result => result.filter(
+  const INTERSECTION = (...keys) => UNION(...keys)
+    .then(result => result.filter(
       item => (item._match.length === keys.length)
-    )
-  )
+    ))
 
   // NOT (set a minus set b)
   const SET_SUBTRACTION = (a, b) => Promise.all([
