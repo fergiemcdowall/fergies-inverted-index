@@ -103,6 +103,7 @@ fii({ name: 'myDB' }, (err, db) => {
   // db is guaranteed to be open and available
 })
 ```
+        
 
 <a name="AND"></a>
 
