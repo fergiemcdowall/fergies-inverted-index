@@ -42,7 +42,8 @@ export default function fii (ops, callback) {
     // be retrieved by using "boom". If tokenAppend wasnt used, then
     // {gte: 'boom', lte: 'boom'} would also return stuff like
     // boomness#1.00 etc
-    tokenAppend: ''
+    tokenAppend: '',
+    caseSensitive: false
   }, ops)
   // if no callback provided, "lazy load"
   if (!callback) {
