@@ -242,17 +242,3 @@ test('can parse an object token without GTE', t => {
     })
   )
 })
-
-test('can parse FIELD without VALUE', t => {
-  t.plan(1)
-  global[indexName].parseToken({
-    FIELD: [ 'make' ]
-  }).then(
-    result => t.deepEqual(result, {
-      FIELD: [ 'make' ],
-      VALUE: {
-        GTE: '!', LTE: '￮'
-      }
-    })
-  )
-})
