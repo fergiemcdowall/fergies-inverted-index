@@ -7,6 +7,10 @@ export default function init (db, ops) {
   const parseToken = token => new Promise((resolve, reject) => {
     // case: <value>
     // case: <FIELD>:<VALUE>
+    // case: undefined
+
+    if (typeof token === 'undefined') token = {}
+
     if (typeof token === 'string') {
       const fieldValue = token.split(':')
       const value = fieldValue.pop()
@@ -45,12 +49,14 @@ export default function init (db, ops) {
         LTE: token.VALUE
       }
     }
+
     if (typeof token.VALUE === 'undefined') {
       token.VALUE = {
         GTE: '!',
         LTE: '￮'
       }
     }
+
     token.VALUE = Object.assign(token.VALUE, {
       GTE: token.VALUE.GTE || '!',
       LTE: token.VALUE.LTE || '￮'
@@ -64,8 +70,10 @@ export default function init (db, ops) {
         })
       ))
     }
+
     // Allow FIELD to be an array or a string
     token.FIELD = [token.FIELD].flat()
+
     return resolve(token)
   })
 
@@ -75,14 +83,15 @@ export default function init (db, ops) {
 
   // OR
   const UNION = (...keys) => Promise.all(
-    keys.map(key => GET(key))
+    keys.map(GET)
   ).then(sets => {
-    // flatten
-    sets = [].concat.apply([], sets)
-    var setObject = sets.reduce((acc, cur) => {
-      acc[cur._id] = [...(acc[cur._id] || []), cur._match]
-      return acc
-    }, {})
+    const setObject = sets.flat(Infinity).reduce(
+      (acc, cur) => {
+        acc[cur._id] = [...(acc[cur._id] || []), cur._match]
+        return acc
+      },
+      {}
+    )
     return Object.keys(setObject).map(id => ({
       _id: id,
       _match: setObject[id]
@@ -90,11 +99,10 @@ export default function init (db, ops) {
   })
 
   // AND
-  const INTERSECTION = (...keys) => UNION(...keys).then(
-    result => result.filter(
+  const INTERSECTION = (...keys) => UNION(...keys)
+    .then(result => result.filter(
       item => (item._match.length === keys.length)
-    )
-  )
+    ))
 
   // NOT (set a minus set b)
   const SET_SUBTRACTION = (a, b) => Promise.all([
@@ -104,18 +112,18 @@ export default function init (db, ops) {
     aItem => b.map(bItem => bItem._id).indexOf(aItem._id) === -1)
   )
 
-  const RANGE = ops => new Promise(resolve => {
+  const RANGE = token => new Promise(resolve => {
     const rs = {} // resultset
     return Promise.all(
-      ops.FIELD.map(
-        fieldName => new Promise(resolve =>
-          db.createReadStream({
-            gte: fieldName + ':' + ops.VALUE.GTE,
-            lte: fieldName + ':' + ops.VALUE.LTE + '￮'
+      token.FIELD.map(
+        fieldName => new Promise(resolve => {
+          return db.createReadStream({
+            gte: fieldName + ':' + token.VALUE.GTE + ops.tokenAppend,
+            lte: fieldName + ':' + token.VALUE.LTE + ops.tokenAppend + '￮'
           }).on('data', token => token.value.forEach(docId => {
             rs[docId] = [...(rs[docId] || []), token.key]
           })).on('end', resolve)
-        )
+        })
       )
     ).then(() => resolve(
       // convert map into array
@@ -201,17 +209,12 @@ export default function init (db, ops) {
     }).on('data', resolve)
   })
 
-  const DIST = ops => new Promise(
-    resolve => (ops || {}).FIELD
-    // bump string or Array to Array
-      ? resolve([ops.FIELD].flat(Infinity))
-      : AVAILABLE_FIELDS().then(resolve)
-  ).then(fields => Promise.all(
-    fields.map(field => getRange({
-      gte: field + ':' + ((ops && ops.VALUE && ops.VALUE.GTE) || ''),
-      lte: field + ':' + ((ops && ops.VALUE && ops.VALUE.LTE) || '') + '￮'
+  const DIST = token => parseToken(token).then(token => Promise.all(
+    token.FIELD.map(field => getRange({
+      gte: field + ':' + token.VALUE.GTE,
+      lte: field + ':' + token.VALUE.LTE + '￮'
     }).then(items => items.map(item => ({
-      FIELD: [item.split(/:(.+)/)[0]],
+      FIELD: item.split(/:(.+)/)[0],
       VALUE: item.split(/:(.+)/)[1]
     }))))
   )).then(result => result.flat())
