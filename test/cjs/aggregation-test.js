@@ -18,17 +18,16 @@ function init (db, ops) {
     // case: undefined
 
     const setCase = str => ops.caseSensitive ? str : str.toLowerCase();
-    
+
     if (typeof token === 'undefined') token = {};
 
     if (typeof token === 'string') {
-      
       const fieldValue = setCase(token).split(':');
       const value = fieldValue.pop();
       const field = fieldValue.pop();
       if (field) {
         return resolve({
-          FIELD: [ field ],
+          FIELD: [field],
           VALUE: {
             GTE: value,
             LTE: value
@@ -247,7 +246,6 @@ function init (db, ops) {
 }
 
 function init$1 (db, ops) {
-
   // TODO: set reset this to the max value every time the DB is restarted
   var incrementalId = 0;
 
@@ -263,11 +261,11 @@ function init$1 (db, ops) {
         if (item === '_id') searchable = false;
       });
       if (searchable && this.isLeaf) {
-        let key = this.path
+        const key = this.path
         // allowing numbers in path names create ambiguity with arrays
         // so just strip numbers from path names
-                      .filter(item => !Number.isInteger(+item))
-                      .join('.') + ':' + this.node;
+          .filter(item => !Number.isInteger(+item))
+          .join('.') + ':' + this.node;
         keys.push(ops.caseSensitive ? key : key.toLowerCase());
       }
     });
@@ -361,7 +359,7 @@ function init$1 (db, ops) {
       , e => resolve(docs)
     ));
   });
-  
+
   // docs needs to be an array of ids (strings)
   // first do an 'objects' call to get all of the documents to be
   // deleted
@@ -431,11 +429,12 @@ const makeAFii = (db, ops) => ({
   PUT: init$1(db, ops).PUT,
   SET_SUBTRACTION: init(db, ops).SET_SUBTRACTION,
   STORE: db,
-  parseToken: init(db).parseToken
+  parseToken: init(db, ops).parseToken
 });
 
 function fii (ops, callback) {
-  ops = Object.assign({}, {
+  console.log(ops);
+  ops = Object.assign({
     name: 'fii',
     // tokenAppend can be used to create 'comment' spaces in
     // tokens. For example using '#' allows tokens like boom#1.00 to
@@ -443,8 +442,8 @@ function fii (ops, callback) {
     // {gte: 'boom', lte: 'boom'} would also return stuff like
     // boomness#1.00 etc
     tokenAppend: '',
-    caseSensitive: false
-  }, ops);
+    caseSensitive: true
+  }, ops || {});
   // if no callback provided, "lazy load"
   if (!callback) {
     return makeAFii(

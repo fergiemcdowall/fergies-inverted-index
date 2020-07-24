@@ -2,7 +2,8 @@ import fii from '../../dist/fergies-inverted-index.esm.js'
 import test from 'tape'
 
 const sandbox = 'test/sandbox/'
-const caseSensitiveIdx = sandbox + 'case-sensitive-test'
+// TODO: why does 'case-sensitive-test' break everything here?
+const caseSensitiveIdx = sandbox + 'case-sensitive-testx'
 const caseInsensitiveIdx = sandbox + 'case-insensitive-test'
 
 test('create a case sensitive index', t => {
@@ -28,7 +29,7 @@ test('create a case INsensitive index', t => {
 })
 
 
-test('can add some worldbank data', t => {
+test('can add some data', t => {
   const data = [
     
     {

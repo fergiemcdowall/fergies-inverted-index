@@ -1,9 +1,7 @@
 import trav from 'traverse'
 import reader from './read.js'
 
-
 export default function init (db, ops) {
-
   // TODO: set reset this to the max value every time the DB is restarted
   var incrementalId = 0
 
@@ -19,11 +17,11 @@ export default function init (db, ops) {
         if (item === '_id') searchable = false
       })
       if (searchable && this.isLeaf) {
-        let key = this.path
+        const key = this.path
         // allowing numbers in path names create ambiguity with arrays
         // so just strip numbers from path names
-                      .filter(item => !Number.isInteger(+item))
-                      .join('.') + ':' + this.node
+          .filter(item => !Number.isInteger(+item))
+          .join('.') + ':' + this.node
         keys.push(ops.caseSensitive ? key : key.toLowerCase())
       }
     })
@@ -117,7 +115,7 @@ export default function init (db, ops) {
       , e => resolve(docs)
     ))
   })
-  
+
   // docs needs to be an array of ids (strings)
   // first do an 'objects' call to get all of the documents to be
   // deleted

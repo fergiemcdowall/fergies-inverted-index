@@ -10,17 +10,16 @@ export default function init (db, ops) {
     // case: undefined
 
     const setCase = str => ops.caseSensitive ? str : str.toLowerCase()
-    
+
     if (typeof token === 'undefined') token = {}
 
     if (typeof token === 'string') {
-      
       const fieldValue = setCase(token).split(':')
       const value = fieldValue.pop()
       const field = fieldValue.pop()
       if (field) {
         return resolve({
-          FIELD: [ field ],
+          FIELD: [field],
           VALUE: {
             GTE: value,
             LTE: value
