@@ -15,10 +15,6 @@ function init (db, ops) {
   const parseToken = token => new Promise((resolve, reject) => {
     // case: <value>
     // case: <FIELD>:<VALUE>
-    // case: undefined
-
-    if (typeof token === 'undefined') token = {};
-
     if (typeof token === 'string') {
       const fieldValue = token.split(':');
       const value = fieldValue.pop();
@@ -57,14 +53,12 @@ function init (db, ops) {
         LTE: token.VALUE
       };
     }
-
     if (typeof token.VALUE === 'undefined') {
       token.VALUE = {
         GTE: '!',
         LTE: '￮'
       };
     }
-
     token.VALUE = Object.assign(token.VALUE, {
       GTE: token.VALUE.GTE || '!',
       LTE: token.VALUE.LTE || '￮'
@@ -78,40 +72,37 @@ function init (db, ops) {
         })
       ))
     }
-    
     // Allow FIELD to be an array or a string
-    token.FIELD = [token.FIELD].flat();    
-
+    token.FIELD = [token.FIELD].flat();
     return resolve(token)
   });
 
   const GET = token => (token instanceof Promise)
                    ? token
                    : parseToken(token).then(RANGE);
-
+  
   // OR
   const UNION = (...keys) => Promise.all(
-    keys.map(GET)
+    keys.map(key => GET(key))
   ).then(sets => {
-    let setObject = sets.flat(Infinity).reduce(
-      (acc, cur) => {
-        acc[cur._id] = [...(acc[cur._id] || []), cur._match];
-        return acc
-      },
-      {}
-    );
+    // flatten
+    sets = [].concat.apply([], sets);
+    var setObject = sets.reduce((acc, cur) => {
+      acc[cur._id] = [...(acc[cur._id] || []), cur._match];
+      return acc
+    }, {});
     return Object.keys(setObject).map(id => ({
       _id: id,
       _match: setObject[id]
     }))
   });
-  
 
   // AND
-  const INTERSECTION = (...keys) => UNION(...keys)
-    .then(result => result.filter(
+  const INTERSECTION = (...keys) => UNION(...keys).then(
+    result => result.filter(
       item => (item._match.length === keys.length)
-    ));
+    )
+  );
 
   // NOT (set a minus set b)
   const SET_SUBTRACTION = (a, b) => Promise.all([
@@ -121,18 +112,19 @@ function init (db, ops) {
     aItem => b.map(bItem => bItem._id).indexOf(aItem._id) === -1)
   );
 
-  const RANGE = token => new Promise(resolve => {
-    const rs = {}; // resultset
+
+  const RANGE = ops => new Promise(resolve => {
+    const rs = {}; // resultset    
     return Promise.all(
-      token.FIELD.map(
-        fieldName => new Promise(resolve => {
-          return db.createReadStream({
-            gte: fieldName + ':' + token.VALUE.GTE + ops.tokenAppend,
-            lte: fieldName + ':' + token.VALUE.LTE + ops.tokenAppend + '￮'
+      ops.FIELD.map(
+        fieldName => new Promise(resolve =>
+          db.createReadStream({
+            gte: fieldName + ':' + ops.VALUE.GTE,
+            lte: fieldName + ':' + ops.VALUE.LTE + '￮'
           }).on('data', token => token.value.forEach(docId => {
             rs[docId] = [...(rs[docId] || []), token.key];
           })).on('end', resolve)
-        })
+        )
       )
     ).then(() => resolve(
       // convert map into array
@@ -142,7 +134,7 @@ function init (db, ops) {
       }))
     ))
   });
-
+  
   const AVAILABLE_FIELDS = () => new Promise(resolve => {
     const fieldNames = [];
     db.createReadStream({
@@ -186,7 +178,7 @@ function init (db, ops) {
       })
     })
   );
-
+  
   const OBJECT = _ids => Promise.all(
     _ids.map(
       id => db.get('￮DOC￮' + id._id + '￮').catch(reason => null)
@@ -218,16 +210,21 @@ function init (db, ops) {
     }).on('data', resolve);
   });
 
-  const DIST = token => parseToken(token).then(token => Promise.all(
-    token.FIELD.map(field => getRange({
-      gte: field + ':' + token.VALUE.GTE,
-      lte: field + ':' + token.VALUE.LTE + '￮'
+  const DIST = ops => new Promise(
+    resolve => (ops || {}).FIELD
+    // bump string or Array to Array
+           ? resolve([ops.FIELD].flat(Infinity))
+           : AVAILABLE_FIELDS().then(resolve)
+  ).then(fields => Promise.all(
+    fields.map(field => getRange({
+      gte: field + ':' + ((ops && ops.VALUE && ops.VALUE.GTE) || ''),
+      lte: field + ':' + ((ops && ops.VALUE && ops.VALUE.LTE) || '') + '￮'
     }).then(items => items.map(item => ({
-      FIELD: item.split(/:(.+)/)[0],
+      FIELD: [ item.split(/:(.+)/)[0] ],
       VALUE: item.split(/:(.+)/)[1]
     }))))
   )).then(result => result.flat());
-
+  
   return {
     FIELDS: AVAILABLE_FIELDS,
     BUCKET: BUCKET,
@@ -603,11 +600,11 @@ test('can GET a single bucket with gte LTE', t => {
 test('can get DISTINCT values', t => {
   t.plan(1);
   global[indexName].DISTINCT({
-    FIELD: 'make'
+    FIELD:'make'
   }).then(result => t.deepEquals(result, [
-    { FIELD: 'make', VALUE: 'BMW' },
-    { FIELD: 'make', VALUE: 'Tesla' },
-    { FIELD: 'make', VALUE: 'Volvo' }
+    { FIELD: [ 'make' ], VALUE: 'BMW' },
+    { FIELD: [ 'make' ], VALUE: 'Tesla' },
+    { FIELD: [ 'make' ], VALUE: 'Volvo' }
   ]));
 });
 
@@ -619,8 +616,8 @@ test('can get DISTINCT values with gte', t => {
       GTE: 'C'
     }
   }).then(result => t.deepEquals(result, [
-    { FIELD: 'make', VALUE: 'Tesla' },
-    { FIELD: 'make', VALUE: 'Volvo' }
+    { FIELD: [ 'make' ], VALUE: 'Tesla' },
+    { FIELD: [ 'make' ], VALUE: 'Volvo' }
   ]));
 });
 
@@ -633,7 +630,7 @@ test('can get DISTINCT VALUEs with GTE and LTE', t => {
       LTE: 'U'
     }
   }).then(result => t.deepEquals(result, [
-    { FIELD: 'make', VALUE: 'Tesla' }
+    { FIELD: [ 'make' ], VALUE: 'Tesla' }
   ]));
 });
 
