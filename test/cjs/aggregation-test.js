@@ -433,7 +433,6 @@ const makeAFii = (db, ops) => ({
 });
 
 function fii (ops, callback) {
-  console.log(ops);
   ops = Object.assign({
     name: 'fii',
     // tokenAppend can be used to create 'comment' spaces in
