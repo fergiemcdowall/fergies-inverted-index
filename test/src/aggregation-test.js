@@ -150,11 +150,11 @@ test('can GET a single bucket with gte LTE', t => {
 test('can get DISTINCT values', t => {
   t.plan(1)
   global[indexName].DISTINCT({
-    FIELD: 'make'
+    FIELD:'make'
   }).then(result => t.deepEquals(result, [
-    { FIELD: 'make', VALUE: 'BMW' },
-    { FIELD: 'make', VALUE: 'Tesla' },
-    { FIELD: 'make', VALUE: 'Volvo' }
+    { FIELD: [ 'make' ], VALUE: 'BMW' },
+    { FIELD: [ 'make' ], VALUE: 'Tesla' },
+    { FIELD: [ 'make' ], VALUE: 'Volvo' }
   ]))
 })
 
@@ -166,8 +166,8 @@ test('can get DISTINCT values with gte', t => {
       GTE: 'C'
     }
   }).then(result => t.deepEquals(result, [
-    { FIELD: 'make', VALUE: 'Tesla' },
-    { FIELD: 'make', VALUE: 'Volvo' }
+    { FIELD: [ 'make' ], VALUE: 'Tesla' },
+    { FIELD: [ 'make' ], VALUE: 'Volvo' }
   ]))
 })
 
@@ -180,7 +180,7 @@ test('can get DISTINCT VALUEs with GTE and LTE', t => {
       LTE: 'U'
     }
   }).then(result => t.deepEquals(result, [
-    { FIELD: 'make', VALUE: 'Tesla' }
+    { FIELD: [ 'make' ], VALUE: 'Tesla' }
   ]))
 })
 
