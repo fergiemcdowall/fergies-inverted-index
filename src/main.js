@@ -31,19 +31,20 @@ const makeAFii = (db, ops) => ({
   PUT: write(db, ops).PUT,
   SET_SUBTRACTION: read(db, ops).SET_SUBTRACTION,
   STORE: db,
-  parseToken: read(db).parseToken
+  parseToken: read(db, ops).parseToken
 })
 
 export default function fii (ops, callback) {
-  ops = Object.assign({}, {
+  ops = Object.assign({
     name: 'fii',
     // tokenAppend can be used to create 'comment' spaces in
     // tokens. For example using '#' allows tokens like boom#1.00 to
     // be retrieved by using "boom". If tokenAppend wasnt used, then
     // {gte: 'boom', lte: 'boom'} would also return stuff like
     // boomness#1.00 etc
-    tokenAppend: ''
-  }, ops)
+    tokenAppend: '',
+    caseSensitive: true
+  }, ops || {})
   // if no callback provided, "lazy load"
   if (!callback) {
     return makeAFii(

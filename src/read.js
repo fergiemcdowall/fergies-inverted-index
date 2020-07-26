@@ -7,8 +7,15 @@ export default function init (db, ops) {
   const parseToken = token => new Promise((resolve, reject) => {
     // case: <value>
     // case: <FIELD>:<VALUE>
+
+    // case: undefined
+
+    const setCase = str => ops.caseSensitive ? str : str.toLowerCase()
+
+    if (typeof token === 'undefined') token = {}
+
     if (typeof token === 'string') {
-      const fieldValue = token.split(':')
+      const fieldValue = setCase(token).split(':')
       const value = fieldValue.pop()
       const field = fieldValue.pop()
       if (field) {
@@ -41,8 +48,8 @@ export default function init (db, ops) {
     // parse object VALUE
     if (typeof token.VALUE === 'string') {
       token.VALUE = {
-        GTE: token.VALUE,
-        LTE: token.VALUE
+        GTE: setCase(token.VALUE),
+        LTE: setCase(token.VALUE)
       }
     }
     if (typeof token.VALUE === 'undefined') {
@@ -52,8 +59,8 @@ export default function init (db, ops) {
       }
     }
     token.VALUE = Object.assign(token.VALUE, {
-      GTE: token.VALUE.GTE || '!',
-      LTE: token.VALUE.LTE || '￮'
+      GTE: setCase(token.VALUE.GTE) || '!',
+      LTE: setCase(token.VALUE.LTE) || '￮'
     })
 
     // parse object FIELD
