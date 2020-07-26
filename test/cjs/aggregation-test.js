@@ -68,8 +68,8 @@ function init (db, ops) {
     }
 
     token.VALUE = Object.assign(token.VALUE, {
-      GTE: setCase(token.VALUE.GTE) || '!',
-      LTE: setCase(token.VALUE.LTE) || '￮'
+      GTE: setCase(token.VALUE.GTE || '!'),
+      LTE: setCase(token.VALUE.LTE || '￮')
     });
 
     // parse object FIELD
