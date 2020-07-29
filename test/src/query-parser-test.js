@@ -263,7 +263,7 @@ test('can get highest VALUE of totalamt (MAX)', t => {
   t.plan(1)
   global[indexName].MAX('totalamt')
    .then(result => {
-     t.equal(result, 'totalamt:6060000')
+     t.equal(result, '6060000')
    })
 })
 
@@ -271,7 +271,7 @@ test('can get lowest VALUE of totalamt (MIN)', t => {
   t.plan(1)
   global[indexName].MIN('totalamt')
    .then(result => {
-     t.equal(result, 'totalamt:0')
+     t.equal(result, '0')
    })
 })
 

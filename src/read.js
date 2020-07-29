@@ -121,7 +121,9 @@ export default function init (db, ops) {
         fieldName => new Promise(resolve => {
           return db.createReadStream({
             gte: fieldName + ':' + token.VALUE.GTE + ops.tokenAppend,
-            lte: fieldName + ':' + token.VALUE.LTE + ops.tokenAppend + '￮'
+            lte: fieldName + ':' + token.VALUE.LTE + ops.tokenAppend + '￮',
+            limit: token.LIMIT,
+            reverse: token.REVERSE
           }).on('data', token => token.value.forEach(docId => {
             rs[docId] = [...(rs[docId] || []), token.key]
           })).on('end', resolve)
@@ -189,6 +191,8 @@ export default function init (db, ops) {
     return _id
   }))
 
+
+  // TODO: can this be replaced by RANGE?
   const getRange = ops => new Promise((resolve, reject) => {
     const keys = []
     db.createKeyStream(ops)
@@ -196,21 +200,22 @@ export default function init (db, ops) {
       .on('end', () => resolve(keys))
   })
 
-  const MIN = key => new Promise((resolve, reject) => {
-    db.createKeyStream({
-      limit: 1,
-      gte: key + '!'
-    }).on('data', resolve)
-  })
 
-  const MAX = key => new Promise((resolve, reject) => {
-    db.createKeyStream({
-      limit: 1,
-      lte: key + '￮',
-      reverse: true
-    }).on('data', resolve)
-  })
+  const MAX = fieldName => BOUNDING_VALUE(fieldName, true)
 
+  
+  const BOUNDING_VALUE = (fieldName, reverse) => parseToken({
+    FIELD: [ fieldName ]
+  }).then(token => Object.assign(token, {
+    LIMIT: 1,
+    REVERSE: reverse
+  })).then(
+    RANGE
+  ).then(
+    max => max.pop()._match.pop().split(':').pop().split('#').shift()
+  )
+
+  
   const DIST = token => parseToken(token).then(token => Promise.all(
     token.FIELD.map(field => getRange({
       gte: field + ':' + token.VALUE.GTE,
@@ -229,7 +234,7 @@ export default function init (db, ops) {
     GET: GET,
     INTERSECTION: INTERSECTION, // AND
     MAX: MAX,
-    MIN: MIN,
+    MIN: BOUNDING_VALUE,
     OBJECT: OBJECT,
     SET_SUBTRACTION: SET_SUBTRACTION,
     UNION: UNION, // OR,

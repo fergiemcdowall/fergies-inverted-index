@@ -1,6 +1,6 @@
 {
   "name": "fergies-inverted-index",
-  "version": "5.2.1",
+  "version": "5.3.0",
   "description": "An inverted index that allows javascript objects to be easily serialised and retrieved using promises and map-reduce",
   "main": "dist/fergies-inverted-index.cjs.js",
   "module": "dist/fergies-inverted-index.esm.js",
@@ -34,7 +34,7 @@
     "lint": "standard --fix test/* src/*",
     "test": "npm run test-node && npm run test-browser && npm run lint",
     "test-browser": "npm run empty-sandbox && webpack --mode development test/src/*-test.js -o test/sandbox/bundle.js && cat test/sandbox/bundle.js | tape-run",
-    "test-node": "npm run build && npm run empty-sandbox && tape test/cjs/*.js"
+    "test-node": "rm -rf test/cjs/*.js && npm run build && npm run empty-sandbox && tape test/cjs/*.js"
   },
   "repository": {
     "type": "git",
