@@ -255,22 +255,22 @@ function init$1 (db, ops) {
   var incrementalId = 0;
 
   // use trav lib to find all leaf nodes with corresponding paths
-  const invertDoc = obj => {
+  const invertDoc = (obj, putOptions) => {
     const keys = [];
     trav(obj).forEach(function (node) {
       let searchable = true;
-      this.path.forEach(item => {
-        // make fields beginning with ! non-searchable
-        if (item.substring(0, 1) === '!') searchable = false;
-        // _id field should not be searchable
-        if (item === '_id') searchable = false;
-      });
-      if (searchable && this.isLeaf) {
-        const key = this.path
-        // allowing numbers in path names create ambiguity with arrays
-        // so just strip numbers from path names
-          .filter(item => !Number.isInteger(+item))
-          .join('.') + ':' + this.node;
+      let fieldName = this.path
+      // allowing numbers in path names create ambiguity with arrays
+      // so just strip numbers from path names
+                          .filter(item => !Number.isInteger(+item))
+                          .join('.');
+      if (fieldName === '_id') searchable = false;
+      if ((putOptions.doNotIndexField || []).filter(
+        item => fieldName.startsWith(item)
+      ).length) searchable = false;
+      
+      if (searchable && this.isLeaf) {  
+        const key = fieldName + ':' + this.node;
         keys.push(ops.caseSensitive ? key : key.toLowerCase());
       }
     });
@@ -330,8 +330,8 @@ function init$1 (db, ops) {
     return acc
   };
 
-  const createDeltaReverseIndex = docs => docs
-    .map(invertDoc)
+  const createDeltaReverseIndex = (docs, putOptions) => docs
+    .map(doc => invertDoc(doc, putOptions))
     .reduce(reverseIndex, {});
 
   const checkID = doc => {
@@ -352,11 +352,11 @@ function init$1 (db, ops) {
     value: f
   }));
 
-  const writer = (docs, db, mode) => new Promise((resolve, reject) => {
+  const writer = (docs, db, mode, putOptions) => new Promise(resolve => {
     // check for _id field, autogenerate if necessary
     docs = docs.map(checkID);
     createMergedReverseIndex(
-      createDeltaReverseIndex(docs), db, mode
+      createDeltaReverseIndex(docs, putOptions), db, mode
     ).then(mergedReverseIndex => db.batch(
       mergedReverseIndex
         .concat(objectIndex(docs, mode))
@@ -378,7 +378,7 @@ function init$1 (db, ops) {
         }
       }
       return doc._object
-    }), db, 'del')
+    }), db, 'del', {})
   ).then(
     docs => docs.map(
       doc => ({
@@ -389,7 +389,9 @@ function init$1 (db, ops) {
     )
   );
 
-  const PUT = docs => writer(docs, db, 'put').then(
+  const PUT = (docs, putOptions) => writer(
+    docs, db, 'put', (putOptions || {})
+  ).then(
     docs => docs.map(
       doc => ({
         _id: doc._id,
