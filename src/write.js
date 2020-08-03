@@ -10,17 +10,17 @@ export default function init (db, ops) {
     const keys = []
     trav(obj).forEach(function (node) {
       let searchable = true
-      let fieldName = this.path
+      const fieldName = this.path
       // allowing numbers in path names create ambiguity with arrays
       // so just strip numbers from path names
-                          .filter(item => !Number.isInteger(+item))
-                          .join('.')
+        .filter(item => !Number.isInteger(+item))
+        .join('.')
       if (fieldName === '_id') searchable = false
       if ((putOptions.doNotIndexField || []).filter(
         item => fieldName.startsWith(item)
       ).length) searchable = false
-      
-      if (searchable && this.isLeaf) {  
+
+      if (searchable && this.isLeaf) {
         const key = fieldName + ':' + this.node
         keys.push(ops.caseSensitive ? key : key.toLowerCase())
       }

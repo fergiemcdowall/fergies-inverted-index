@@ -191,7 +191,6 @@ export default function init (db, ops) {
     return _id
   }))
 
-
   // TODO: can this be replaced by RANGE?
   const getRange = ops => new Promise((resolve, reject) => {
     const keys = []
@@ -200,12 +199,10 @@ export default function init (db, ops) {
       .on('end', () => resolve(keys))
   })
 
-
   const MAX = fieldName => BOUNDING_VALUE(fieldName, true)
 
-  
   const BOUNDING_VALUE = (fieldName, reverse) => parseToken({
-    FIELD: [ fieldName ]
+    FIELD: [fieldName]
   }).then(token => Object.assign(token, {
     LIMIT: 1,
     REVERSE: reverse
@@ -215,7 +212,6 @@ export default function init (db, ops) {
     max => max.pop()._match.pop().split(':').pop().split('#').shift()
   )
 
-  
   const DIST = token => parseToken(token).then(token => Promise.all(
     token.FIELD.map(field => getRange({
       gte: field + ':' + token.VALUE.GTE,
