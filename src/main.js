@@ -25,9 +25,9 @@ const makeAFii = (db, ops) => ({
     flattenMatchArrayInResults
   ),
   OBJECT: read(db, ops).OBJECT,
-  OR: (...keys) => read(db, ops).UNION(...keys).then(
-    flattenMatchArrayInResults
-  ),
+  OR: (...keys) => read(db, ops).UNION(...keys)
+    .then(result => result.union)
+    .then(flattenMatchArrayInResults),
   PUT: write(db, ops).PUT,
   SET_SUBTRACTION: read(db, ops).SET_SUBTRACTION,
   STORE: db,
@@ -43,7 +43,8 @@ export default function fii (ops, callback) {
     // {gte: 'boom', lte: 'boom'} would also return stuff like
     // boomness#1.00 etc
     tokenAppend: '',
-    caseSensitive: true
+    caseSensitive: true,
+    stopwords: []
   }, ops || {})
   // if no callback provided, "lazy load"
   if (!callback) {

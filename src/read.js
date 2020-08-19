@@ -89,21 +89,25 @@ export default function init (db, ops) {
   ).then(sets => {
     const setObject = sets.flat(Infinity).reduce(
       (acc, cur) => {
-        acc[cur._id] = [...(acc[cur._id] || []), cur._match]
+        // cur will be undefined if stopword
+        if (cur) { acc[cur._id] = [...(acc[cur._id] || []), cur._match] }
         return acc
       },
       {}
     )
-    return Object.keys(setObject).map(id => ({
-      _id: id,
-      _match: setObject[id]
-    }))
+    return {
+      sumTokensMinusStopwords: sets.filter(s => s).length,
+      union: Object.keys(setObject).map(id => ({
+        _id: id,
+        _match: setObject[id]
+      }))
+    }
   })
 
   // AND
-  const INTERSECTION = (...keys) => UNION(...keys)
-    .then(result => result.filter(
-      item => (item._match.length === keys.length)
+  const INTERSECTION = (...tokens) => UNION(...tokens).then(
+    result => result.union.filter(
+      item => (item._match.length === result.sumTokensMinusStopwords)
     ))
 
   // NOT (set a minus set b)
@@ -115,19 +119,22 @@ export default function init (db, ops) {
   )
 
   const RANGE = token => new Promise(resolve => {
+    // If this token is a stopword then return 'undefined'
+    if ((token.VALUE.GTE === token.VALUE.LTE) &&
+        ops.stopwords.includes(token.VALUE.GTE)) { return resolve(undefined) }
+
     const rs = {} // resultset
     return Promise.all(
       token.FIELD.map(
-        fieldName => new Promise(resolve => {
-          return db.createReadStream({
-            gte: fieldName + ':' + token.VALUE.GTE + ops.tokenAppend,
-            lte: fieldName + ':' + token.VALUE.LTE + ops.tokenAppend + '￮',
-            limit: token.LIMIT,
-            reverse: token.REVERSE
-          }).on('data', token => token.value.forEach(docId => {
-            rs[docId] = [...(rs[docId] || []), token.key]
-          })).on('end', resolve)
-        })
+        fieldName => new Promise(resolve => db.createReadStream({
+          gte: fieldName + ':' + token.VALUE.GTE + ops.tokenAppend,
+          lte: fieldName + ':' + token.VALUE.LTE + ops.tokenAppend + '￮',
+          limit: token.LIMIT,
+          reverse: token.REVERSE
+        }).on('data', token => token.value.forEach(docId => {
+          rs[docId] = [...(rs[docId] || []), token.key]
+        })).on('end', resolve)
+        )
       )
     ).then(() => resolve(
       // convert map into array

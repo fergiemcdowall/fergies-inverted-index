@@ -16,12 +16,17 @@ export default function init (db, ops) {
         .filter(item => !Number.isInteger(+item))
         .join('.')
       if (fieldName === '_id') searchable = false
+      // Skip fields that are not to be indexed
       if ((putOptions.doNotIndexField || []).filter(
         item => fieldName.startsWith(item)
       ).length) searchable = false
 
+      // deal with stopwords
+      if (this.isLeaf && ops.stopwords.includes(this.node)) { searchable = false }
+
       if (searchable && this.isLeaf) {
         const key = fieldName + ':' + this.node
+        // bump to lower case if not case sensitive
         keys.push(ops.caseSensitive ? key : key.toLowerCase())
       }
     })
