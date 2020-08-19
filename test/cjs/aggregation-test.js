@@ -97,21 +97,25 @@ function init (db, ops) {
   ).then(sets => {
     const setObject = sets.flat(Infinity).reduce(
       (acc, cur) => {
-        acc[cur._id] = [...(acc[cur._id] || []), cur._match];
+        // cur will be undefined if stopword
+        if (cur) { acc[cur._id] = [...(acc[cur._id] || []), cur._match]; }
         return acc
       },
       {}
     );
-    return Object.keys(setObject).map(id => ({
-      _id: id,
-      _match: setObject[id]
-    }))
+    return {
+      sumTokensMinusStopwords: sets.filter(s => s).length,
+      union: Object.keys(setObject).map(id => ({
+        _id: id,
+        _match: setObject[id]
+      }))
+    }
   });
 
   // AND
-  const INTERSECTION = (...keys) => UNION(...keys)
-    .then(result => result.filter(
-      item => (item._match.length === keys.length)
+  const INTERSECTION = (...tokens) => UNION(...tokens).then(
+    result => result.union.filter(
+      item => (item._match.length === result.sumTokensMinusStopwords)
     ));
 
   // NOT (set a minus set b)
@@ -123,19 +127,22 @@ function init (db, ops) {
   );
 
   const RANGE = token => new Promise(resolve => {
+    // If this token is a stopword then return 'undefined'
+    if ((token.VALUE.GTE === token.VALUE.LTE) &&
+        ops.stopwords.includes(token.VALUE.GTE)) { return resolve(undefined) }
+
     const rs = {}; // resultset
     return Promise.all(
       token.FIELD.map(
-        fieldName => new Promise(resolve => {
-          return db.createReadStream({
-            gte: fieldName + ':' + token.VALUE.GTE + ops.tokenAppend,
-            lte: fieldName + ':' + token.VALUE.LTE + ops.tokenAppend + '￮',
-            limit: token.LIMIT,
-            reverse: token.REVERSE
-          }).on('data', token => token.value.forEach(docId => {
-            rs[docId] = [...(rs[docId] || []), token.key];
-          })).on('end', resolve)
-        })
+        fieldName => new Promise(resolve => db.createReadStream({
+          gte: fieldName + ':' + token.VALUE.GTE + ops.tokenAppend,
+          lte: fieldName + ':' + token.VALUE.LTE + ops.tokenAppend + '￮',
+          limit: token.LIMIT,
+          reverse: token.REVERSE
+        }).on('data', token => token.value.forEach(docId => {
+          rs[docId] = [...(rs[docId] || []), token.key];
+        })).on('end', resolve)
+        )
       )
     ).then(() => resolve(
       // convert map into array
@@ -199,7 +206,6 @@ function init (db, ops) {
     return _id
   }));
 
-
   // TODO: can this be replaced by RANGE?
   const getRange = ops => new Promise((resolve, reject) => {
     const keys = [];
@@ -208,12 +214,10 @@ function init (db, ops) {
       .on('end', () => resolve(keys));
   });
 
-
   const MAX = fieldName => BOUNDING_VALUE(fieldName, true);
 
-  
   const BOUNDING_VALUE = (fieldName, reverse) => parseToken({
-    FIELD: [ fieldName ]
+    FIELD: [fieldName]
   }).then(token => Object.assign(token, {
     LIMIT: 1,
     REVERSE: reverse
@@ -223,7 +227,6 @@ function init (db, ops) {
     max => max.pop()._match.pop().split(':').pop().split('#').shift()
   );
 
-  
   const DIST = token => parseToken(token).then(token => Promise.all(
     token.FIELD.map(field => getRange({
       gte: field + ':' + token.VALUE.GTE,
@@ -259,18 +262,23 @@ function init$1 (db, ops) {
     const keys = [];
     trav(obj).forEach(function (node) {
       let searchable = true;
-      let fieldName = this.path
+      const fieldName = this.path
       // allowing numbers in path names create ambiguity with arrays
       // so just strip numbers from path names
-                          .filter(item => !Number.isInteger(+item))
-                          .join('.');
+        .filter(item => !Number.isInteger(+item))
+        .join('.');
       if (fieldName === '_id') searchable = false;
+      // Skip fields that are not to be indexed
       if ((putOptions.doNotIndexField || []).filter(
         item => fieldName.startsWith(item)
       ).length) searchable = false;
-      
-      if (searchable && this.isLeaf) {  
+
+      // deal with stopwords
+      if (this.isLeaf && ops.stopwords.includes(this.node)) { searchable = false; }
+
+      if (searchable && this.isLeaf) {
         const key = fieldName + ':' + this.node;
+        // bump to lower case if not case sensitive
         keys.push(ops.caseSensitive ? key : key.toLowerCase());
       }
     });
@@ -430,9 +438,9 @@ const makeAFii = (db, ops) => ({
     flattenMatchArrayInResults
   ),
   OBJECT: init(db, ops).OBJECT,
-  OR: (...keys) => init(db, ops).UNION(...keys).then(
-    flattenMatchArrayInResults
-  ),
+  OR: (...keys) => init(db, ops).UNION(...keys)
+    .then(result => result.union)
+    .then(flattenMatchArrayInResults),
   PUT: init$1(db, ops).PUT,
   SET_SUBTRACTION: init(db, ops).SET_SUBTRACTION,
   STORE: db,
@@ -448,7 +456,8 @@ function fii (ops, callback) {
     // {gte: 'boom', lte: 'boom'} would also return stuff like
     // boomness#1.00 etc
     tokenAppend: '',
-    caseSensitive: true
+    caseSensitive: true,
+    stopwords: []
   }, ops || {});
   // if no callback provided, "lazy load"
   if (!callback) {
