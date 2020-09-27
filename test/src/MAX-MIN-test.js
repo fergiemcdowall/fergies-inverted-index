@@ -112,28 +112,40 @@ test('can add some data', t => {
 
 test('get MAX value for one field', t => {
   t.plan(1)
-  global[indexName].MAX('price').then(
+  global[indexName].MAX({ FIELD: [ 'price' ] }).then(
     result => t.equals(result, '88652')
+  )
+})
+
+test('get MAX value for one field', t => {
+  t.plan(1)
+  global[indexName].MAX({
+    FIELD: [ 'price' ],
+    VALUE: {
+      LTE: '5'
+    }
+  }).then(
+    result => t.equals(result, '57280')
   )
 })
 
 test('get MIN value for one field', t => {
   t.plan(1)
-  global[indexName].MIN('price').then(
+  global[indexName].MIN({ FIELD: [ 'price' ] }).then(
     result => t.equals(result, '33114')
   )
 })
 
 test('get MAX value for one field containing a comment', t => {
   t.plan(1)
-  global[indexName].MAX('year').then(
+  global[indexName].MAX({ FIELD: [ 'year' ] }).then(
     result => t.equals(result, '2019')
   )
 })
 
 test('get MIN value for one field containing a comment', t => {
   t.plan(1)
-  global[indexName].MIN('year').then(
+  global[indexName].MIN({ FIELD: [ 'year' ] }).then(
     result => t.equals(result, '2000')
   )
 })

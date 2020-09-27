@@ -208,13 +208,13 @@ export default function init (db, ops) {
 
   const MAX = fieldName => BOUNDING_VALUE(fieldName, true)
 
-  const BOUNDING_VALUE = (fieldName, reverse) => parseToken({
-    FIELD: [fieldName]
-  }).then(token => Object.assign(token, {
-    LIMIT: 1,
-    REVERSE: reverse
-  })).then(
-    RANGE
+  const BOUNDING_VALUE = (token, reverse) => parseToken(
+    token
+  ).then(
+    token => RANGE(Object.assign(token, {
+      LIMIT: 1,
+      REVERSE: reverse
+    }))
   ).then(
     max => max.pop()._match.pop().split(':').pop().split('#').shift()
   )

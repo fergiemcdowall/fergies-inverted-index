@@ -263,7 +263,7 @@ test('can do AND with embedded OR search', t => {
 
 test('can get highest VALUE of totalamt (MAX)', t => {
   t.plan(1)
-  global[indexName].MAX('totalamt')
+  global[indexName].MAX({ FIELD: 'totalamt' })
    .then(result => {
      t.equal(result, '6060000')
    })
@@ -271,7 +271,7 @@ test('can get highest VALUE of totalamt (MAX)', t => {
 
 test('can get lowest VALUE of totalamt (MIN)', t => {
   t.plan(1)
-  global[indexName].MIN('totalamt')
+  global[indexName].MIN({ FIELD: 'totalamt' })
    .then(result => {
      t.equal(result, '0')
    })
