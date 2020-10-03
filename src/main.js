@@ -17,8 +17,10 @@ const makeAFii = (db, ops) => ({
   BUCKETFILTER: read(db, ops).BUCKETFILTER,
   DELETE: write(db, ops).DELETE,
   DISTINCT: read(db, ops).DIST,
+  EXPORT: read(db, ops).EXPORT,
   FIELDS: read(db, ops).FIELDS,
   GET: read(db, ops).GET,
+  IMPORT: write(db, ops).IMPORT,
   MAX: read(db, ops).MAX,
   MIN: read(db, ops).MIN,
   NOT: (...keys) => read(db, ops).SET_SUBTRACTION(...keys).then(
