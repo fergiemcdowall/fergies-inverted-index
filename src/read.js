@@ -205,7 +205,7 @@ export default function init (db, ops) {
       .on('data', data => { keys.push(data) })
       .on('end', () => resolve(keys))
   })
-  
+
   const MAX = fieldName => BOUNDING_VALUE(fieldName, true)
 
   const BOUNDING_VALUE = (token, reverse) => parseToken(
@@ -223,7 +223,8 @@ export default function init (db, ops) {
     token.FIELD.map(field => getRange({
       gte: field + ':' + token.VALUE.GTE,
       lte: field + ':' + token.VALUE.LTE + '￮',
-      keys: true
+      keys: true,
+      values: false
     }).then(items => items.map(item => ({
       FIELD: item.split(/:(.+)/)[0],
       VALUE: item.split(/:(.+)/)[1]

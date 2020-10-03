@@ -152,7 +152,7 @@ export default function init (db, ops) {
       entry => Object.assign(entry, { type: 'put' })
     ))
   )
-  
+
   const PUT = (docs, putOptions) => writer(
     docs, db, 'put', (putOptions || {})
   ).then(
