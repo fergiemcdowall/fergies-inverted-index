@@ -209,7 +209,7 @@ function init (db, ops) {
   // TODO: can this be replaced by RANGE?
   const getRange = ops => new Promise((resolve, reject) => {
     const keys = [];
-    db.createKeyStream(ops)
+    db.createReadStream(ops)
       .on('data', data => { keys.push(data); })
       .on('end', () => resolve(keys));
   });
@@ -230,7 +230,9 @@ function init (db, ops) {
   const DIST = token => parseToken(token).then(token => Promise.all(
     token.FIELD.map(field => getRange({
       gte: field + ':' + token.VALUE.GTE,
-      lte: field + ':' + token.VALUE.LTE + '￮'
+      lte: field + ':' + token.VALUE.LTE + '￮',
+      keys: true,
+      values: false
     }).then(items => items.map(item => ({
       FIELD: item.split(/:(.+)/)[0],
       VALUE: item.split(/:(.+)/)[1]
@@ -242,6 +244,7 @@ function init (db, ops) {
     BUCKET: BUCKET,
     BUCKETFILTER: BUCKETFILTER,
     DIST: DIST,
+    EXPORT: getRange,
     GET: GET,
     INTERSECTION: INTERSECTION, // AND
     MAX: MAX,
@@ -397,6 +400,14 @@ function init$1 (db, ops) {
     )
   );
 
+  // when importing, index is first cleared. This means that "merges"
+  // are not currently supported
+  const IMPORT = index => db.clear().then(() =>
+    db.batch(index.map(
+      entry => Object.assign(entry, { type: 'put' })
+    ))
+  );
+
   const PUT = (docs, putOptions) => writer(
     docs, db, 'put', (putOptions || {})
   ).then(
@@ -411,6 +422,7 @@ function init$1 (db, ops) {
 
   return {
     DELETE: DELETE,
+    IMPORT: IMPORT,
     PUT: PUT
   }
 }
@@ -430,8 +442,10 @@ const makeAFii = (db, ops) => ({
   BUCKETFILTER: init(db, ops).BUCKETFILTER,
   DELETE: init$1(db, ops).DELETE,
   DISTINCT: init(db, ops).DIST,
+  EXPORT: init(db, ops).EXPORT,
   FIELDS: init(db, ops).FIELDS,
   GET: init(db, ops).GET,
+  IMPORT: init$1(db, ops).IMPORT,
   MAX: init(db, ops).MAX,
   MIN: init(db, ops).MIN,
   NOT: (...keys) => init(db, ops).SET_SUBTRACTION(...keys).then(

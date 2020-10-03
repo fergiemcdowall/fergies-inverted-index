@@ -201,7 +201,7 @@ export default function init (db, ops) {
   // TODO: can this be replaced by RANGE?
   const getRange = ops => new Promise((resolve, reject) => {
     const keys = []
-    db.createKeyStream(ops)
+    db.createReadStream(ops)
       .on('data', data => { keys.push(data) })
       .on('end', () => resolve(keys))
   })
@@ -222,7 +222,9 @@ export default function init (db, ops) {
   const DIST = token => parseToken(token).then(token => Promise.all(
     token.FIELD.map(field => getRange({
       gte: field + ':' + token.VALUE.GTE,
-      lte: field + ':' + token.VALUE.LTE + '￮'
+      lte: field + ':' + token.VALUE.LTE + '￮',
+      keys: true,
+      values: false
     }).then(items => items.map(item => ({
       FIELD: item.split(/:(.+)/)[0],
       VALUE: item.split(/:(.+)/)[1]
@@ -234,6 +236,7 @@ export default function init (db, ops) {
     BUCKET: BUCKET,
     BUCKETFILTER: BUCKETFILTER,
     DIST: DIST,
+    EXPORT: getRange,
     GET: GET,
     INTERSECTION: INTERSECTION, // AND
     MAX: MAX,

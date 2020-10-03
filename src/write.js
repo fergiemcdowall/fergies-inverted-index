@@ -145,6 +145,14 @@ export default function init (db, ops) {
     )
   )
 
+  // when importing, index is first cleared. This means that "merges"
+  // are not currently supported
+  const IMPORT = index => db.clear().then(() =>
+    db.batch(index.map(
+      entry => Object.assign(entry, { type: 'put' })
+    ))
+  )
+
   const PUT = (docs, putOptions) => writer(
     docs, db, 'put', (putOptions || {})
   ).then(
@@ -159,6 +167,7 @@ export default function init (db, ops) {
 
   return {
     DELETE: DELETE,
+    IMPORT: IMPORT,
     PUT: PUT
   }
 }
