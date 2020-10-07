@@ -176,7 +176,11 @@ export default function init (db, ops) {
 
   // return a bucket of IDs. Key is an object like this:
   // {gte:..., lte:...} (gte/lte == greater/less than or equal)
-  const BUCKET = token => parseToken(token).then(token => GET(token).then(
+  const BUCKET = token => parseToken(
+    token // TODO: is parseToken needed her? Already called in GET
+  ).then(token => GET(
+    token
+  ).then(
     result => {
       const re = new RegExp('[￮' + ops.tokenAppend + ']', 'g')
       return Object.assign(token, {
@@ -219,7 +223,21 @@ export default function init (db, ops) {
     max => max.pop()._match.pop().split(':').pop().split('#').shift()
   )
 
-  const DIST = token => parseToken(token).then(token => Promise.all(
+  const DISTINCT = (...tokens) => Promise.all(
+    // if no tokens specified then get everything ('{}')
+    tokens.length ? tokens.map(DIST) : [DIST({})]
+  ).then(
+    dist => [
+      ...dist.flat().reduce(
+        (acc, cur) => acc.add(JSON.stringify(cur)),
+        new Set())
+    ].map(JSON.parse)
+  )
+
+  // TODO should take an array of tokens
+  const DIST = token => parseToken(
+    token
+  ).then(token => Promise.all(
     token.FIELD.map(field => getRange({
       gte: field + ':' + token.VALUE.GTE,
       lte: field + ':' + token.VALUE.LTE + '￮',
@@ -235,7 +253,8 @@ export default function init (db, ops) {
     FIELDS: AVAILABLE_FIELDS,
     BUCKET: BUCKET,
     BUCKETFILTER: BUCKETFILTER,
-    DIST: DIST,
+    // DIST: DIST,
+    DISTINCT: DISTINCT,
     EXPORT: getRange,
     GET: GET,
     INTERSECTION: INTERSECTION, // AND

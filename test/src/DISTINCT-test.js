@@ -133,9 +133,73 @@ test('get DISTINCT values for two fields', t => {
     { FIELD: 'drivetrain', VALUE: 'Petrol' },
     { FIELD: 'make', VALUE: 'BMW' },
     { FIELD: 'make', VALUE: 'Tesla' },
+    { FIELD: 'make', VALUE: 'Volvo' }
+  ]))
+})
+
+test('get DISTINCT values for two fields with GTE', t => {
+  t.plan(1)
+  global[indexName].DISTINCT({
+    FIELD: [ 'drivetrain', 'make' ],
+    VALUE: {
+      GTE: 'F'
+    }
+  }).then(result => t.deepEqual(result, [
+    { FIELD: 'drivetrain', VALUE: 'Hybrid' },
+    { FIELD: 'drivetrain', VALUE: 'Petrol' },
+    { FIELD: 'make', VALUE: 'Tesla' },
     { FIELD: 'make', VALUE: 'Volvo' } 
   ]))
 })
+
+test('get DISTINCT values with two clauses', t => {
+  t.plan(1)
+  global[indexName].DISTINCT({
+    FIELD: [ 'drivetrain' ]
+  }, {
+    FIELD: [ 'make' ]
+  }).then(result => t.deepEqual(result, [
+    { FIELD: 'drivetrain', VALUE: 'Diesel' },
+    { FIELD: 'drivetrain', VALUE: 'Electric' },
+    { FIELD: 'drivetrain', VALUE: 'Hybrid' },
+    { FIELD: 'drivetrain', VALUE: 'Petrol' },
+    { FIELD: 'make', VALUE: 'BMW' },
+    { FIELD: 'make', VALUE: 'Tesla' },
+    { FIELD: 'make', VALUE: 'Volvo' }
+  ]))
+})
+
+test('get DISTINCT values with two clauses', t => {
+  t.plan(1)
+  global[indexName].DISTINCT({
+    FIELD: [ 'drivetrain' ],
+    VALUE: { LTE: 'F' }
+  }, {
+    FIELD: [ 'make' ]
+  }).then(result => t.deepEqual(result, [
+    { FIELD: 'drivetrain', VALUE: 'Diesel' },
+    { FIELD: 'drivetrain', VALUE: 'Electric' },
+    { FIELD: 'make', VALUE: 'BMW' },
+    { FIELD: 'make', VALUE: 'Tesla' },
+    { FIELD: 'make', VALUE: 'Volvo' }
+  ]))
+})
+
+
+test('get DISTINCT values with two identical clauses', t => {
+  t.plan(1)
+  global[indexName].DISTINCT({
+    FIELD: [ 'drivetrain' ]
+  }, {
+    FIELD: [ 'drivetrain' ]
+  }).then(result => t.deepEqual(result, [
+    { FIELD: 'drivetrain', VALUE: 'Diesel' },
+    { FIELD: 'drivetrain', VALUE: 'Electric' },
+    { FIELD: 'drivetrain', VALUE: 'Hybrid' },
+    { FIELD: 'drivetrain', VALUE: 'Petrol' }
+  ]))
+})
+
 
 test('get DISTINCT values for three fields', t => {
   t.plan(1)

@@ -16,7 +16,7 @@ const makeAFii = (db, ops) => ({
   BUCKET: read(db, ops).BUCKET,
   BUCKETFILTER: read(db, ops).BUCKETFILTER,
   DELETE: write(db, ops).DELETE,
-  DISTINCT: read(db, ops).DIST,
+  DISTINCT: read(db, ops).DISTINCT,
   EXPORT: read(db, ops).EXPORT,
   FIELDS: read(db, ops).FIELDS,
   GET: read(db, ops).GET,
