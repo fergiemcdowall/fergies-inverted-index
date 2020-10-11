@@ -543,43 +543,65 @@ test('can do AND with GTE/LTE', t => {
 
 test('can aggregate totalamt', t => {
   t.plan(1)
-  global[indexName].BUCKETFILTER(
-    global[indexName].DISTINCT({
+  global[indexName].AGGREGATE({
+    // global[indexName].DISTINCT({
+    //   FIELD: 'totalamt'
+    // }).then(result => result.map(global[indexName].BUCKET)),
+    FACETS: global[indexName].FACETS({
       FIELD: 'totalamt'
-    }).then(result => result.map(global[indexName].BUCKET)),
-    global[indexName].GET('board_approval_month:November')
-  ).then(result => {
-    t.deepEqual(result, [
-      { FIELD: [ 'totalamt' ], VALUE: { GTE: '0', LTE: '0' }, _id: [ '52b213b38594d8a2be17c781' ] },
-      { FIELD: [ 'totalamt' ], VALUE: { GTE: '10000000', LTE: '10000000' }, _id: [] },
-      { FIELD: [ 'totalamt' ], VALUE: { GTE: '130000000', LTE: '130000000' }, _id: [ '52b213b38594d8a2be17c780' ] },
-      { FIELD: [ 'totalamt' ], VALUE: { GTE: '13100000', LTE: '13100000' }, _id: [] },
-      { FIELD: [ 'totalamt' ], VALUE: { GTE: '160000000', LTE: '160000000' }, _id: [] },
-      { FIELD: [ 'totalamt' ], VALUE: { GTE: '200000000', LTE: '200000000' }, _id: [] },
-      { FIELD: [ 'totalamt' ], VALUE: { GTE: '500000000', LTE: '500000000' }, _id: [] },
-      { FIELD: [ 'totalamt' ], VALUE: { GTE: '6060000', LTE: '6060000' }, _id: [ '52b213b38594d8a2be17c782' ] }
-    ])
+    }),
+    QUERY: global[indexName].GET('board_approval_month:November')
+  }).then(result => {
+    t.deepEqual(result, {
+      BUCKETS: [],
+      FACETS: [
+        { FIELD: 'totalamt', VALUE: '0', _id: [ '52b213b38594d8a2be17c781' ] },
+        { FIELD: 'totalamt', VALUE: '10000000', _id: [] },
+        { FIELD: 'totalamt', VALUE: '130000000', _id: [ '52b213b38594d8a2be17c780' ] },
+        { FIELD: 'totalamt', VALUE: '13100000', _id: [] },
+        { FIELD: 'totalamt', VALUE: '160000000', _id: [] },
+        { FIELD: 'totalamt', VALUE: '200000000', _id: [] },
+        { FIELD: 'totalamt', VALUE: '500000000', _id: [] },
+        { FIELD: 'totalamt', VALUE: '6060000', _id: [ '52b213b38594d8a2be17c782' ] }
+      ],
+      RESULT: [
+        { _id: '52b213b38594d8a2be17c780', _match: [ 'board_approval_month:November' ] },
+        { _id: '52b213b38594d8a2be17c781', _match: [ 'board_approval_month:November' ] },
+        { _id: '52b213b38594d8a2be17c782', _match: [ 'board_approval_month:November' ] }
+      ]
+    })
   })
 })
 
 test('can aggregate totalamt, on docs with "board_approval_month:October"', t => {
   t.plan(1)
-  global[indexName].BUCKETFILTER(
-    global[indexName].DISTINCT({
+  global[indexName].AGGREGATE({
+    FACETS: global[indexName].FACETS({
       FIELD: 'totalamt'
-    }).then(result => result.map(global[indexName].BUCKET)),
-    global[indexName].GET('board_approval_month:October')
-  ).then(result => {
-    t.deepEqual(result, [
-      { FIELD: [ 'totalamt' ], VALUE: { GTE: '0', LTE: '0' }, _id: [ '52b213b38594d8a2be17c783', '52b213b38594d8a2be17c787' ] },
-      { FIELD: [ 'totalamt' ], VALUE: { GTE: '10000000', LTE: '10000000' }, _id: [ '52b213b38594d8a2be17c785' ] },
-      { FIELD: [ 'totalamt' ], VALUE: { GTE: '130000000', LTE: '130000000' }, _id: [] },
-      { FIELD: [ 'totalamt' ], VALUE: { GTE: '13100000', LTE: '13100000' }, _id: [ '52b213b38594d8a2be17c784' ] },
-      { FIELD: [ 'totalamt' ], VALUE: { GTE: '160000000', LTE: '160000000' }, _id: [ '52b213b38594d8a2be17c788' ] },
-      { FIELD: [ 'totalamt' ], VALUE: { GTE: '200000000', LTE: '200000000' }, _id: [ '52b213b38594d8a2be17c789' ] },
-      { FIELD: [ 'totalamt' ], VALUE: { GTE: '500000000', LTE: '500000000' }, _id: [ '52b213b38594d8a2be17c786' ] },
-      { FIELD: [ 'totalamt' ], VALUE: { GTE: '6060000', LTE: '6060000' }, _id: [] } 
-    ])
+    }),
+    QUERY: global[indexName].GET('board_approval_month:October')
+  }).then(result => {
+    t.deepEqual(result, {
+      BUCKETS: [],
+      FACETS: [
+        { FIELD: 'totalamt', VALUE: '0', _id: [ '52b213b38594d8a2be17c783', '52b213b38594d8a2be17c787' ] },
+        { FIELD: 'totalamt', VALUE: '10000000', _id: [ '52b213b38594d8a2be17c785' ] },
+        { FIELD: 'totalamt', VALUE: '130000000', _id: [] },
+        { FIELD: 'totalamt', VALUE: '13100000', _id: [ '52b213b38594d8a2be17c784' ] },
+        { FIELD: 'totalamt', VALUE: '160000000', _id: [ '52b213b38594d8a2be17c788' ] },
+        { FIELD: 'totalamt', VALUE: '200000000', _id: [ '52b213b38594d8a2be17c789' ] },
+        { FIELD: 'totalamt', VALUE: '500000000', _id: [ '52b213b38594d8a2be17c786' ] },
+        { FIELD: 'totalamt', VALUE: '6060000', _id: [] } ],
+      RESULT: [
+        { _id: '52b213b38594d8a2be17c783', _match: [ 'board_approval_month:October' ] },
+        { _id: '52b213b38594d8a2be17c784', _match: [ 'board_approval_month:October' ] },
+        { _id: '52b213b38594d8a2be17c785', _match: [ 'board_approval_month:October' ] },
+        { _id: '52b213b38594d8a2be17c786', _match: [ 'board_approval_month:October' ] },
+        { _id: '52b213b38594d8a2be17c787', _match: [ 'board_approval_month:October' ] },
+        { _id: '52b213b38594d8a2be17c788', _match: [ 'board_approval_month:October' ] },
+        { _id: '52b213b38594d8a2be17c789', _match: [ 'board_approval_month:October' ] }
+      ]
+    })  
   })
 })
 
@@ -619,14 +641,34 @@ test('can do custom buckets', t => {
 
 test('can do custom buckets and agreggate, only count docs with "board_approval_month:October"', t => {
   t.plan(1)
-  global[indexName].BUCKETFILTER(
-    [1, 2, 3, 4, 5].map(item => global[indexName].BUCKET('totalamt:' + item)),
-    global[indexName].GET('board_approval_month:October')
-  ).then(result => t.deepEqual(result, [
-    { FIELD: [ 'totalamt' ], VALUE: { GTE: '1', LTE: '1' }, _id: [ '52b213b38594d8a2be17c784', '52b213b38594d8a2be17c785', '52b213b38594d8a2be17c788' ] },
-    { FIELD: [ 'totalamt' ], VALUE: { GTE: '2', LTE: '2' }, _id: [ '52b213b38594d8a2be17c789' ] },
-    { FIELD: [ 'totalamt' ], VALUE: { GTE: '3', LTE: '3' }, _id: [] },
-    { FIELD: [ 'totalamt' ], VALUE: { GTE: '4', LTE: '4' }, _id: [] },
-    { FIELD: [ 'totalamt' ], VALUE: { GTE: '5', LTE: '5' }, _id: [ '52b213b38594d8a2be17c786' ] }
-  ]))
+  global[indexName].AGGREGATE({
+    BUCKETS: global[indexName].BUCKETS(
+      ...[1, 2, 3, 4, 5].map(
+        //        item => global[indexName].BUCKET('totalamt:' + item)
+        item => ({
+          FIELD: 'totalamt',
+          VALUE: item + ''
+        })
+      )
+    ),
+    QUERY: global[indexName].GET('board_approval_month:October')
+  }).then(result => t.deepEqual(result, {
+    BUCKETS: [
+      { FIELD: [ 'totalamt' ], VALUE: { GTE: '1', LTE: '1' }, _id: [ '52b213b38594d8a2be17c784', '52b213b38594d8a2be17c785', '52b213b38594d8a2be17c788' ] },
+      { FIELD: [ 'totalamt' ], VALUE: { GTE: '2', LTE: '2' }, _id: [ '52b213b38594d8a2be17c789' ] },
+      { FIELD: [ 'totalamt' ], VALUE: { GTE: '3', LTE: '3' }, _id: [] },
+      { FIELD: [ 'totalamt' ], VALUE: { GTE: '4', LTE: '4' }, _id: [] },
+      { FIELD: [ 'totalamt' ], VALUE: { GTE: '5', LTE: '5' }, _id: [ '52b213b38594d8a2be17c786' ] }
+    ],
+    FACETS: [],
+    RESULT: [
+      { _id: '52b213b38594d8a2be17c783', _match: [ 'board_approval_month:October' ] },
+      { _id: '52b213b38594d8a2be17c784', _match: [ 'board_approval_month:October' ] },
+      { _id: '52b213b38594d8a2be17c785', _match: [ 'board_approval_month:October' ] },
+      { _id: '52b213b38594d8a2be17c786', _match: [ 'board_approval_month:October' ] },
+      { _id: '52b213b38594d8a2be17c787', _match: [ 'board_approval_month:October' ] },
+      { _id: '52b213b38594d8a2be17c788', _match: [ 'board_approval_month:October' ] },
+      { _id: '52b213b38594d8a2be17c789', _match: [ 'board_approval_month:October' ] }
+    ]
+  }))
 })

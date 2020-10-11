@@ -163,29 +163,35 @@ function init (db, ops) {
       .on('end', () => resolve(fieldNames));
   });
 
-  // TODO: put in some validation here
-  // arg 1: an array of BUCKETS
-  // arg 2: a filter set- return only results of arg 1 that intersect with arg 2
-  const BUCKETFILTER = (buckets, filter) => {
-    // buckets can be either an Array of BUCKETs or a Promise that returns
-    // an array of buckets
-    if (Array.isArray(buckets)) buckets = Promise.all(buckets);
-    return buckets.then(
-      buckets => Promise.all([...buckets, filter])
-    ).then(result => {
-      var filterSet = new Set(result.pop().map(item => item._id));
-      return result.map(
-        bucket => Object.assign(bucket, {
-          _id: [...new Set([...bucket._id].filter(x => filterSet.has(x)))]
-        })
-      )
+  const AGGREGATE = ({ BUCKETS, FACETS, QUERY }) => Promise.all(
+    [ BUCKETS, FACETS, QUERY ]
+  ).then(result => {
+    const queryResult = result[2] || [];
+    const filter = aggregation => (queryResult.length === 0)
+          ? aggregation
+          : aggregation.map(bucket => {
+            const filterSet = new Set(queryResult.map(item => item._id));
+            return Object.assign(bucket, {
+              _id: [...new Set([...bucket._id].filter(
+                x => filterSet.has(x)
+              ))]
+            })
+          });
+    return ({
+      BUCKETS: filter((result[0] || []).flat()),
+      FACETS: filter((result[1] || []).flat()),
+      RESULT: queryResult
     })
-  };
+  });
 
+  const BUCKETS = (...buckets) => Promise.all(
+    buckets.map(BUCKET)
+  );
+  
   // return a bucket of IDs. Key is an object like this:
   // {gte:..., lte:...} (gte/lte == greater/less than or equal)
   const BUCKET = token => parseToken(
-    token  // TODO: is parseToken needed her? Already called in GET
+    token // TODO: is parseToken needed her? Already called in GET
   ).then(token => GET(
     token
   ).then(
@@ -228,13 +234,17 @@ function init (db, ops) {
       REVERSE: reverse
     }))
   ).then(
-    max => max.pop()._match.pop().split(':').pop().split('#').shift()
+    max => max.pop()
+      ._match.pop()
+      .split(':').pop()
+    // TODO: should '#' be handled here or downstream?
+      .split('#').shift()
   );
 
-
+  // TODO remove if DISTINCT is no longer used
   const DISTINCT = (...tokens) => Promise.all(
-    //if no tokens specified then get everything ('{}')
-    tokens.length ? tokens.map(DIST) : [ DIST({}) ]
+    // if no tokens specified then get everything ('{}')
+    tokens.length ? tokens.map(DIST) : [DIST({})]
   ).then(
     dist => [
       ...dist.flat().reduce(
@@ -242,8 +252,8 @@ function init (db, ops) {
         new Set())
     ].map(JSON.parse)
   );
-  
-  // TODO should take an array of tokens
+
+  // TODO remove if DISTINCT is no longer used
   const DIST = token => parseToken(
     token
   ).then(token => Promise.all(
@@ -258,13 +268,39 @@ function init (db, ops) {
     }))))
   )).then(result => result.flat());
 
+  const FACETS = (...tokens) => Promise.all(
+    // if no tokens specified then get everything ('{}')
+    tokens.length ? tokens.map(FACET) : [FACET({})]
+  ).then(
+    // Does this need to be a SET, or can there be duplicates?
+    dist => [
+      ...dist.flat().reduce(
+        (acc, cur) => acc.add(JSON.stringify(cur)),
+        new Set())
+    ].map(JSON.parse)
+  );
+
+  const FACET = token => parseToken(
+    token
+  ).then(token => Promise.all(
+    token.FIELD.map(field => getRange({
+      gte: field + ':' + token.VALUE.GTE,
+      lte: field + ':' + token.VALUE.LTE + '￮'
+    }).then(items => items.map(item => ({
+      FIELD: item.key.split(/:(.+)/)[0],
+      VALUE: item.key.split(/:(.+)/)[1],
+      _id: item.value
+    }))))
+  )).then(result => result.flat());
+
   return {
     FIELDS: AVAILABLE_FIELDS,
-    BUCKET: BUCKET,
-    BUCKETFILTER: BUCKETFILTER,
-    // DIST: DIST,
+    BUCKET: BUCKET,  // DEPRECATED, TODO: remove
+    BUCKETS: BUCKETS,
+    AGGREGATE: AGGREGATE,
     DISTINCT: DISTINCT,
     EXPORT: getRange,
+    FACETS: FACETS,
     GET: GET,
     INTERSECTION: INTERSECTION, // AND
     MAX: MAX,
@@ -459,10 +495,12 @@ const makeAFii = (db, ops) => ({
     flattenMatchArrayInResults
   ),
   BUCKET: init(db, ops).BUCKET,
-  BUCKETFILTER: init(db, ops).BUCKETFILTER,
+  BUCKETS: init(db, ops).BUCKETS,
+  AGGREGATE: init(db, ops).AGGREGATE,
   DELETE: init$1(db, ops).DELETE,
   DISTINCT: init(db, ops).DISTINCT,
   EXPORT: init(db, ops).EXPORT,
+  FACETS: init(db, ops).FACETS,
   FIELDS: init(db, ops).FIELDS,
   GET: init(db, ops).GET,
   IMPORT: init$1(db, ops).IMPORT,

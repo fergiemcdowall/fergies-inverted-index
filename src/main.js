@@ -14,10 +14,12 @@ const makeAFii = (db, ops) => ({
     flattenMatchArrayInResults
   ),
   BUCKET: read(db, ops).BUCKET,
-  BUCKETFILTER: read(db, ops).BUCKETFILTER,
+  BUCKETS: read(db, ops).BUCKETS,
+  AGGREGATE: read(db, ops).AGGREGATE,
   DELETE: write(db, ops).DELETE,
   DISTINCT: read(db, ops).DISTINCT,
   EXPORT: read(db, ops).EXPORT,
+  FACETS: read(db, ops).FACETS,
   FIELDS: read(db, ops).FIELDS,
   GET: read(db, ops).GET,
   IMPORT: write(db, ops).IMPORT,
