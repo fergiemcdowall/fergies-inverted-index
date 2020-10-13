@@ -164,19 +164,19 @@ function init (db, ops) {
   });
 
   const AGGREGATE = ({ BUCKETS, FACETS, QUERY }) => Promise.all(
-    [ BUCKETS, FACETS, QUERY ]
+    [BUCKETS, FACETS, QUERY]
   ).then(result => {
     const queryResult = result[2] || [];
     const filter = aggregation => (queryResult.length === 0)
-          ? aggregation
-          : aggregation.map(bucket => {
-            const filterSet = new Set(queryResult.map(item => item._id));
-            return Object.assign(bucket, {
-              _id: [...new Set([...bucket._id].filter(
-                x => filterSet.has(x)
-              ))]
-            })
-          });
+      ? aggregation
+      : aggregation.map(bucket => {
+        const filterSet = new Set(queryResult.map(item => item._id));
+        return Object.assign(bucket, {
+          _id: [...new Set([...bucket._id].filter(
+            x => filterSet.has(x)
+          ))]
+        })
+      });
     return ({
       BUCKETS: filter((result[0] || []).flat()),
       FACETS: filter((result[1] || []).flat()),
@@ -187,7 +187,7 @@ function init (db, ops) {
   const BUCKETS = (...buckets) => Promise.all(
     buckets.map(BUCKET)
   );
-  
+
   // return a bucket of IDs. Key is an object like this:
   // {gte:..., lte:...} (gte/lte == greater/less than or equal)
   const BUCKET = token => parseToken(
@@ -295,7 +295,7 @@ function init (db, ops) {
 
   return {
     FIELDS: AVAILABLE_FIELDS,
-    BUCKET: BUCKET,  // DEPRECATED, TODO: remove
+    BUCKET: BUCKET, // DEPRECATED, TODO: remove
     BUCKETS: BUCKETS,
     AGGREGATE: AGGREGATE,
     DISTINCT: DISTINCT,
