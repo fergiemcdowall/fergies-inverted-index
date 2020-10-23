@@ -1,7 +1,7 @@
 import trav from 'traverse'
 import reader from './read.js'
 
-export default function init (db, ops) {
+export default function init (ops) {
   // TODO: set reset this to the max value every time the DB is restarted
   var incrementalId = 0
 
@@ -124,7 +124,7 @@ export default function init (db, ops) {
   // docs needs to be an array of ids (strings)
   // first do an 'objects' call to get all of the documents to be
   // deleted
-  const DELETE = _ids => reader(db).OBJECT(
+  const DELETE = _ids => reader(ops).OBJECT(
     _ids.map(_id => ({ _id: _id }))
   ).then(
     docs => writer(docs.map((doc, i) => {
@@ -134,7 +134,7 @@ export default function init (db, ops) {
         }
       }
       return doc._object
-    }), db, 'del', {})
+    }), ops.db, 'del', {})
   ).then(
     docs => docs.map(
       doc => ({
@@ -147,14 +147,17 @@ export default function init (db, ops) {
 
   // when importing, index is first cleared. This means that "merges"
   // are not currently supported
-  const IMPORT = index => db.clear().then(() =>
-    db.batch(index.map(
+  const IMPORT = index => ops.db.clear().then(() =>
+    ops.db.batch(index.map(
       entry => Object.assign(entry, { type: 'put' })
     ))
   )
 
-  const PUT = (docs, putOptions) => writer(
-    docs, db, 'put', (putOptions || {})
+  const PUT = (docs, putOptions) => {
+    console.log('booooom')
+    console.log(ops.db)
+    return writer(
+    docs, ops.db, 'put', (putOptions || {})
   ).then(
     docs => docs.map(
       doc => ({
@@ -164,7 +167,7 @@ export default function init (db, ops) {
       })
     )
   )
-
+                                    }
   return {
     DELETE: DELETE,
     IMPORT: IMPORT,

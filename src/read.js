@@ -1,4 +1,4 @@
-export default function init (db, ops) {
+export default function init (ops) {
   const isString = s => (typeof s === 'string')
 
   // key might be object or string like this
@@ -126,7 +126,7 @@ export default function init (db, ops) {
     const rs = {} // resultset
     return Promise.all(
       token.FIELD.map(
-        fieldName => new Promise(resolve => db.createReadStream({
+        fieldName => new Promise(resolve => ops.db.createReadStream({
           gte: fieldName + ':' + token.VALUE.GTE + ops.tokenAppend,
           lte: fieldName + ':' + token.VALUE.LTE + ops.tokenAppend + '￮',
           limit: token.LIMIT,
@@ -147,7 +147,7 @@ export default function init (db, ops) {
 
   const AVAILABLE_FIELDS = () => new Promise(resolve => {
     const fieldNames = []
-    db.createReadStream({
+    ops.db.createReadStream({
       gte: '￮FIELD￮',
       lte: '￮FIELD￮￮'
     })
@@ -201,7 +201,7 @@ export default function init (db, ops) {
 
   const OBJECT = _ids => Promise.all(
     _ids.map(
-      id => db.get('￮DOC￮' + id._id + '￮').catch(reason => null)
+      id => ops.db.get('￮DOC￮' + id._id + '￮').catch(reason => null)
     )
   ).then(_objects => _ids.map((_id, i) => {
     _id._object = _objects[i]
@@ -211,7 +211,7 @@ export default function init (db, ops) {
   // TODO: can this be replaced by RANGE?
   const getRange = ops => new Promise((resolve, reject) => {
     const keys = []
-    db.createReadStream(ops)
+    ops.db.createReadStream(ops)
       .on('data', data => { keys.push(data) })
       .on('end', () => resolve(keys))
   })

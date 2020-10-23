@@ -6,7 +6,7 @@ var level = _interopDefault(require('level'));
 var trav = _interopDefault(require('traverse'));
 var test = _interopDefault(require('tape'));
 
-function init (db, ops) {
+function init (ops) {
   const isString = s => (typeof s === 'string');
 
   // key might be object or string like this
@@ -134,7 +134,7 @@ function init (db, ops) {
     const rs = {}; // resultset
     return Promise.all(
       token.FIELD.map(
-        fieldName => new Promise(resolve => db.createReadStream({
+        fieldName => new Promise(resolve => ops.db.createReadStream({
           gte: fieldName + ':' + token.VALUE.GTE + ops.tokenAppend,
           lte: fieldName + ':' + token.VALUE.LTE + ops.tokenAppend + '￮',
           limit: token.LIMIT,
@@ -155,7 +155,7 @@ function init (db, ops) {
 
   const AVAILABLE_FIELDS = () => new Promise(resolve => {
     const fieldNames = [];
-    db.createReadStream({
+    ops.db.createReadStream({
       gte: '￮FIELD￮',
       lte: '￮FIELD￮￮'
     })
@@ -209,7 +209,7 @@ function init (db, ops) {
 
   const OBJECT = _ids => Promise.all(
     _ids.map(
-      id => db.get('￮DOC￮' + id._id + '￮').catch(reason => null)
+      id => ops.db.get('￮DOC￮' + id._id + '￮').catch(reason => null)
     )
   ).then(_objects => _ids.map((_id, i) => {
     _id._object = _objects[i];
@@ -219,7 +219,7 @@ function init (db, ops) {
   // TODO: can this be replaced by RANGE?
   const getRange = ops => new Promise((resolve, reject) => {
     const keys = [];
-    db.createReadStream(ops)
+    ops.db.createReadStream(ops)
       .on('data', data => { keys.push(data); })
       .on('end', () => resolve(keys));
   });
@@ -312,7 +312,7 @@ function init (db, ops) {
   }
 }
 
-function init$1 (db, ops) {
+function init$1 (ops) {
   // TODO: set reset this to the max value every time the DB is restarted
   var incrementalId = 0;
 
@@ -435,7 +435,7 @@ function init$1 (db, ops) {
   // docs needs to be an array of ids (strings)
   // first do an 'objects' call to get all of the documents to be
   // deleted
-  const DELETE = _ids => init(db).OBJECT(
+  const DELETE = _ids => init(ops).OBJECT(
     _ids.map(_id => ({ _id: _id }))
   ).then(
     docs => writer(docs.map((doc, i) => {
@@ -445,7 +445,7 @@ function init$1 (db, ops) {
         }
       }
       return doc._object
-    }), db, 'del', {})
+    }), ops.db, 'del', {})
   ).then(
     docs => docs.map(
       doc => ({
@@ -458,14 +458,17 @@ function init$1 (db, ops) {
 
   // when importing, index is first cleared. This means that "merges"
   // are not currently supported
-  const IMPORT = index => db.clear().then(() =>
-    db.batch(index.map(
+  const IMPORT = index => ops.db.clear().then(() =>
+    ops.db.batch(index.map(
       entry => Object.assign(entry, { type: 'put' })
     ))
   );
 
-  const PUT = (docs, putOptions) => writer(
-    docs, db, 'put', (putOptions || {})
+  const PUT = (docs, putOptions) => {
+    console.log('booooom');
+    console.log(ops.db);
+    return writer(
+    docs, ops.db, 'put', (putOptions || {})
   ).then(
     docs => docs.map(
       doc => ({
@@ -474,8 +477,8 @@ function init$1 (db, ops) {
         operation: 'PUT'
       })
     )
-  );
-
+  )
+                                    };
   return {
     DELETE: DELETE,
     IMPORT: IMPORT,
@@ -490,36 +493,36 @@ const flattenMatchArrayInResults = results => results.map(result => {
   return result
 });
 
-const makeAFii = (db, ops) => ({
-  AND: (...keys) => init(db, ops).INTERSECTION(...keys).then(
+const makeAFii = (ops) => ({
+  AND: (...keys) => init(ops).INTERSECTION(...keys).then(
     flattenMatchArrayInResults
   ),
-  BUCKET: init(db, ops).BUCKET,
-  BUCKETS: init(db, ops).BUCKETS,
-  AGGREGATE: init(db, ops).AGGREGATE,
-  DELETE: init$1(db, ops).DELETE,
-  DISTINCT: init(db, ops).DISTINCT,
-  EXPORT: init(db, ops).EXPORT,
-  FACETS: init(db, ops).FACETS,
-  FIELDS: init(db, ops).FIELDS,
-  GET: init(db, ops).GET,
-  IMPORT: init$1(db, ops).IMPORT,
-  MAX: init(db, ops).MAX,
-  MIN: init(db, ops).MIN,
-  NOT: (...keys) => init(db, ops).SET_SUBTRACTION(...keys).then(
+  BUCKET: init(ops).BUCKET,
+  BUCKETS: init(ops).BUCKETS,
+  AGGREGATE: init(ops).AGGREGATE,
+  DELETE: init$1(ops).DELETE,
+  DISTINCT: init(ops).DISTINCT,
+  EXPORT: init(ops).EXPORT,
+  FACETS: init(ops).FACETS,
+  FIELDS: init(ops).FIELDS,
+  GET: init(ops).GET,
+  IMPORT: init$1(ops).IMPORT,
+  MAX: init(ops).MAX,
+  MIN: init(ops).MIN,
+  NOT: (...keys) => init(ops).SET_SUBTRACTION(...keys).then(
     flattenMatchArrayInResults
   ),
-  OBJECT: init(db, ops).OBJECT,
-  OR: (...keys) => init(db, ops).UNION(...keys)
+  OBJECT: init(ops).OBJECT,
+  OR: (...keys) => init(ops).UNION(...keys)
     .then(result => result.union)
     .then(flattenMatchArrayInResults),
-  PUT: init$1(db, ops).PUT,
-  SET_SUBTRACTION: init(db, ops).SET_SUBTRACTION,
-  STORE: db,
-  parseToken: init(db, ops).parseToken
+  PUT: init$1(ops).PUT,
+  SET_SUBTRACTION: init(ops).SET_SUBTRACTION,
+  STORE: ops.db,
+  parseToken: init(ops).parseToken
 });
 
-function fii (ops, callback) {
+var main = ops => new Promise ((resolve, reject) => {
   ops = Object.assign({
     name: 'fii',
     // tokenAppend can be used to create 'comment' spaces in
@@ -531,19 +534,16 @@ function fii (ops, callback) {
     caseSensitive: true,
     stopwords: []
   }, ops || {});
-  // if no callback provided, "lazy load"
-  if (!callback) {
-    return makeAFii(
-      (ops.store || level(ops.name, { valueEncoding: 'json' })),
-      ops
-    )
-  } else {
-    if (ops.store) return callback(new Error('When initing with a store use "lazy loading"'), null)
-    // use callback to provide a notification that db is opened
-    level(ops.name, { valueEncoding: 'json' }, (err, store) =>
-      callback(err, makeAFii(store, ops)));
-  }
-}
+  if (ops.store) return resolve(makeAFii(ops))
+  // else make a new level store
+  return level(
+    ops.name, { valueEncoding: 'json' }, (err, db) => err
+      ? reject(err)
+      : resolve(makeAFii(Object.assign(ops, { db: db })))
+  )
+
+
+});
 
 const sandbox = 'test/sandbox/';
 const indexName = sandbox + 'cars-aggregation-test';
@@ -643,10 +643,7 @@ const data = [
 
 test('create an index', t => {
   t.plan(1);
-  fii({ name: indexName }, (err, idx) => {
-    global[indexName] = idx;
-    t.error(err);
-  });
+  main({ name: indexName });
 });
 
 test('can add some data', t => {
