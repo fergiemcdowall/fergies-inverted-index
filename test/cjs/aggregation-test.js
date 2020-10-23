@@ -475,7 +475,7 @@ function init (ops) {
       })
     )
   );
-    
+
   return {
     DELETE: DELETE,
     IMPORT: IMPORT,
@@ -491,8 +491,19 @@ const flattenMatchArrayInResults = results => results.map(result => {
 });
 
 const initStore = (ops = {}) => new Promise((resolve, reject) => {
+  ops = Object.assign({
+    name: 'fii',
+    // tokenAppend can be used to create 'comment' spaces in
+    // tokens. For example using '#' allows tokens like boom#1.00 to
+    // be retrieved by using "boom". If tokenAppend wasnt used, then
+    // {gte: 'boom', lte: 'boom'} would also return stuff like
+    // boomness#1.00 etc
+    tokenAppend: '',
+    caseSensitive: true,
+    stopwords: []
+  }, ops);
   if (ops.db) return resolve(ops)
-  //else
+  // else
   level(
     ops.name, { valueEncoding: 'json' }, (err, db) => err
       ? reject(err)
@@ -500,50 +511,40 @@ const initStore = (ops = {}) => new Promise((resolve, reject) => {
   );
 });
 
-var main = ops => initStore(ops)
-  .then(ops => {
-    ops = Object.assign({
-      name: 'fii',
-      // tokenAppend can be used to create 'comment' spaces in
-      // tokens. For example using '#' allows tokens like boom#1.00 to
-      // be retrieved by using "boom". If tokenAppend wasnt used, then
-      // {gte: 'boom', lte: 'boom'} would also return stuff like
-      // boomness#1.00 etc
-      tokenAppend: '',
-      caseSensitive: true,
-      stopwords: []
-    }, ops);
-    const r = read(ops);
-    const w = init(ops);
-    return ({
-      AND: (...keys) => r.INTERSECTION(...keys).then(
-        flattenMatchArrayInResults
-      ),
-      BUCKET: r.BUCKET,
-      BUCKETS: r.BUCKETS,
-      AGGREGATE: r.AGGREGATE,
-      DELETE: w.DELETE,
-      DISTINCT: r.DISTINCT,
-      EXPORT: r.EXPORT,
-      FACETS: r.FACETS,
-      FIELDS: r.FIELDS,
-      GET: r.GET,
-      IMPORT: w.IMPORT,
-      MAX: r.MAX,
-      MIN: r.MIN,
-      NOT: (...keys) => r.SET_SUBTRACTION(...keys).then(
-        flattenMatchArrayInResults
-      ),
-      OBJECT: r.OBJECT,
-      OR: (...keys) => r.UNION(...keys)
-        .then(result => result.union)
-        .then(flattenMatchArrayInResults),
-      PUT: w.PUT,
-      SET_SUBTRACTION: r.SET_SUBTRACTION,
-      STORE: ops.db,
-      parseToken: r.parseToken
-    })
-  });
+const makeAFii = ops => {
+  const r = read(ops);
+  const w = init(ops);
+  return ({
+    AND: (...keys) => r.INTERSECTION(...keys).then(
+      flattenMatchArrayInResults
+    ),
+    BUCKET: r.BUCKET,
+    BUCKETS: r.BUCKETS,
+    AGGREGATE: r.AGGREGATE,
+    DELETE: w.DELETE,
+    DISTINCT: r.DISTINCT,
+    EXPORT: r.EXPORT,
+    FACETS: r.FACETS,
+    FIELDS: r.FIELDS,
+    GET: r.GET,
+    IMPORT: w.IMPORT,
+    MAX: r.MAX,
+    MIN: r.MIN,
+    NOT: (...keys) => r.SET_SUBTRACTION(...keys).then(
+      flattenMatchArrayInResults
+    ),
+    OBJECT: r.OBJECT,
+    OR: (...keys) => r.UNION(...keys)
+      .then(result => result.union)
+      .then(flattenMatchArrayInResults),
+    PUT: w.PUT,
+    SET_SUBTRACTION: r.SET_SUBTRACTION,
+    STORE: ops.db,
+    parseToken: r.parseToken
+  })
+};
+
+var main = ops => initStore(ops).then(makeAFii);
 
 const sandbox = 'test/sandbox/';
 const indexName = sandbox + 'cars-aggregation-test';
