@@ -5,19 +5,7 @@ import wbd from 'world-bank-dataset'
 const sandbox = 'test/sandbox/'
 const indexName = sandbox + 'DELETE-TEST'
 
-// test('create a little world bank index by lazy loading', t => {
-//   t.plan(1)
-//   global[indexName] = fii({ name: indexName })
-//   t.pass()
-// })
-
-// test('give lazy loading some time to complete', t => {
-//   t.plan(1)
-//   setTimeout(t.pass, 500)
-// })
-
-
-test('create a little world bank index', t => {
+test('create index', t => {
   t.plan(1)
   fii({ name: indexName }).then(db => {
     global[indexName] = db    

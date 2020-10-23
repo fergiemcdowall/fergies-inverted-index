@@ -4,14 +4,14 @@ import test from 'tape'
 const sandbox = 'test/sandbox/'
 const indexName = sandbox + 'stopword-test'
 
-test('create a tiny test index', t => {
+test('create index', t => {
   t.plan(1)
   fii({
     name: indexName,
     stopwords: [ 'this', 'is', 'a', 'that', 'bananas' ]
-  }, (err, idx) => {
-    global[indexName] = idx
-    t.error(err)
+  }).then(db => {
+    global[indexName] = db    
+    t.ok(db, !undefined)
   })
 })
 

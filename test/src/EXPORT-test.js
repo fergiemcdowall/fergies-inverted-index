@@ -76,9 +76,9 @@ const data = [
 
 test('create an index for export', t => {
   t.plan(1)
-  fii({ name: exportingIndexName }, (err, idx) => {
-    global[exportingIndexName] = idx
-    t.error(err)
+  fii({ name: exportingIndexName }).then(db => {
+    global[exportingIndexName] = db    
+    t.ok(db, !undefined)
   })
 })
 
@@ -96,11 +96,11 @@ test('can export some data', t => {
     })
 })
 
-test('create an index for import', t => {
+test('create an index for export', t => {
   t.plan(1)
-  fii({ name: importingIndexName }, (err, idx) => {
-    global[importingIndexName] = idx
-    t.error(err)
+  fii({ name: importingIndexName }).then(db => {
+    global[importingIndexName] = db    
+    t.ok(db, !undefined)
   })
 })
 

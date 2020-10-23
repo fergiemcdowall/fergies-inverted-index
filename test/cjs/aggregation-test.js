@@ -6,7 +6,7 @@ var level = _interopDefault(require('level'));
 var trav = _interopDefault(require('traverse'));
 var test = _interopDefault(require('tape'));
 
-function init (ops) {
+var read = ops => {
   const isString = s => (typeof s === 'string');
 
   // key might be object or string like this
@@ -217,9 +217,9 @@ function init (ops) {
   }));
 
   // TODO: can this be replaced by RANGE?
-  const getRange = ops => new Promise((resolve, reject) => {
+  const getRange = rangeOps => new Promise((resolve, reject) => {
     const keys = [];
-    ops.db.createReadStream(ops)
+    ops.db.createReadStream(rangeOps)
       .on('data', data => { keys.push(data); })
       .on('end', () => resolve(keys));
   });
@@ -310,9 +310,9 @@ function init (ops) {
     UNION: UNION, // OR,
     parseToken: parseToken
   }
-}
+};
 
-function init$1 (ops) {
+function init (ops) {
   // TODO: set reset this to the max value every time the DB is restarted
   var incrementalId = 0;
 
@@ -435,7 +435,7 @@ function init$1 (ops) {
   // docs needs to be an array of ids (strings)
   // first do an 'objects' call to get all of the documents to be
   // deleted
-  const DELETE = _ids => init(ops).OBJECT(
+  const DELETE = _ids => read(ops).OBJECT(
     _ids.map(_id => ({ _id: _id }))
   ).then(
     docs => writer(docs.map((doc, i) => {
@@ -464,11 +464,8 @@ function init$1 (ops) {
     ))
   );
 
-  const PUT = (docs, putOptions) => {
-    console.log('booooom');
-    console.log(ops.db);
-    return writer(
-    docs, ops.db, 'put', (putOptions || {})
+  const PUT = (docs, putOptions = {}) => writer(
+    docs, ops.db, 'put', putOptions
   ).then(
     docs => docs.map(
       doc => ({
@@ -477,8 +474,8 @@ function init$1 (ops) {
         operation: 'PUT'
       })
     )
-  )
-                                    };
+  );
+    
   return {
     DELETE: DELETE,
     IMPORT: IMPORT,
@@ -493,57 +490,60 @@ const flattenMatchArrayInResults = results => results.map(result => {
   return result
 });
 
-const makeAFii = (ops) => ({
-  AND: (...keys) => init(ops).INTERSECTION(...keys).then(
-    flattenMatchArrayInResults
-  ),
-  BUCKET: init(ops).BUCKET,
-  BUCKETS: init(ops).BUCKETS,
-  AGGREGATE: init(ops).AGGREGATE,
-  DELETE: init$1(ops).DELETE,
-  DISTINCT: init(ops).DISTINCT,
-  EXPORT: init(ops).EXPORT,
-  FACETS: init(ops).FACETS,
-  FIELDS: init(ops).FIELDS,
-  GET: init(ops).GET,
-  IMPORT: init$1(ops).IMPORT,
-  MAX: init(ops).MAX,
-  MIN: init(ops).MIN,
-  NOT: (...keys) => init(ops).SET_SUBTRACTION(...keys).then(
-    flattenMatchArrayInResults
-  ),
-  OBJECT: init(ops).OBJECT,
-  OR: (...keys) => init(ops).UNION(...keys)
-    .then(result => result.union)
-    .then(flattenMatchArrayInResults),
-  PUT: init$1(ops).PUT,
-  SET_SUBTRACTION: init(ops).SET_SUBTRACTION,
-  STORE: ops.db,
-  parseToken: init(ops).parseToken
-});
-
-var main = ops => new Promise ((resolve, reject) => {
-  ops = Object.assign({
-    name: 'fii',
-    // tokenAppend can be used to create 'comment' spaces in
-    // tokens. For example using '#' allows tokens like boom#1.00 to
-    // be retrieved by using "boom". If tokenAppend wasnt used, then
-    // {gte: 'boom', lte: 'boom'} would also return stuff like
-    // boomness#1.00 etc
-    tokenAppend: '',
-    caseSensitive: true,
-    stopwords: []
-  }, ops || {});
-  if (ops.store) return resolve(makeAFii(ops))
-  // else make a new level store
-  return level(
+const initStore = (ops = {}) => new Promise((resolve, reject) => {
+  if (ops.db) return resolve(ops)
+  //else
+  level(
     ops.name, { valueEncoding: 'json' }, (err, db) => err
       ? reject(err)
-      : resolve(makeAFii(Object.assign(ops, { db: db })))
-  )
-
-
+      : resolve(Object.assign(ops, { db: db }))
+  );
 });
+
+var main = ops => initStore(ops)
+  .then(ops => {
+    ops = Object.assign({
+      name: 'fii',
+      // tokenAppend can be used to create 'comment' spaces in
+      // tokens. For example using '#' allows tokens like boom#1.00 to
+      // be retrieved by using "boom". If tokenAppend wasnt used, then
+      // {gte: 'boom', lte: 'boom'} would also return stuff like
+      // boomness#1.00 etc
+      tokenAppend: '',
+      caseSensitive: true,
+      stopwords: []
+    }, ops);
+    const r = read(ops);
+    const w = init(ops);
+    return ({
+      AND: (...keys) => r.INTERSECTION(...keys).then(
+        flattenMatchArrayInResults
+      ),
+      BUCKET: r.BUCKET,
+      BUCKETS: r.BUCKETS,
+      AGGREGATE: r.AGGREGATE,
+      DELETE: w.DELETE,
+      DISTINCT: r.DISTINCT,
+      EXPORT: r.EXPORT,
+      FACETS: r.FACETS,
+      FIELDS: r.FIELDS,
+      GET: r.GET,
+      IMPORT: w.IMPORT,
+      MAX: r.MAX,
+      MIN: r.MIN,
+      NOT: (...keys) => r.SET_SUBTRACTION(...keys).then(
+        flattenMatchArrayInResults
+      ),
+      OBJECT: r.OBJECT,
+      OR: (...keys) => r.UNION(...keys)
+        .then(result => result.union)
+        .then(flattenMatchArrayInResults),
+      PUT: w.PUT,
+      SET_SUBTRACTION: r.SET_SUBTRACTION,
+      STORE: ops.db,
+      parseToken: r.parseToken
+    })
+  });
 
 const sandbox = 'test/sandbox/';
 const indexName = sandbox + 'cars-aggregation-test';
@@ -641,9 +641,12 @@ const data = [
   }
 ];
 
-test('create an index', t => {
+test('create index', t => {
   t.plan(1);
-  main({ name: indexName });
+  main({ name: indexName }).then(db => {
+    global[indexName] = db;    
+    t.ok(db, !undefined);
+  });
 });
 
 test('can add some data', t => {

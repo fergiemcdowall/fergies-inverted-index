@@ -153,11 +153,8 @@ export default function init (ops) {
     ))
   )
 
-  const PUT = (docs, putOptions) => {
-    console.log('booooom')
-    console.log(ops.db)
-    return writer(
-    docs, ops.db, 'put', (putOptions || {})
+  const PUT = (docs, putOptions = {}) => writer(
+    docs, ops.db, 'put', putOptions
   ).then(
     docs => docs.map(
       doc => ({
@@ -167,7 +164,7 @@ export default function init (ops) {
       })
     )
   )
-                                    }
+
   return {
     DELETE: DELETE,
     IMPORT: IMPORT,

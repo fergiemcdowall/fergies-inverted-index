@@ -9,85 +9,57 @@ const flattenMatchArrayInResults = results => results.map(result => {
   return result
 })
 
-const makeAFii = (ops) => ({
-  AND: (...keys) => read(ops).INTERSECTION(...keys).then(
-    flattenMatchArrayInResults
-  ),
-  BUCKET: read(ops).BUCKET,
-  BUCKETS: read(ops).BUCKETS,
-  AGGREGATE: read(ops).AGGREGATE,
-  DELETE: write(ops).DELETE,
-  DISTINCT: read(ops).DISTINCT,
-  EXPORT: read(ops).EXPORT,
-  FACETS: read(ops).FACETS,
-  FIELDS: read(ops).FIELDS,
-  GET: read(ops).GET,
-  IMPORT: write(ops).IMPORT,
-  MAX: read(ops).MAX,
-  MIN: read(ops).MIN,
-  NOT: (...keys) => read(ops).SET_SUBTRACTION(...keys).then(
-    flattenMatchArrayInResults
-  ),
-  OBJECT: read(ops).OBJECT,
-  OR: (...keys) => read(ops).UNION(...keys)
-    .then(result => result.union)
-    .then(flattenMatchArrayInResults),
-  PUT: write(ops).PUT,
-  SET_SUBTRACTION: read(ops).SET_SUBTRACTION,
-  STORE: ops.db,
-  parseToken: read(ops).parseToken
-})
-
-// export default function fii (ops, callback) {
-//   ops = Object.assign({
-//     name: 'fii',
-//     // tokenAppend can be used to create 'comment' spaces in
-//     // tokens. For example using '#' allows tokens like boom#1.00 to
-//     // be retrieved by using "boom". If tokenAppend wasnt used, then
-//     // {gte: 'boom', lte: 'boom'} would also return stuff like
-//     // boomness#1.00 etc
-//     tokenAppend: '',
-//     caseSensitive: true,
-//     stopwords: []
-//   }, ops || {})
-//   // if no callback provided, "lazy load"
-//   if (!callback) {
-//     return makeAFii(
-//       (ops.store || level(ops.name, { valueEncoding: 'json' })),
-//       ops
-//     )
-//   } else {
-//     if (ops.store) return callback(new Error('When initing with a store use "lazy loading"'), null)
-//     // use callback to provide a notification that db is opened
-//     level(ops.name, { valueEncoding: 'json' }, (err, store) =>
-//       callback(err, makeAFii(store, ops)))
-//   }
-// }
-
-
-const initStore = ops => new Promise((resolve, reject) => {
-  
-})
-
-export default ops => new Promise ((resolve, reject) => {
-  ops = Object.assign({
-    name: 'fii',
-    // tokenAppend can be used to create 'comment' spaces in
-    // tokens. For example using '#' allows tokens like boom#1.00 to
-    // be retrieved by using "boom". If tokenAppend wasnt used, then
-    // {gte: 'boom', lte: 'boom'} would also return stuff like
-    // boomness#1.00 etc
-    tokenAppend: '',
-    caseSensitive: true,
-    stopwords: []
-  }, ops || {})
-  if (ops.store) return resolve(makeAFii(ops))
-  // else make a new level store
-  return level(
+const initStore = (ops = {}) => new Promise((resolve, reject) => {
+  if (ops.db) return resolve(ops)
+  // else
+  level(
     ops.name, { valueEncoding: 'json' }, (err, db) => err
       ? reject(err)
-      : resolve(makeAFii(Object.assign(ops, { db: db })))
+      : resolve(Object.assign(ops, { db: db }))
   )
-
-
 })
+
+export default ops => initStore(ops)
+  .then(ops => {
+    ops = Object.assign({
+      name: 'fii',
+      // tokenAppend can be used to create 'comment' spaces in
+      // tokens. For example using '#' allows tokens like boom#1.00 to
+      // be retrieved by using "boom". If tokenAppend wasnt used, then
+      // {gte: 'boom', lte: 'boom'} would also return stuff like
+      // boomness#1.00 etc
+      tokenAppend: '',
+      caseSensitive: true,
+      stopwords: []
+    }, ops)
+    const r = read(ops)
+    const w = write(ops)
+    return ({
+      AND: (...keys) => r.INTERSECTION(...keys).then(
+        flattenMatchArrayInResults
+      ),
+      BUCKET: r.BUCKET,
+      BUCKETS: r.BUCKETS,
+      AGGREGATE: r.AGGREGATE,
+      DELETE: w.DELETE,
+      DISTINCT: r.DISTINCT,
+      EXPORT: r.EXPORT,
+      FACETS: r.FACETS,
+      FIELDS: r.FIELDS,
+      GET: r.GET,
+      IMPORT: w.IMPORT,
+      MAX: r.MAX,
+      MIN: r.MIN,
+      NOT: (...keys) => r.SET_SUBTRACTION(...keys).then(
+        flattenMatchArrayInResults
+      ),
+      OBJECT: r.OBJECT,
+      OR: (...keys) => r.UNION(...keys)
+        .then(result => result.union)
+        .then(flattenMatchArrayInResults),
+      PUT: w.PUT,
+      SET_SUBTRACTION: r.SET_SUBTRACTION,
+      STORE: ops.db,
+      parseToken: r.parseToken
+    })
+  })

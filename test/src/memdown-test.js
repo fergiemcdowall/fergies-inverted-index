@@ -30,25 +30,26 @@ test('create a fii with memdown', t => {
     valueEncoding: 'json'
   }), (err, store) => {
     t.error(err)
-    db = fii({ store: store })
-    db.PUT(data).then(() => {
-      t.pass('ok')
-    }).then(() => {
-      db.GET({
-        FIELD: 'board_approval_month',
-        VALUE: 'November'
-      })
-        .then(result => {
-          t.deepEqual(result, [
-            { _id: '52b213b38594d8a2be17c780',
-              _match: [ 'board_approval_month:November' ] },
-            { _id: '52b213b38594d8a2be17c781',
-              _match: [ 'board_approval_month:November' ] },
-            { _id: '52b213b38594d8a2be17c782',
-              _match: [ 'board_approval_month:November' ] }
-          ])
+    fii({ db: store }).then(db =>
+      db.PUT(data).then(() => {
+        t.pass('ok')
+      }).then(() => {
+        db.GET({
+          FIELD: 'board_approval_month',
+          VALUE: 'November'
         })
-    })
+          .then(result => {
+            t.deepEqual(result, [
+              { _id: '52b213b38594d8a2be17c780',
+                _match: [ 'board_approval_month:November' ] },
+              { _id: '52b213b38594d8a2be17c781',
+                _match: [ 'board_approval_month:November' ] },
+              { _id: '52b213b38594d8a2be17c782',
+                _match: [ 'board_approval_month:November' ] }
+            ])
+          })
+      })
+    )
   })
   
 })

@@ -1,4 +1,4 @@
-export default function init (ops) {
+export default ops => {
   const isString = s => (typeof s === 'string')
 
   // key might be object or string like this
@@ -209,9 +209,9 @@ export default function init (ops) {
   }))
 
   // TODO: can this be replaced by RANGE?
-  const getRange = ops => new Promise((resolve, reject) => {
+  const getRange = rangeOps => new Promise((resolve, reject) => {
     const keys = []
-    ops.db.createReadStream(ops)
+    ops.db.createReadStream(rangeOps)
       .on('data', data => { keys.push(data) })
       .on('end', () => resolve(keys))
   })

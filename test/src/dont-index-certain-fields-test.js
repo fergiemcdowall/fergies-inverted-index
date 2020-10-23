@@ -5,11 +5,11 @@ const sandbox = 'test/sandbox/'
 
 const indexName = sandbox + 'non-searchable-fields-test'
 
-test('create an index', t => {
+test('create index', t => {
   t.plan(1)
-  fii({ name: indexName }, (err, idx) => {
-    global[indexName] = idx
-    t.error(err)
+  fii({ name: indexName }).then(db => {
+    global[indexName] = db    
+    t.ok(db, !undefined)
   })
 })
 
@@ -92,11 +92,11 @@ test('analyse index', t => {
 
 const indexName2 = sandbox + 'non-searchable-fields-test2'
 
-test('create an index', t => {
+test('create another index', t => {
   t.plan(1)
-  fii({ name: indexName2 }, (err, idx) => {
-    global[indexName2] = idx
-    t.error(err)
+  fii({ name: indexName2 }).then(db => {
+    global[indexName2] = db    
+    t.ok(db, !undefined)
   })
 })
 

@@ -6,14 +6,15 @@ const sandbox = 'test/sandbox/'
 const caseSensitiveIdx = sandbox + 'case-sensitive-testx'
 const caseInsensitiveIdx = sandbox + 'case-insensitive-test'
 
+
 test('create a case sensitive index', t => {
   t.plan(1)
   fii({
     name: caseSensitiveIdx,
     caseSensitive: true
-  }, (err, idx) => {
-    global[caseSensitiveIdx] = idx
-    t.error(err)
+  }).then(db => {
+    global[caseSensitiveIdx] = db    
+    t.ok(db, !undefined)
   })
 })
 
@@ -22,9 +23,9 @@ test('create a case INsensitive index', t => {
   fii({
     name: caseInsensitiveIdx,
     caseSensitive: false
-  }, (err, idx) => {
-    global[caseInsensitiveIdx] = idx
-    t.error(err)
+  }).then(db => {
+    global[caseInsensitiveIdx] = db
+    t.ok(db, !undefined)
   })
 })
 
