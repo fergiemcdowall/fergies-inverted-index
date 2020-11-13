@@ -31,7 +31,7 @@
     "lint": "standard --fix test/* src/*",
     "test": "npm run test-node && npm run test-browser && npm run lint",
     "test-browser": "npm run build && cat test/sandbox/browser-tests.js | tape-run",
-    "test-node": "tape test/src/*.js",
+    "test-node": "npm run empty-sandbox && tape test/src/*.js",
     "test-script-tag-lib": "npm run build && open-cli test/src/index.html"
   },
   "repository": {
