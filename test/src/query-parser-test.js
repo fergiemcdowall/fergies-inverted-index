@@ -87,7 +87,6 @@ test('can do some AND searches', t => {
 })
 
 test('can do some OR searches', t => {
-    console.log('BOOOOOOOOOOOOOM11111')
   t.plan(1)
   global[indexName].OR(
     'sectorcode:BS',

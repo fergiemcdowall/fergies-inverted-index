@@ -1,0 +1,38 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+  </head>
+  <body>
+    view console to see output
+    <script src="../../dist/fergies-inverted-index.js"></script>
+    <script>
+
+      console.log('should output ->')
+      console.log([
+        {
+          "_id": "1",
+          "_match": [
+            "text:foo"
+          ]
+        }
+      ])
+      
+      console.log('actual output ->')
+      window.fergiesInvertedIndex({
+        name: 'BEST_DB_EVER'
+      }).then(fii => {
+        fii.PUT([
+          {
+            _id: '1',
+            text: 'this is the foo'.split(' ')
+          }, {
+            _id: '2',
+            text: 'this is the bar'.split(' ')
+          }
+        ]).then(() => fii.AND('text:foo'))
+          .then(result => console.log(JSON.stringify(result, null, 2)))
+      })
+    </script>
+  </body>
+</html>

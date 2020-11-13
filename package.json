@@ -13,6 +13,7 @@
     "browser-resolve": "^2.0.0",
     "encoding-down": "^6.3.0",
     "memdown": "^5.1.0",
+    "open-cli": "^6.0.1",
     "path": "^0.12.7",
     "path-browserify": "^1.0.1",
     "process": "^0.11.10",
@@ -25,11 +26,13 @@
     "world-bank-dataset": "^1.0.0"
   },
   "scripts": {
+    "build": "npm run empty-sandbox && webpack",
     "empty-sandbox": "rm -rf test/sandbox && mkdir test/sandbox",
     "lint": "standard --fix test/* src/*",
     "test": "npm run test-node && npm run test-browser && npm run lint",
-    "test-browser": "npm run empty-sandbox && webpack && cat test/sandbox/browser-tests.js | tape-run",
-    "test-node": "tape test/src/*.js"
+    "test-browser": "npm run build && cat test/sandbox/browser-tests.js | tape-run",
+    "test-node": "tape test/src/*.js",
+    "test-script-tag-lib": "npm run build && open-cli test/src/index.html"
   },
   "repository": {
     "type": "git",
