@@ -1,4 +1,4 @@
-export default ops => {
+module.exports = ops => {
   const isString = s => (typeof s === 'string')
 
   // key might be object or string like this

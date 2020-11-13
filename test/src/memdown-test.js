@@ -1,10 +1,9 @@
-import fii from '../../dist/fergies-inverted-index.esm.js'
-// import fs from 'fs'
-import levelup from 'levelup'
-import memdown from 'memdown'
-import test from 'tape'
-import wbd from 'world-bank-dataset'
-import encode from 'encoding-down'
+const encode = require('encoding-down')
+const fii = require('../../')
+const levelup = require('levelup')
+const memdown = require('memdown')
+const test = require('tape')
+const wbd = require('world-bank-dataset')
 
 const sandbox = 'test/sandbox/'
 const indexName = sandbox + 'memdown-test'

@@ -1,6 +1,6 @@
-import level from 'level'
-import read from './read.js'
-import write from './write.js'
+const level = require('level')
+const read = require('./read.js')
+const write = require('./write.js')
 
 // _match is nested by default so that AND and OR work correctly under
 // the bonnet. Flatten array before presenting to consumer
@@ -63,4 +63,4 @@ const makeAFii = ops => {
   })
 }
 
-export default ops => initStore(ops).then(makeAFii)
+module.exports = ops => initStore(ops).then(makeAFii)

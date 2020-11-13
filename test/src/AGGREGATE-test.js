@@ -1,5 +1,7 @@
-import fii from '../../dist/fergies-inverted-index.esm.js'
-import test from 'tape'
+const fii = require('../../')
+const test = require('tape')
+
+const level = require('level')
 
 const sandbox = 'test/sandbox/'
 const indexName = sandbox + 'AGGREGATE'
@@ -100,14 +102,20 @@ const data = [
 test('create index', t => {
   t.plan(1)
   fii({ name: indexName }).then(db => {
-    global[indexName] = db    
+    global[indexName] = db
     t.ok(db, !undefined)
   })
 })
 
 test('can add some data', t => {
   t.plan(1)
-  global[indexName].PUT(data).then(t.pass)
+  try {
+    console.log('trying')
+    global[indexName].PUT(data).then(t.pass)
+  } catch (e) {
+    console.log('problem')
+    console.log(e)
+  }
 })
 
 test('simple AGGREGATE with BUCKETS', t => {

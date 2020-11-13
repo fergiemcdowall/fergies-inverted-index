@@ -1,7 +1,7 @@
-import trav from 'traverse'
-import reader from './read.js'
+const trav = require('traverse')
+const reader = require('./read.js')
 
-export default function init (ops) {
+module.exports = ops => {
   // TODO: set reset this to the max value every time the DB is restarted
   var incrementalId = 0
 

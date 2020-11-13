@@ -1,6 +1,6 @@
-import fii from '../../dist/fergies-inverted-index.esm.js'
-import test from 'tape'
-import wbd from 'world-bank-dataset'
+const fii = require('../../')
+const test = require('tape')
+const wbd = require('world-bank-dataset')
 
 const sandbox = 'test/sandbox/'
 const indexName = sandbox + 'DELETE-TEST'

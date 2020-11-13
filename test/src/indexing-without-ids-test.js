@@ -1,5 +1,5 @@
-import fii from '../../dist/fergies-inverted-index.esm.js'
-import test from 'tape'
+const fii = require('../../')
+const test = require('tape')
 
 const sandbox = 'test/sandbox/'
 const indexName = sandbox + 'indexing-without-ids-test'
