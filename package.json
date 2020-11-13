@@ -36,12 +36,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/fergiemcdowall/naturaldb.git"
+    "url": "git+https://github.com/fergiemcdowall/fergies-inverted-index"
   },
   "author": "Fergus McDowall",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/fergiemcdowall/naturaldb/issues"
+    "url": "https://github.com/fergiemcdowall/fergies-inverted-index/issues"
   },
-  "homepage": "https://github.com/fergiemcdowall/naturaldb#readme"
+  "homepage": "https://github.com/fergiemcdowall/fergies-inverted-index"
 }
