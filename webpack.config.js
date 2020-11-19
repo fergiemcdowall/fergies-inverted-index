@@ -36,12 +36,11 @@ module.exports = [{
   output: {
     path: path.resolve('dist'),
     filename: 'fergies-inverted-index.js',
-    library: 'fergiesInvertedIndex'
+    library: 'FergiesInvertedIndex'
   }
 }, {
   ...config,
   mode: 'development',
-  //  entry: './test/src/AGGREGATE-test.js',
   entry: glob.sync('./test/src/*-test.js'),
   output: {
     path: path.resolve('test/sandbox'),
