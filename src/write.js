@@ -7,8 +7,15 @@ module.exports = ops => {
 
   // use trav lib to find all leaf nodes with corresponding paths
   const invertDoc = (obj, putOptions) => {
+    if (obj._object == null) {
+      return ({
+        _id: obj._id,
+        keys: []
+      })
+    }
+
     const keys = []
-    trav(obj).forEach(function (node) {
+    trav(obj._object).forEach(function (node) {
       let searchable = true
       const fieldName = this.path
       // allowing numbers in path names create ambiguity with arrays
@@ -17,7 +24,7 @@ module.exports = ops => {
         .join('.')
       if (fieldName === '_id') searchable = false
       // Skip fields that are not to be indexed
-      if ((putOptions.doNotIndexField || []).filter(
+      if (putOptions.doNotIndexField.filter(
         item => fieldName.startsWith(item)
       ).length) searchable = false
 
@@ -30,6 +37,7 @@ module.exports = ops => {
         keys.push(ops.caseSensitive ? key : key.toLowerCase())
       }
     })
+
     return {
       _id: obj._id + '', // cast to string
       keys: keys
@@ -75,7 +83,7 @@ module.exports = ops => {
   const objectIndex = (docs, mode) => docs.map(doc => ({
     key: '￮DOC￮' + doc._id + '￮',
     type: mode,
-    value: doc
+    value: doc._object
   }))
 
   const reverseIndex = (acc, cur) => {
@@ -86,16 +94,26 @@ module.exports = ops => {
     return acc
   }
 
-  const createDeltaReverseIndex = (docs, putOptions) => docs
+  const createDeltaReverseIndex = (
+    docs, putOptions
+  ) => docs
     .map(doc => invertDoc(doc, putOptions))
     .reduce(reverseIndex, {})
 
-  const checkID = doc => {
-    if (typeof doc._id === 'string') return doc
-    if (typeof doc._id === 'number') return doc
+  // const checkID = doc => {
+  //   if (typeof doc._id === 'string') return doc
+  //   if (typeof doc._id === 'number') return doc
+  //   // else
+  //   doc._id = ++incrementalId
+  //   return doc
+  // }
+
+  const sanitizeID = id => {
+    if (id === undefined) return ++incrementalId
+    if (typeof id === 'string') return id
+    if (typeof id === 'number') return id + ''
     // else
-    doc._id = ++incrementalId
-    return doc
+    return ++incrementalId
   }
 
   const availableFields = reverseIndex => [
@@ -110,14 +128,32 @@ module.exports = ops => {
 
   const writer = (docs, db, mode, putOptions) => new Promise(resolve => {
     // check for _id field, autogenerate if necessary
-    docs = docs.map(checkID)
+    // TODO: get this back at some point, maybe "sanitize ID" that
+    // sanitize doc._ids
+    docs = docs.map(doc => {
+      doc._id = sanitizeID(doc._id)
+      if (doc._object) { doc._object._id = doc._id }
+      return doc
+    })
+    putOptions = Object.assign({
+      doNotIndexField: [],
+      storeVector: true
+    }, putOptions)
     createMergedReverseIndex(
       createDeltaReverseIndex(docs, putOptions), db, mode
     ).then(mergedReverseIndex => db.batch(
       mergedReverseIndex
-        .concat(objectIndex(docs, mode))
+        .concat(
+          putOptions.storeVector
+            ? objectIndex(docs, mode)
+            : []
+        )
         .concat(availableFields(mergedReverseIndex))
-      , e => resolve(docs)
+      , e => resolve(docs.map(doc => ({
+        _id: doc._id,
+        operation: (mode === 'del') ? 'DELETE' : (mode === 'del') ? 'PUT' : 'AMBIGUOUS',
+        status: doc._object ? 'OK' : 'NOT FOUND'
+      })))
     ))
   })
 
@@ -127,22 +163,7 @@ module.exports = ops => {
   const DELETE = _ids => reader(ops).OBJECT(
     _ids.map(_id => ({ _id: _id }))
   ).then(
-    docs => writer(docs.map((doc, i) => {
-      if (doc._object === null) {
-        return {
-          _id: _ids[i], status: 'NOT FOUND', mode: 'DELETE'
-        }
-      }
-      return doc._object
-    }), ops.db, 'del', {})
-  ).then(
-    docs => docs.map(
-      doc => ({
-        _id: doc._id,
-        status: 'OK',
-        operation: 'DELETE'
-      })
-    )
+    docs => writer(docs, ops.db, 'del', {})
   )
 
   // when importing, index is first cleared. This means that "merges"
@@ -154,7 +175,10 @@ module.exports = ops => {
   )
 
   const PUT = (docs, putOptions = {}) => writer(
-    docs, ops.db, 'put', putOptions
+    docs.map(doc => ({
+      _id: doc._id,
+      _object: doc
+    })), ops.db, 'put', putOptions
   ).then(
     docs => docs.map(
       doc => ({

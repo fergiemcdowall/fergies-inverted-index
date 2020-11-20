@@ -21,7 +21,7 @@ const exportedIndexIdeal = [
   {
     key: '￮DOC￮0￮',
     value: {
-      _id: 0,
+      _id: '0',
       make: 'BMW',
       colour: 'Blue',
       year: 2011,
@@ -33,7 +33,7 @@ const exportedIndexIdeal = [
   {
     key: '￮DOC￮1￮',
     value: {
-      _id: 1,
+      _id: '1',
       make: 'Volvo',
       colour: 'Black',
       year: 2016,
