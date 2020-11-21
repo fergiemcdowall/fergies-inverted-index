@@ -19,7 +19,9 @@ const initStore = (ops = {}) => new Promise((resolve, reject) => {
     // boomness#1.00 etc
     tokenAppend: '',
     caseSensitive: true,
-    stopwords: []
+    stopwords: [],
+    doNotIndexField: [],
+    storeVectors: true
   }, ops)
   if (ops.db) return resolve(ops)
   // else

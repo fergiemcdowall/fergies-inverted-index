@@ -28,7 +28,7 @@ test('can add some data', t => {
   ]
   t.plan(1)
   global[indexName].PUT(data, {
-    storeVector: false
+    storeVectors: false
   }).then(t.pass)
 })
 

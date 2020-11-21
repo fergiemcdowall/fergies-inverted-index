@@ -135,16 +135,13 @@ module.exports = ops => {
       if (doc._object) { doc._object._id = doc._id }
       return doc
     })
-    putOptions = Object.assign({
-      doNotIndexField: [],
-      storeVector: true
-    }, putOptions)
+    putOptions = Object.assign(ops, putOptions)
     createMergedReverseIndex(
       createDeltaReverseIndex(docs, putOptions), db, mode
     ).then(mergedReverseIndex => db.batch(
       mergedReverseIndex
         .concat(
-          putOptions.storeVector
+          putOptions.storeVectors
             ? objectIndex(docs, mode)
             : []
         )
