@@ -36,12 +36,13 @@ const makeAFii = ops => {
   const r = read(ops)
   const w = write(ops)
   return ({
+    AGGREGATE: r.AGGREGATE,
+    AGGREGATION_FILTER: r.AGGREGATION_FILTER,
     AND: (...keys) => r.INTERSECTION(...keys).then(
       flattenMatchArrayInResults
     ),
     BUCKET: r.BUCKET,
     BUCKETS: r.BUCKETS,
-    AGGREGATE: r.AGGREGATE,
     DELETE: w.DELETE,
     DISTINCT: r.DISTINCT,
     EXPORT: r.EXPORT,

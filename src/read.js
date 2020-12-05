@@ -155,26 +155,29 @@ module.exports = ops => {
       .on('end', () => resolve(fieldNames))
   })
 
+  // Given the results of an aggregation and the results of a query,
+  // return the filtered aggregation
+  const AGGREGATION_FILTER = (aggregation, filterSet) => {
+    if (!filterSet || filterSet.length === 0) return aggregation
+    filterSet = new Set(filterSet.map(item => item._id))
+    return aggregation.map(bucket => Object.assign(bucket, {
+      _id: [...new Set([...bucket._id].filter(
+        x => filterSet.has(x)
+      ))]
+    }))
+  }
+
   const AGGREGATE = ({ BUCKETS, FACETS, QUERY }) => Promise.all(
     [BUCKETS, FACETS, QUERY]
-  ).then(result => {
-    const queryResult = result[2] || []
-    const filter = aggregation => (queryResult.length === 0)
-      ? aggregation
-      : aggregation.map(bucket => {
-        const filterSet = new Set(queryResult.map(item => item._id))
-        return Object.assign(bucket, {
-          _id: [...new Set([...bucket._id].filter(
-            x => filterSet.has(x)
-          ))]
-        })
-      })
-    return ({
-      BUCKETS: filter((result[0] || []).flat()),
-      FACETS: filter((result[1] || []).flat()),
-      RESULT: queryResult
-    })
-  })
+  ).then(([
+    bucketsResult = [],
+    facetsResult = [],
+    queryResult = []
+  ]) => ({
+    BUCKETS: AGGREGATION_FILTER(bucketsResult.flat(), queryResult),
+    FACETS: AGGREGATION_FILTER(facetsResult.flat(), queryResult),
+    RESULT: queryResult
+  }))
 
   const BUCKETS = (...buckets) => Promise.all(
     buckets.map(BUCKET)
@@ -286,13 +289,14 @@ module.exports = ops => {
   )).then(result => result.flat())
 
   return {
-    FIELDS: AVAILABLE_FIELDS,
+    AGGREGATE: AGGREGATE,
+    AGGREGATION_FILTER: AGGREGATION_FILTER,
     BUCKET: BUCKET, // DEPRECATED, TODO: remove
     BUCKETS: BUCKETS,
-    AGGREGATE: AGGREGATE,
     DISTINCT: DISTINCT,
     EXPORT: getRange,
     FACETS: FACETS,
+    FIELDS: AVAILABLE_FIELDS,
     GET: GET,
     INTERSECTION: INTERSECTION, // AND
     MAX: MAX,
