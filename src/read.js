@@ -267,9 +267,11 @@ module.exports = ops => {
     // if no tokens specified then get everything ('{}')
     tokens.length ? tokens.map(FACET) : [FACET({})]
   ).then(
-    // Does this need to be a SET, or can there be duplicates?
-    dist => [
-      ...dist.flat().reduce(
+    // TODO: Does this need to be a SET, or can there be duplicates?
+    // TODO: Is dedupe actually needed here?
+    // dedupe
+    facets => [
+      ...facets.flat().reduce(
         (acc, cur) => acc.add(JSON.stringify(cur)),
         new Set())
     ].map(JSON.parse)
@@ -289,12 +291,18 @@ module.exports = ops => {
   )).then(result => result.flat())
 
   return {
-    AGGREGATE: AGGREGATE,
-    AGGREGATION_FILTER: AGGREGATION_FILTER,
+    AGGREGATE: AGGREGATE,      // TODO: remove
+    AGGREGATION_FILTER: AGGREGATION_FILTER,  // TODO: remove
     BUCKET: BUCKET, // DEPRECATED, TODO: remove
+    // TODO: change so that this takes an options object containing
+    // facet command, flag for returning empty facets or not, and a
+    // set of ids to filter on
     BUCKETS: BUCKETS,
     DISTINCT: DISTINCT,
     EXPORT: getRange,
+    // TODO: change so that this takes an options object containing
+    // facet command, flag for returning empty facets or not, and a
+    // set of ids to filter on
     FACETS: FACETS,
     FIELDS: AVAILABLE_FIELDS,
     GET: GET,

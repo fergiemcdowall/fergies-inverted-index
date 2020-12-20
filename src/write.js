@@ -29,7 +29,9 @@ module.exports = ops => {
       ).length) searchable = false
 
       // deal with stopwords
-      if (this.isLeaf && ops.stopwords.includes(this.node)) { searchable = false }
+      if (this.isLeaf && ops.stopwords.includes(this.node)) {
+        searchable = false
+      }
 
       if (searchable && this.isLeaf) {
         const key = fieldName + ':' + this.node
