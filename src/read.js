@@ -291,8 +291,8 @@ module.exports = ops => {
   )).then(result => result.flat())
 
   return {
-    AGGREGATE: AGGREGATE,      // TODO: remove
-    AGGREGATION_FILTER: AGGREGATION_FILTER,  // TODO: remove
+    AGGREGATE: AGGREGATE, // TODO: remove
+    AGGREGATION_FILTER: AGGREGATION_FILTER, // TODO: remove
     BUCKET: BUCKET, // DEPRECATED, TODO: remove
     // TODO: change so that this takes an options object containing
     // facet command, flag for returning empty facets or not, and a
