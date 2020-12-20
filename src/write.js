@@ -30,7 +30,7 @@ module.exports = ops => {
 
       // deal with stopwords
       if (this.isLeaf && ops.stopwords.includes(
-        this.node.toString().split('#')[0]
+        (this.node + '').split('#')[0]
       )) {
         searchable = false
       }
