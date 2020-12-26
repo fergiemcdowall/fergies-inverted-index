@@ -21,34 +21,29 @@ const data = wbd.slice(0, 10).map(item => {
   }
 })
 
-var db
-
 test('create a fii with memdown', t => {
-  t.plan(3)
-  levelup(encode(memdown(indexName), {
-    valueEncoding: 'json'
-  }), (err, store) => {
-    t.error(err)
-    fii({ db: store }).then(db =>
-      db.PUT(data).then(() => {
-        t.pass('ok')
-      }).then(() => {
-        db.GET({
-          FIELD: 'board_approval_month',
-          VALUE: 'November'
-        })
-          .then(result => {
-            t.deepEqual(result, [
-              { _id: '52b213b38594d8a2be17c780',
-                _match: [ 'board_approval_month:November' ] },
-              { _id: '52b213b38594d8a2be17c781',
-                _match: [ 'board_approval_month:November' ] },
-              { _id: '52b213b38594d8a2be17c782',
-                _match: [ 'board_approval_month:November' ] }
-            ])
-          })
+  t.plan(2)
+  fii({
+    db: memdown(indexName)
+  }).then(db =>
+    db.PUT(data).then(() => {
+      t.pass('ok')
+    }).then(() => {
+      db.GET({
+        FIELD: 'board_approval_month',
+        VALUE: 'November'
       })
-    )
-  })
-  
-})
+        .then(result => {
+          t.deepEqual(result, [
+            { _id: '52b213b38594d8a2be17c780',
+              _match: [ 'board_approval_month:November' ] },
+            { _id: '52b213b38594d8a2be17c781',
+              _match: [ 'board_approval_month:November' ] },
+            { _id: '52b213b38594d8a2be17c782',
+              _match: [ 'board_approval_month:November' ] }
+          ])
+        })
+    })
+  )
+})  
+

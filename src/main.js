@@ -1,4 +1,6 @@
+const encode = require('encoding-down')
 const level = require('level')
+const levelup = require('levelup')
 const read = require('./read.js')
 const write = require('./write.js')
 
@@ -23,9 +25,15 @@ const initStore = (ops = {}) => new Promise((resolve, reject) => {
     doNotIndexField: [],
     storeVectors: true
   }, ops)
-  if (ops.db) return resolve(ops)
+  if (ops.db) {
+    return levelup(encode(ops.db, {
+      valueEncoding: 'json'
+    }), (err, store) => err ? reject(err) : resolve(
+      Object.assign(ops, { db: store })
+    ))
+  }
   // else
-  level(
+  return level(
     ops.name, { valueEncoding: 'json' }, (err, db) => err
       ? reject(err)
       : resolve(Object.assign(ops, { db: db }))
