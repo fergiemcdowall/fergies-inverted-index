@@ -126,7 +126,7 @@ module.exports = ops => {
     const rs = {} // resultset
     return Promise.all(
       token.FIELD.map(
-        fieldName => new Promise(resolve => ops.db.createReadStream({
+        fieldName => new Promise(resolve => ops._db.createReadStream({
           gte: fieldName + ':' + token.VALUE.GTE + ops.tokenAppend,
           lte: fieldName + ':' + token.VALUE.LTE + ops.tokenAppend + '￮',
           limit: token.LIMIT,
@@ -147,7 +147,7 @@ module.exports = ops => {
 
   const AVAILABLE_FIELDS = () => new Promise(resolve => {
     const fieldNames = []
-    ops.db.createReadStream({
+    ops._db.createReadStream({
       gte: '￮FIELD￮',
       lte: '￮FIELD￮￮'
     })
@@ -204,7 +204,7 @@ module.exports = ops => {
 
   const OBJECT = _ids => Promise.all(
     _ids.map(
-      id => ops.db.get('￮DOC￮' + id._id + '￮').catch(reason => null)
+      id => ops._db.get('￮DOC￮' + id._id + '￮').catch(reason => null)
     )
   ).then(_objects => _ids.map((_id, i) => {
     _id._object = _objects[i]
@@ -214,7 +214,7 @@ module.exports = ops => {
   // TODO: can this be replaced by RANGE?
   const getRange = rangeOps => new Promise((resolve, reject) => {
     const keys = []
-    ops.db.createReadStream(rangeOps)
+    ops._db.createReadStream(rangeOps)
       .on('data', data => { keys.push(data) })
       .on('end', () => resolve(keys))
   })

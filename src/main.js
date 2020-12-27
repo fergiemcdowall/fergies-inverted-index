@@ -28,15 +28,15 @@ const initStore = (ops = {}) => new Promise((resolve, reject) => {
   if (ops.db) {
     return levelup(encode(ops.db, {
       valueEncoding: 'json'
-    }), (err, store) => err ? reject(err) : resolve(
-      Object.assign(ops, { db: store })
+    }), (err, db) => err ? reject(err) : resolve(
+      Object.assign(ops, { _db: db })
     ))
   }
   // else
   return level(
     ops.name, { valueEncoding: 'json' }, (err, db) => err
       ? reject(err)
-      : resolve(Object.assign(ops, { db: db }))
+      : resolve(Object.assign(ops, { _db: db }))
   )
 })
 
@@ -69,7 +69,7 @@ const makeAFii = ops => {
       .then(flattenMatchArrayInResults),
     PUT: w.PUT,
     SET_SUBTRACTION: r.SET_SUBTRACTION,
-    STORE: ops.db,
+    STORE: ops._db,
     parseToken: r.parseToken
   })
 }

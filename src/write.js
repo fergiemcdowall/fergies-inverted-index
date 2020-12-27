@@ -49,12 +49,12 @@ module.exports = ops => {
   }
 
   // TODO: merging indexes needs a proper test
-  const createMergedReverseIndex = (index, db, mode) => {
+  const createMergedReverseIndex = (index, _db, mode) => {
     // does a wb.get that simply returns "[]" rather than rejecting the
     // promise so that you can do Promise.all without breaking on keys
     // that dont exist in the db
     const gracefullGet = key => new Promise((resolve, reject) => {
-      db.get(key).then(resolve).catch(e => resolve([]))
+      _db.get(key).then(resolve).catch(e => resolve([]))
     })
     const indexKeys = Object.keys(index)
     return Promise.all(
@@ -130,7 +130,7 @@ module.exports = ops => {
     value: f
   }))
 
-  const writer = (docs, db, mode, putOptions) => new Promise(resolve => {
+  const writer = (docs, _db, mode, putOptions) => new Promise(resolve => {
     // check for _id field, autogenerate if necessary
     // TODO: get this back at some point, maybe "sanitize ID" that
     // sanitize doc._ids
@@ -141,8 +141,8 @@ module.exports = ops => {
     })
     putOptions = Object.assign(ops, putOptions)
     createMergedReverseIndex(
-      createDeltaReverseIndex(docs, putOptions), db, mode
-    ).then(mergedReverseIndex => db.batch(
+      createDeltaReverseIndex(docs, putOptions), _db, mode
+    ).then(mergedReverseIndex => _db.batch(
       mergedReverseIndex
         .concat(
           putOptions.storeVectors
@@ -164,13 +164,13 @@ module.exports = ops => {
   const DELETE = _ids => reader(ops).OBJECT(
     _ids.map(_id => ({ _id: _id }))
   ).then(
-    docs => writer(docs, ops.db, 'del', {})
+    docs => writer(docs, ops._db, 'del', {})
   )
 
   // when importing, index is first cleared. This means that "merges"
   // are not currently supported
-  const IMPORT = index => ops.db.clear().then(() =>
-    ops.db.batch(index.map(
+  const IMPORT = index => ops._db.clear().then(() =>
+    ops._db.batch(index.map(
       entry => Object.assign(entry, { type: 'put' })
     ))
   )
@@ -179,7 +179,7 @@ module.exports = ops => {
     docs.map(doc => ({
       _id: doc._id,
       _object: doc
-    })), ops.db, 'put', putOptions
+    })), ops._db, 'put', putOptions
   ).then(
     docs => docs.map(
       doc => ({
