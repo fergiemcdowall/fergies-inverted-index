@@ -44,9 +44,9 @@ test('can add data', t => {
     doNotIndexField: [ 'info.manufacturer' ]
   }).then(response =>
     t.deepEquals(response, [
-      { _id: '0', status: 'OK', operation: 'PUT' },   
-      { _id: '1', status: 'OK', operation: 'PUT' },   
-      { _id: '2', status: 'OK', operation: 'PUT' }
+      { _id: '0', status: 'CREATED', operation: 'PUT' },   
+      { _id: '1', status: 'CREATED', operation: 'PUT' },   
+      { _id: '2', status: 'CREATED', operation: 'PUT' }
     ])
   )
 })
@@ -129,9 +129,9 @@ test('can add data', t => {
     }
   ]).then(response =>
     t.deepEquals(response, [
-      { _id: '0', status: 'OK', operation: 'PUT' },   
-      { _id: '1', status: 'OK', operation: 'PUT' },   
-      { _id: '2', status: 'OK', operation: 'PUT' }
+      { _id: '0', status: 'CREATED', operation: 'PUT' },   
+      { _id: '1', status: 'CREATED', operation: 'PUT' },   
+      { _id: '2', status: 'CREATED', operation: 'PUT' }
     ])
   )
 })

@@ -24,26 +24,19 @@ test('can add some worldbank data', t => {
       totalamt: item.totalamt
     }
   })
-  // console.log(JSON.stringify(data.map(item => {
-  //   return {
-  //     _id: item._id,
-  //     board_approval_month: item.board_approval_month,
-  //     sectorcode: item.sectorcode
-  //   }
-  // }), null, 2))
   t.plan(1)
   global[indexName].PUT(data).then(result => {
     t.deepEqual(result, [
-      { _id: '52b213b38594d8a2be17c780', status: 'OK', operation: 'PUT' },
-      { _id: '52b213b38594d8a2be17c781', status: 'OK', operation: 'PUT' },
-      { _id: '52b213b38594d8a2be17c782', status: 'OK', operation: 'PUT' },
-      { _id: '52b213b38594d8a2be17c783', status: 'OK', operation: 'PUT' },
-      { _id: '52b213b38594d8a2be17c784', status: 'OK', operation: 'PUT' },
-      { _id: '52b213b38594d8a2be17c785', status: 'OK', operation: 'PUT' },
-      { _id: '52b213b38594d8a2be17c786', status: 'OK', operation: 'PUT' },
-      { _id: '52b213b38594d8a2be17c787', status: 'OK', operation: 'PUT' },
-      { _id: '52b213b38594d8a2be17c788', status: 'OK', operation: 'PUT' },
-      { _id: '52b213b38594d8a2be17c789', status: 'OK', operation: 'PUT' } 
+      { _id: '52b213b38594d8a2be17c780', status: 'CREATED', operation: 'PUT' },
+      { _id: '52b213b38594d8a2be17c781', status: 'CREATED', operation: 'PUT' },
+      { _id: '52b213b38594d8a2be17c782', status: 'CREATED', operation: 'PUT' },
+      { _id: '52b213b38594d8a2be17c783', status: 'CREATED', operation: 'PUT' },
+      { _id: '52b213b38594d8a2be17c784', status: 'CREATED', operation: 'PUT' },
+      { _id: '52b213b38594d8a2be17c785', status: 'CREATED', operation: 'PUT' },
+      { _id: '52b213b38594d8a2be17c786', status: 'CREATED', operation: 'PUT' },
+      { _id: '52b213b38594d8a2be17c787', status: 'CREATED', operation: 'PUT' },
+      { _id: '52b213b38594d8a2be17c788', status: 'CREATED', operation: 'PUT' },
+      { _id: '52b213b38594d8a2be17c789', status: 'CREATED', operation: 'PUT' } 
     ])
   })
 })
@@ -90,9 +83,9 @@ test('can DELETE', t => {
     '52b213b38594d8a2be17c782'
   ]).then(result => {
     t.deepEqual(result, [
-      { _id: '52b213b38594d8a2be17c781', status: 'OK', operation: 'DELETE' },
+      { _id: '52b213b38594d8a2be17c781', status: 'DELETED', operation: 'DELETE' },
       { _id: 'thisIDNotFound', status: 'NOT FOUND', operation: 'DELETE' },
-      { _id: '52b213b38594d8a2be17c782', status: 'OK', operation: 'DELETE' }
+      { _id: '52b213b38594d8a2be17c782', status: 'DELETED', operation: 'DELETE' }
     ])
   })
 })

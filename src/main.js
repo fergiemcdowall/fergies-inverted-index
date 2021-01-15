@@ -53,6 +53,7 @@ const makeAFii = ops => {
     BUCKETS: r.BUCKETS,
     DELETE: w.DELETE,
     DISTINCT: r.DISTINCT,
+    EXIST: r.EXIST,
     EXPORT: r.EXPORT,
     FACETS: r.FACETS,
     FIELDS: r.FIELDS,

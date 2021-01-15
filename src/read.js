@@ -155,6 +155,21 @@ module.exports = ops => {
       .on('end', () => resolve(fieldNames))
   })
 
+  // takes an array of ids and determines if the corresponding
+  // documents exist in the index
+  const EXIST = (...ids) => new Promise(resolve => {
+    const existingIds = []
+    ops._db.createReadStream({
+      gte: '￮DOC￮',
+      lte: '￮DOC￮￮',
+      values: false
+    })
+      .on('data', d => existingIds.push(d))
+      .on('end', () => resolve(ids.filter(
+        id => existingIds.includes('￮DOC￮' + id + '￮')
+      )))
+  })
+
   // Given the results of an aggregation and the results of a query,
   // return the filtered aggregation
   const AGGREGATION_FILTER = (aggregation, filterSet) => {
@@ -299,6 +314,7 @@ module.exports = ops => {
     // set of ids to filter on
     BUCKETS: BUCKETS,
     DISTINCT: DISTINCT,
+    EXIST: EXIST,
     EXPORT: getRange,
     // TODO: change so that this takes an options object containing
     // facet command, flag for returning empty facets or not, and a

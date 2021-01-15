@@ -104,14 +104,6 @@ module.exports = ops => {
     .map(doc => invertDoc(doc, putOptions))
     .reduce(reverseIndex, {})
 
-  // const checkID = doc => {
-  //   if (typeof doc._id === 'string') return doc
-  //   if (typeof doc._id === 'number') return doc
-  //   // else
-  //   doc._id = ++incrementalId
-  //   return doc
-  // }
-
   const sanitizeID = id => {
     if (id === undefined) return ++incrementalId
     if (typeof id === 'string') return id
@@ -130,7 +122,7 @@ module.exports = ops => {
     value: f
   }))
 
-  const writer = (docs, _db, mode, putOptions) => new Promise(resolve => {
+  const writer = (docs, _db, mode, MODE, putOptions) => new Promise(resolve => {
     // check for _id field, autogenerate if necessary
     // TODO: get this back at some point, maybe "sanitize ID" that
     // sanitize doc._ids
@@ -140,22 +132,29 @@ module.exports = ops => {
       return doc
     })
     putOptions = Object.assign(ops, putOptions)
-    createMergedReverseIndex(
-      createDeltaReverseIndex(docs, putOptions), _db, mode
-    ).then(mergedReverseIndex => _db.batch(
-      mergedReverseIndex
-        .concat(
-          putOptions.storeVectors
-            ? objectIndex(docs, mode)
-            : []
+
+    reader(ops).EXIST(...docs.map(d => d._id)).then(existingDocs => {
+      createMergedReverseIndex(
+        createDeltaReverseIndex(docs, putOptions), _db, mode
+      ).then(mergedReverseIndex => {
+        return _db.batch(
+          mergedReverseIndex
+            .concat(
+              putOptions.storeVectors
+                ? objectIndex(docs, mode)
+                : []
+            )
+            .concat(availableFields(mergedReverseIndex))
+          , e => resolve(docs.map(doc => ({
+            _id: doc._id,
+            operation: MODE,
+            status: existingDocs.includes(doc._id)
+              ? ((mode === 'put') ? 'UPDATED' : 'DELETED')
+              : ((mode === 'put') ? 'CREATED' : 'NOT FOUND')
+          })))
         )
-        .concat(availableFields(mergedReverseIndex))
-      , e => resolve(docs.map(doc => ({
-        _id: doc._id,
-        operation: (mode === 'del') ? 'DELETE' : (mode === 'del') ? 'PUT' : 'AMBIGUOUS',
-        status: doc._object ? 'OK' : 'NOT FOUND'
-      })))
-    ))
+      })
+    })
   })
 
   // docs needs to be an array of ids (strings)
@@ -164,7 +163,7 @@ module.exports = ops => {
   const DELETE = _ids => reader(ops).OBJECT(
     _ids.map(_id => ({ _id: _id }))
   ).then(
-    docs => writer(docs, ops._db, 'del', {})
+    docs => writer(docs, ops._db, 'del', 'DELETE', {})
   )
 
   // when importing, index is first cleared. This means that "merges"
@@ -179,15 +178,7 @@ module.exports = ops => {
     docs.map(doc => ({
       _id: doc._id,
       _object: doc
-    })), ops._db, 'put', putOptions
-  ).then(
-    docs => docs.map(
-      doc => ({
-        _id: doc._id,
-        status: 'OK',
-        operation: 'PUT'
-      })
-    )
+    })), ops._db, 'put', 'PUT', putOptions
   )
 
   return {
