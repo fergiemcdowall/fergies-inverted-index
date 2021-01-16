@@ -156,17 +156,17 @@ module.exports = ops => {
   })
 
   // takes an array of ids and determines if the corresponding
-  // documents exist in the index
+  // documents exist in the index.
   const EXIST = (...ids) => new Promise(resolve => {
     const existingIds = []
     ops._db.createReadStream({
-      gte: '￮DOC￮',
-      lte: '￮DOC￮￮',
+      gte: '￮' + ops.docExistsSpace + '￮',
+      lte: '￮' + ops.docExistsSpace + '￮￮',
       values: false
     })
       .on('data', d => existingIds.push(d))
       .on('end', () => resolve(ids.filter(
-        id => existingIds.includes('￮DOC￮' + id + '￮')
+        id => existingIds.includes('￮' + ops.docExistsSpace + '￮' + id + '￮')
       )))
   })
 

@@ -23,7 +23,8 @@ const initStore = (ops = {}) => new Promise((resolve, reject) => {
     caseSensitive: true,
     stopwords: [],
     doNotIndexField: [],
-    storeVectors: true
+    storeVectors: true,
+    docExistsSpace: 'DOC' // field used to verify that doc exists
   }, ops)
   if (ops.db) {
     return levelup(encode(ops.db, {
