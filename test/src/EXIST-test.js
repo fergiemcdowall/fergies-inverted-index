@@ -6,61 +6,61 @@ const indexName = sandbox + 'EXIST'
 
 const data = [
   {
-    "_id": 0,
-    "make": "BMW",
-    "colour": "Blue",
+    _id: 0,
+    make: 'BMW',
+    colour: 'Blue'
   },
   {
-    "_id": 1,
-    "make": "Volvo",
-    "colour": "Black",
+    _id: 1,
+    make: 'Volvo',
+    colour: 'Black'
   },
   {
-    "_id": 2,
-    "make": "Volvo",
-    "colour": "Silver",
+    _id: 2,
+    make: 'Volvo',
+    colour: 'Silver'
   },
   {
-    "_id": 3,
-    "make": "Volvo",
-    "colour": "Silver",
+    _id: 3,
+    make: 'Volvo',
+    colour: 'Silver'
   },
   {
-    "_id": 4,
-    "make": "BMW",
-    "colour": "Black",
+    _id: 4,
+    make: 'BMW',
+    colour: 'Black'
   },
   {
-    "_id": 5,
-    "make": "Tesla",
-    "colour": "Red",
+    _id: 5,
+    make: 'Tesla',
+    colour: 'Red'
   },
   {
-    "_id": 6,
-    "make": "Tesla",
-    "colour": "Blue"
+    _id: 6,
+    make: 'Tesla',
+    colour: 'Blue'
   },
   {
-    "_id": 7,
-    "make": "BMW",
-    "colour": "Black"
+    _id: 7,
+    make: 'BMW',
+    colour: 'Black'
   },
   {
-    "_id": 8,
-    "make": "BMW",
-    "colour": "Silver"
+    _id: 8,
+    make: 'BMW',
+    colour: 'Silver'
   },
   {
-    "_id": 9,
-    "make": "Volvo",
-    "colour": "White"
+    _id: 9,
+    make: 'Volvo',
+    colour: 'White'
   }
 ]
 
 test('create index', t => {
   t.plan(1)
   fii({ name: indexName }).then(db => {
-    global[indexName] = db    
+    global[indexName] = db
     t.ok(db, !undefined)
   })
 })

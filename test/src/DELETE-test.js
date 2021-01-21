@@ -8,11 +8,10 @@ const indexName = sandbox + 'DELETE-TEST'
 test('create index', t => {
   t.plan(1)
   fii({ name: indexName }).then(db => {
-    global[indexName] = db    
+    global[indexName] = db
     t.ok(db, !undefined)
   })
 })
-
 
 test('can add some worldbank data', t => {
 //  console.log(global[indexName])
@@ -36,7 +35,7 @@ test('can add some worldbank data', t => {
       { _id: '52b213b38594d8a2be17c786', status: 'CREATED', operation: 'PUT' },
       { _id: '52b213b38594d8a2be17c787', status: 'CREATED', operation: 'PUT' },
       { _id: '52b213b38594d8a2be17c788', status: 'CREATED', operation: 'PUT' },
-      { _id: '52b213b38594d8a2be17c789', status: 'CREATED', operation: 'PUT' } 
+      { _id: '52b213b38594d8a2be17c789', status: 'CREATED', operation: 'PUT' }
     ])
   })
 })
@@ -49,9 +48,9 @@ test('can GET with string', t => {
   })
     .then(result => {
       t.deepEqual(result, [
-        { _id: '52b213b38594d8a2be17c780', _match: [ 'board_approval_month:November' ] },
-        { _id: '52b213b38594d8a2be17c781', _match: [ 'board_approval_month:November' ] },
-        { _id: '52b213b38594d8a2be17c782', _match: [ 'board_approval_month:November' ] }
+        { _id: '52b213b38594d8a2be17c780', _match: ['board_approval_month:November'] },
+        { _id: '52b213b38594d8a2be17c781', _match: ['board_approval_month:November'] },
+        { _id: '52b213b38594d8a2be17c782', _match: ['board_approval_month:November'] }
       ])
     })
 })
@@ -59,11 +58,12 @@ test('can GET with string', t => {
 test('can get with OBJECT', t => {
   t.plan(1)
   global[indexName].OBJECT([
-    {_id:'52b213b38594d8a2be17c781'},
-    {_id:'52b213b38594d8a2be17c782'}
+    { _id: '52b213b38594d8a2be17c781' },
+    { _id: '52b213b38594d8a2be17c782' }
   ]).then(result => {
     t.deepEqual(result, [
-      { _id: '52b213b38594d8a2be17c781',
+      {
+        _id: '52b213b38594d8a2be17c781',
         _object: { _id: '52b213b38594d8a2be17c781', board_approval_month: 'November', totalamt: 0 }
       }, {
         _id: '52b213b38594d8a2be17c782',
@@ -72,7 +72,6 @@ test('can get with OBJECT', t => {
     ])
   })
 })
-
 
 // TODO: delete keys should be in the index somewhere
 test('can DELETE', t => {
@@ -93,17 +92,17 @@ test('can DELETE', t => {
 test('can get with OBJECT', t => {
   t.plan(1)
   global[indexName].OBJECT([
-    { _id: '52b213b38594d8a2be17c780'},
-    { _id: '52b213b38594d8a2be17c781'},
-    { _id: '52b213b38594d8a2be17c782'}
+    { _id: '52b213b38594d8a2be17c780' },
+    { _id: '52b213b38594d8a2be17c781' },
+    { _id: '52b213b38594d8a2be17c782' }
   ]).then(result => {
     t.deepEqual(result, [
-      
-      { _id: '52b213b38594d8a2be17c780',
+
+      {
+        _id: '52b213b38594d8a2be17c780',
         _object: { _id: '52b213b38594d8a2be17c780', board_approval_month: 'November', totalamt: 130000000 }
-      }, {
-        _id: '52b213b38594d8a2be17c781', _object: null },
-      { _id: '52b213b38594d8a2be17c782', _object: null } 
+      }, { _id: '52b213b38594d8a2be17c781', _object: null },
+      { _id: '52b213b38594d8a2be17c782', _object: null }
     ])
   })
 })
@@ -117,9 +116,9 @@ test('can GET with object having deleted two docs', t => {
       LTE: 'November'
     }
   })
-   .then(result => {
-     t.deepEqual(result, [
-       { _id: '52b213b38594d8a2be17c780', _match: [ 'board_approval_month:November' ] }
-     ])
-   })
+    .then(result => {
+      t.deepEqual(result, [
+        { _id: '52b213b38594d8a2be17c780', _match: ['board_approval_month:November'] }
+      ])
+    })
 })

@@ -1,6 +1,4 @@
-const encode = require('encoding-down')
 const fii = require('../../')
-const levelup = require('levelup')
 const memdown = require('memdown')
 const test = require('tape')
 const wbd = require('world-bank-dataset')
@@ -35,15 +33,20 @@ test('create a fii with memdown', t => {
       })
         .then(result => {
           t.deepEqual(result, [
-            { _id: '52b213b38594d8a2be17c780',
-              _match: [ 'board_approval_month:November' ] },
-            { _id: '52b213b38594d8a2be17c781',
-              _match: [ 'board_approval_month:November' ] },
-            { _id: '52b213b38594d8a2be17c782',
-              _match: [ 'board_approval_month:November' ] }
+            {
+              _id: '52b213b38594d8a2be17c780',
+              _match: ['board_approval_month:November']
+            },
+            {
+              _id: '52b213b38594d8a2be17c781',
+              _match: ['board_approval_month:November']
+            },
+            {
+              _id: '52b213b38594d8a2be17c782',
+              _match: ['board_approval_month:November']
+            }
           ])
         })
     })
   )
-})  
-
+})

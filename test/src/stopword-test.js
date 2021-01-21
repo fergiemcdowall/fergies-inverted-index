@@ -8,41 +8,39 @@ test('create index', t => {
   t.plan(1)
   fii({
     name: indexName,
-    stopwords: [ 'this', 'is', 'a', 'that', 'bananas' ]
+    stopwords: ['this', 'is', 'a', 'that', 'bananas']
   }).then(db => {
-    global[indexName] = db    
+    global[indexName] = db
     t.ok(db, !undefined)
   })
 })
 
-
 test('can add some data', t => {
   const data = [
     {
-      "_id": 0,
-      "text": "this is a sentence".split(' ')
+      _id: 0,
+      text: 'this is a sentence'.split(' ')
     },
     {
-      "_id": 1,
-      "text": "a sentence that is interesting".split(' ')
-    }    
+      _id: 1,
+      text: 'a sentence that is interesting'.split(' ')
+    }
   ]
   t.plan(1)
   global[indexName].PUT(data).then(t.pass)
 })
 
-
 test('can verify store', t => {
   const entries = [
-    { key: 'text:interesting', value: [ '1' ] },
-    { key: 'text:sentence', value: [ '0', '1' ] },
+    { key: 'text:interesting', value: ['1'] },
+    { key: 'text:sentence', value: ['0', '1'] },
     {
       key: '￮DOC￮0￮',
-      value: { _id: '0', text: [ 'this', 'is', 'a', 'sentence' ] }
+      value: { _id: '0', text: ['this', 'is', 'a', 'sentence'] }
     },
     {
       key: '￮DOC￮1￮',
-      value: { _id: '1', text: [ 'a', 'sentence', 'that', 'is', 'interesting'  ] }
+      value: { _id: '1', text: ['a', 'sentence', 'that', 'is', 'interesting'] }
     },
     { key: '￮FIELD￮text￮', value: 'text' }
   ]
@@ -57,11 +55,10 @@ test('can read data ignoring stopwords', t => {
   global[indexName].AND(
     'this', 'is', 'a', 'sentence', 'bananas'
   )
-   .then(result => {
-     t.deepEqual(result, [
-       { _id: '0', _match: [ 'text:sentence' ] },
-       { _id: '1', _match: [ 'text:sentence' ] } 
-     ])
-   })
-
+    .then(result => {
+      t.deepEqual(result, [
+        { _id: '0', _match: ['text:sentence'] },
+        { _id: '1', _match: ['text:sentence'] }
+      ])
+    })
 })

@@ -11,7 +11,6 @@
   "devDependencies": {
     "assert": "^2.0.0",
     "browser-resolve": "^2.0.0",
-    "encoding-down": "^6.3.0",
     "level-out": "^1.0.1",
     "memdown": "^5.1.0",
     "open-cli": "^6.0.1",
@@ -29,7 +28,7 @@
   "scripts": {
     "build": "npm run empty-sandbox && webpack",
     "empty-sandbox": "rm -rf test/sandbox && mkdir test/sandbox",
-    "lint": "standard --fix test/* src/*",
+    "lint": "standard --fix test/src/*.js src/*",
     "test": "npm run test-node && npm run test-browser && npm run lint",
     "test-browser": "npm run build && cat test/sandbox/browser-tests.js | tape-run",
     "test-node": "npm run empty-sandbox && tape test/src/*.js",

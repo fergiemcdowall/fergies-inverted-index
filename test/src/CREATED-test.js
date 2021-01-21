@@ -1,8 +1,6 @@
 const fii = require('../../')
 const test = require('tape')
 
-const level = require('level')
-
 const sandbox = 'test/sandbox/'
 const indexName = sandbox + 'CREATED'
 

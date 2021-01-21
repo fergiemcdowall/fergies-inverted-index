@@ -1,32 +1,30 @@
 const fii = require('../../')
 const test = require('tape')
 
-const level = require('level')
-
 const sandbox = 'test/sandbox/'
 const indexName = sandbox + 'PUT'
 
 const data = [
   {
-    "_id": 0,
-    "make": "BMW",
-    "colour": "Blue",
-    "model": "3-series",
-    "drivetrain": "Hybrid"
+    _id: 0,
+    make: 'BMW',
+    colour: 'Blue',
+    model: '3-series',
+    drivetrain: 'Hybrid'
   },
   {
-    "_id": 1,
-    "make": "Volvo",
-    "colour": "Black",
-    "model": "XC90",
-    "drivetrain": "Petrol"
+    _id: 1,
+    make: 'Volvo',
+    colour: 'Black',
+    model: 'XC90',
+    drivetrain: 'Petrol'
   },
   {
-    "_id": 2,
-    "make": "Volvo",
-    "colour": "Silver",
-    "model": "XC90",
-    "drivetrain": "Hybrid"
+    _id: 2,
+    make: 'Volvo',
+    colour: 'Silver',
+    model: 'XC90',
+    drivetrain: 'Hybrid'
   }
 ]
 
@@ -52,10 +50,8 @@ test('can add some data', t => {
 test('adds a duplicate doc', t => {
   t.plan(1)
   global[indexName]
-    .PUT([ data[1] ])
+    .PUT([data[1]])
     .then(res => t.deepEquals(res, [
       { _id: '1', status: 'UPDATED', operation: 'PUT' }
     ]))
 })
-
-
