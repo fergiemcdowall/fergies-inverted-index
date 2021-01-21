@@ -91,6 +91,7 @@ test('can export some data', t => {
   t.plan(1)
   global[exportingIndexName].EXPORT()
     .then(exported => {
+      exported.pop()  // remove timestamp
       t.deepEqual(exported, exportedIndexIdeal)
       exportedIndex = exported
     })

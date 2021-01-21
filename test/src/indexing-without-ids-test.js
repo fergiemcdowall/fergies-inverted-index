@@ -40,6 +40,6 @@ test('can GET with string', t => {
     { key: '￮FIELD￮land￮', value: 'land' },
   ]
   t.plan(result.length)
-  global[indexName].STORE.createReadStream()
+  global[indexName].STORE.createReadStream({ lt: '￮￮' })
     .on('data', d => t.deepEqual(d, result.shift()))
 })

@@ -42,9 +42,14 @@ const initStore = (ops = {}) => new Promise((resolve, reject) => {
 })
 
 const makeAFii = ops => {
+  // stamp with time of creation
+  const timestamp = () => ops._db.get('￮￮CREATED')
+    .then(/* already created- do nothing */)
+    .catch(e => ops._db.put('￮￮CREATED', Date.now()))
   const r = read(ops)
   const w = write(ops)
-  return ({
+
+  return timestamp().then(() => ({
     AGGREGATE: r.AGGREGATE,
     AGGREGATION_FILTER: r.AGGREGATION_FILTER,
     AND: (...keys) => r.INTERSECTION(...keys).then(
@@ -52,6 +57,7 @@ const makeAFii = ops => {
     ),
     BUCKET: r.BUCKET,
     BUCKETS: r.BUCKETS,
+    CREATED: r.CREATED,
     DELETE: w.DELETE,
     DISTINCT: r.DISTINCT,
     EXIST: r.EXIST,
@@ -73,7 +79,7 @@ const makeAFii = ops => {
     SET_SUBTRACTION: r.SET_SUBTRACTION,
     STORE: ops._db,
     parseToken: r.parseToken
-  })
+  }))
 }
 
 module.exports = ops => initStore(ops).then(makeAFii)

@@ -93,7 +93,6 @@ test('can do some OR searches', t => {
     'sectorcode:BZ',
     'board_approval_month:November'
   ).then(result => {
-    console.log('BOOOOOOOOOOOOOM')
     t.deepEqual(result, [
       { _id: '52b213b38594d8a2be17c780', _match: [ 'sectorcode:BS', 'board_approval_month:November' ] },
       { _id: '52b213b38594d8a2be17c781', _match: [ 'sectorcode:BS', 'sectorcode:BZ', 'board_approval_month:November' ] },

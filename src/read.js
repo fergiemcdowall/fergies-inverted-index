@@ -155,6 +155,8 @@ module.exports = ops => {
       .on('end', () => resolve(fieldNames))
   })
 
+  const CREATED = () => ops._db.get('￮￮CREATED')
+
   // takes an array of ids and determines if the corresponding
   // documents exist in the index.
   const EXIST = (...ids) => new Promise(resolve => {
@@ -313,6 +315,7 @@ module.exports = ops => {
     // facet command, flag for returning empty facets or not, and a
     // set of ids to filter on
     BUCKETS: BUCKETS,
+    CREATED: CREATED,
     DISTINCT: DISTINCT,
     EXIST: EXIST,
     EXPORT: getRange,

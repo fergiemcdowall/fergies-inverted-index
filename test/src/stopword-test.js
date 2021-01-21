@@ -47,7 +47,7 @@ test('can verify store', t => {
     { key: '￮FIELD￮text￮', value: 'text' }
   ]
   t.plan(entries.length + 1)
-  global[indexName].STORE.createReadStream()
+  global[indexName].STORE.createReadStream({ lt: '￮￮' })
     .on('data', d => t.deepEquals(d, entries.shift()))
     .on('end', resolve => t.pass('ended'))
 })

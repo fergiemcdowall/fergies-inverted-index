@@ -85,7 +85,7 @@ test('analyse index', t => {
     { key: '￮FIELD￮make￮', value: 'make' }
   ]
   t.plan(storeState.length)
-  const r = global[indexName].STORE.createReadStream()
+  const r = global[indexName].STORE.createReadStream({ lt: '￮￮' })
   r.on('data', d => t.deepEqual(d, storeState.shift()))
 })
 
@@ -173,6 +173,6 @@ test('analyse index', t => {
     { key: '￮FIELD￮make￮', value: 'make' }
   ]
   t.plan(storeState.length)
-  const r = global[indexName2].STORE.createReadStream()
+  const r = global[indexName2].STORE.createReadStream({ lt: '￮￮' })
   r.on('data', d => t.deepEqual(d, storeState.shift()))
 })
