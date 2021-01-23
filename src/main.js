@@ -62,6 +62,7 @@ const makeAFii = ops => {
     FIELDS: r.FIELDS,
     GET: r.GET,
     IMPORT: w.IMPORT,
+    LAST_UPDATED: r.LAST_UPDATED,
     MAX: r.MAX,
     MIN: r.MIN,
     NOT: (...keys) => r.SET_SUBTRACTION(...keys).then(

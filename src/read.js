@@ -157,6 +157,8 @@ module.exports = ops => {
 
   const CREATED = () => ops._db.get('￮￮CREATED')
 
+  const LAST_UPDATED = () => ops._db.get('￮￮LAST_UPDATED')
+
   // takes an array of ids and determines if the corresponding
   // documents exist in the index.
   const EXIST = (...ids) => new Promise(resolve => {
@@ -326,6 +328,7 @@ module.exports = ops => {
     FIELDS: AVAILABLE_FIELDS,
     GET: GET,
     INTERSECTION: INTERSECTION, // AND
+    LAST_UPDATED: LAST_UPDATED,
     MAX: MAX,
     MIN: BOUNDING_VALUE,
     OBJECT: OBJECT,
