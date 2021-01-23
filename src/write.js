@@ -164,7 +164,7 @@ module.exports = ops => {
     _ids.map(_id => ({ _id: _id }))
   ).then(
     docs => writer(docs, ops._db, 'del', 'DELETE', {})
-  )
+  ).then(TIMESTAMP_LAST_UPDATED)
 
   // when importing, index is first cleared. This means that "merges"
   // are not currently supported
@@ -179,11 +179,22 @@ module.exports = ops => {
       _id: doc._id,
       _object: doc
     })), ops._db, 'put', 'PUT', putOptions
-  )
+  ).then(TIMESTAMP_LAST_UPDATED)
+
+  const TIMESTAMP_LAST_UPDATED = passThrough => ops._db.put(
+    '￮￮LAST_UPDATED', Date.now()
+  ).then(() => passThrough)
+
+  const TIMESTAMP_CREATED = () => ops._db.get('￮￮CREATED')
+    .then(/* already created- do nothing */)
+    .catch(e => ops._db.put('￮￮CREATED', Date.now())
+      .then(TIMESTAMP_LAST_UPDATED))
 
   return {
     DELETE: DELETE,
     IMPORT: IMPORT,
-    PUT: PUT
+    PUT: PUT,
+    TIMESTAMP_CREATED: TIMESTAMP_CREATED,
+    TIMESTAMP_LAST_UPDATED: TIMESTAMP_LAST_UPDATED
   }
 }
