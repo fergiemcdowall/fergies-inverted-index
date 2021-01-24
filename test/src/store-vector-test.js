@@ -62,7 +62,7 @@ test('gracefully fails when attempting to delete', t => {
   global[indexName].DELETE(['1'])
     .then(result => {
       t.deepEqual(result, [
-        { _id: '1', status: 'NOT FOUND', operation: 'DELETE' }
+        { _id: '1', status: 'FAILED', operation: 'DELETE' }
       ])
     })
 })

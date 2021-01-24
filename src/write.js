@@ -136,24 +136,29 @@ module.exports = ops => {
     reader(ops).EXIST(...docs.map(d => d._id)).then(existingDocs => {
       createMergedReverseIndex(
         createDeltaReverseIndex(docs, putOptions), _db, mode
-      ).then(mergedReverseIndex => {
-        return _db.batch(
-          mergedReverseIndex
-            .concat(
-              putOptions.storeVectors
-                ? objectIndex(docs, mode)
-                : []
-            )
-            .concat(availableFields(mergedReverseIndex))
-          , e => resolve(docs.map(doc => ({
+      ).then(mergedReverseIndex => _db.batch(
+        mergedReverseIndex
+          .concat(
+            putOptions.storeVectors
+              ? objectIndex(docs, mode)
+              : []
+          )
+          .concat(availableFields(mergedReverseIndex))
+        , e => resolve(docs.map(doc => {
+          let status
+          if (mode === 'put') {
+            if (existingDocs.includes(doc._id)) { status = 'UPDATED' } else { status = 'CREATED' }
+          } else if (mode === 'del') {
+            if (doc._object === null) { status = 'FAILED' } else { status = 'DELETED' }
+          }
+
+          return ({
             _id: doc._id,
             operation: MODE,
-            status: existingDocs.includes(doc._id)
-              ? ((mode === 'put') ? 'UPDATED' : 'DELETED')
-              : ((mode === 'put') ? 'CREATED' : 'NOT FOUND')
-          })))
-        )
-      })
+            status: status
+          })
+        }))
+      ))
     })
   })
 

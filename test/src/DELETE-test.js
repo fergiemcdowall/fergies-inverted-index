@@ -14,7 +14,6 @@ test('create index', t => {
 })
 
 test('can add some worldbank data', t => {
-//  console.log(global[indexName])
   var dataSize = 10
   const data = wbd.slice(0, dataSize).map(item => {
     return {
@@ -83,7 +82,7 @@ test('can DELETE', t => {
   ]).then(result => {
     t.deepEqual(result, [
       { _id: '52b213b38594d8a2be17c781', status: 'DELETED', operation: 'DELETE' },
-      { _id: 'thisIDNotFound', status: 'NOT FOUND', operation: 'DELETE' },
+      { _id: 'thisIDNotFound', status: 'FAILED', operation: 'DELETE' },
       { _id: '52b213b38594d8a2be17c782', status: 'DELETED', operation: 'DELETE' }
     ])
   })
