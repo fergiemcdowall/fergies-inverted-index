@@ -173,8 +173,8 @@ module.exports = ops => {
 
   // when importing, index is first cleared. This means that "merges"
   // are not currently supported
-  const IMPORT = index => ops._db.clear().then(() =>
-    ops._db.batch(index.map(
+  const IMPORT = index => ops._db.clear().then(
+    () => ops._db.batch(index.map(
       entry => Object.assign(entry, { type: 'put' })
     ))
   )
