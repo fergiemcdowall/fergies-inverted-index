@@ -10,7 +10,7 @@ const data = [
     make: 'BMW',
     colour: 'Blue',
     year: '2011#comment',
-    price: 83988,
+    price: 8398,
     model: '3-series',
     drivetrain: 'Hybrid'
   },
@@ -19,7 +19,7 @@ const data = [
     make: 'Volvo',
     colour: 'Black',
     year: '2016#comment',
-    price: 44274,
+    price: 0,
     model: 'XC90',
     drivetrain: 'Petrol'
   },
@@ -28,7 +28,7 @@ const data = [
     make: 'Volvo',
     colour: 'Silver',
     year: '2008#comment',
-    price: 33114,
+    price: 4,
     model: 'XC90',
     drivetrain: 'Hybrid'
   },
@@ -37,7 +37,7 @@ const data = [
     make: 'Volvo',
     colour: 'Silver',
     year: '2007#comment',
-    price: 473910,
+    price: 4739100,
     model: 'XC60',
     drivetrain: 'Hybrid'
   },
@@ -55,7 +55,7 @@ const data = [
     make: 'Tesla',
     colour: 'Red',
     year: '2014#comment',
-    price: 75397,
+    price: 10,
     model: 'X',
     drivetrain: 'Electric'
   },
@@ -64,7 +64,7 @@ const data = [
     make: 'Tesla',
     colour: 'Blue',
     year: '2017#comment',
-    price: 79540,
+    price: 999,
     model: 'S',
     drivetrain: 'Electric'
   },
@@ -73,7 +73,7 @@ const data = [
     make: 'BMW',
     colour: 'Black',
     year: '2019#comment',
-    price: 57280,
+    price: 111111111111111,
     model: '3-series',
     drivetrain: 'Petrol'
   },
@@ -112,40 +112,40 @@ test('can add some data', t => {
 
 test('get MAX value for one field', t => {
   t.plan(1)
-  global[indexName].MAX({ FIELD: ['price'] }).then(
-    result => t.equals(result, '88652')
-  )
+  global[indexName]
+    .MAX({ FIELD: ['price'] })
+    .then(result => t.equals(result, 111111111111111))
 })
 
 test('get MAX value for one field', t => {
   t.plan(1)
-  global[indexName].MAX({
-    FIELD: ['price'],
-    VALUE: {
-      LTE: '5'
-    }
-  }).then(
-    result => t.equals(result, '57280')
-  )
+  global[indexName]
+    .MAX({
+      FIELD: ['price'],
+      VALUE: {
+        LTE: 5
+      }
+    })
+    .then(result => t.equals(result, 4))
 })
 
 test('get MIN value for one field', t => {
   t.plan(1)
-  global[indexName].MIN({ FIELD: ['price'] }).then(
-    result => t.equals(result, '33114')
-  )
+  global[indexName]
+    .MIN({ FIELD: ['price'] })
+    .then(result => t.equals(result, 0))
 })
 
 test('get MAX value for one field containing a comment', t => {
   t.plan(1)
-  global[indexName].MAX({ FIELD: ['year'] }).then(
-    result => t.equals(result, '2019')
-  )
+  global[indexName]
+    .MAX({ FIELD: ['year'] })
+    .then(result => t.equals(result, 2019))
 })
 
 test('get MIN value for one field containing a comment', t => {
   t.plan(1)
-  global[indexName].MIN({ FIELD: ['year'] }).then(
-    result => t.equals(result, '2000')
-  )
+  global[indexName]
+    .MIN({ FIELD: ['year'] })
+    .then(result => t.equals(result, 2000))
 })

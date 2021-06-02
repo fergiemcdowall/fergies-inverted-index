@@ -10,7 +10,7 @@ const data = [
     make: 'BMW',
     colour: 'Blue',
     year: 2011,
-    price: 83988,
+    price: 8398,
     model: '3-series',
     drivetrain: 'Hybrid'
   },
@@ -19,7 +19,7 @@ const data = [
     make: 'Volvo',
     colour: 'Black',
     year: 2016,
-    price: 44274,
+    price: 442742,
     model: 'XC90',
     drivetrain: 'Petrol'
   },
@@ -37,7 +37,7 @@ const data = [
     make: 'Volvo',
     colour: 'Silver',
     year: 2007,
-    price: 47391,
+    price: 0,
     model: 'XC60',
     drivetrain: 'Hybrid'
   },
@@ -46,7 +46,7 @@ const data = [
     make: 'BMW',
     colour: 'Black',
     year: 2000,
-    price: 88652,
+    price: 10,
     model: '5-series',
     drivetrain: 'Diesel'
   },
@@ -55,7 +55,7 @@ const data = [
     make: 'Tesla',
     colour: 'Red',
     year: 2014,
-    price: 75397,
+    price: 100000000000000000,
     model: 'X',
     drivetrain: 'Electric'
   },
@@ -64,7 +64,7 @@ const data = [
     make: 'Tesla',
     colour: 'Blue',
     year: 2017,
-    price: 79540,
+    price: 9,
     model: 'S',
     drivetrain: 'Electric'
   },
@@ -91,7 +91,7 @@ const data = [
     make: 'Volvo',
     colour: 'White',
     year: 2004,
-    price: 37512,
+    price: 3751,
     model: 'XC90',
     drivetrain: 'Hybrid'
   }
@@ -112,10 +112,98 @@ test('can add some data', t => {
 
 test('get simple AND', t => {
   t.plan(1)
-  global[indexName].AND(
-    'drivetrain:Diesel',
-    'colour:Black'
-  ).then(result => t.deepEqual(result, [
-    { _id: '4', _match: ['drivetrain:Diesel', 'colour:Black'] }
-  ]))
+  global[indexName].AND('drivetrain:Diesel', 'colour:Black').then(result =>
+    t.deepEqual(result, [
+      {
+        _id: '4',
+        _match: [
+          { FIELD: 'drivetrain', VALUE: 'Diesel' },
+          { FIELD: 'colour', VALUE: 'Black' }
+        ]
+      }
+    ])
+  )
+})
+
+test('get simple AND for NUMERIC values, no VALUE specified', t => {
+  t.plan(1)
+  global[indexName]
+    .AND({
+      FIELD: 'price'
+    })
+    .then(result =>
+      t.deepEqual(result, [
+        { _id: '3', _match: [{ FIELD: 'price', VALUE: 0 }] },
+        { _id: '6', _match: [{ FIELD: 'price', VALUE: 9 }] },
+        { _id: '4', _match: [{ FIELD: 'price', VALUE: 10 }] },
+        { _id: '9', _match: [{ FIELD: 'price', VALUE: 3751 }] },
+        { _id: '0', _match: [{ FIELD: 'price', VALUE: 8398 }] },
+        { _id: '2', _match: [{ FIELD: 'price', VALUE: 33114 }] },
+        { _id: '7', _match: [{ FIELD: 'price', VALUE: 57280 }] },
+        { _id: '8', _match: [{ FIELD: 'price', VALUE: 81177 }] },
+        { _id: '1', _match: [{ FIELD: 'price', VALUE: 442742 }] },
+        { _id: '5', _match: [{ FIELD: 'price', VALUE: 100000000000000000 }] }
+      ])
+    )
+})
+
+test('get simple AND for ALPHABETICAL values, no VALUE specified', t => {
+  t.plan(1)
+  global[indexName]
+    .AND({
+      FIELD: 'make'
+    })
+    .then(result =>
+      t.deepEqual(result, [
+        { _id: '0', _match: [{ FIELD: 'make', VALUE: 'BMW' }] },
+        { _id: '4', _match: [{ FIELD: 'make', VALUE: 'BMW' }] },
+        { _id: '7', _match: [{ FIELD: 'make', VALUE: 'BMW' }] },
+        { _id: '8', _match: [{ FIELD: 'make', VALUE: 'BMW' }] },
+        { _id: '5', _match: [{ FIELD: 'make', VALUE: 'Tesla' }] },
+        { _id: '6', _match: [{ FIELD: 'make', VALUE: 'Tesla' }] },
+        { _id: '1', _match: [{ FIELD: 'make', VALUE: 'Volvo' }] },
+        { _id: '2', _match: [{ FIELD: 'make', VALUE: 'Volvo' }] },
+        { _id: '3', _match: [{ FIELD: 'make', VALUE: 'Volvo' }] },
+        { _id: '9', _match: [{ FIELD: 'make', VALUE: 'Volvo' }] }
+      ])
+    )
+})
+
+test('get simple AND for NUMERIC values', t => {
+  t.plan(1)
+  global[indexName]
+    .AND({
+      FIELD: 'price',
+      VALUE: {
+        GTE: 100,
+        LTE: 60000
+      }
+    })
+    .then(result =>
+      t.deepEqual(result, [
+        { _id: '9', _match: [{ FIELD: 'price', VALUE: 3751 }] },
+        { _id: '0', _match: [{ FIELD: 'price', VALUE: 8398 }] },
+        { _id: '2', _match: [{ FIELD: 'price', VALUE: 33114 }] },
+        { _id: '7', _match: [{ FIELD: 'price', VALUE: 57280 }] }
+      ])
+    )
+})
+
+test('get simple AND for NUMERIC values', t => {
+  t.plan(1)
+  global[indexName]
+    .AND({
+      FIELD: 'price',
+      VALUE: {
+        GTE: 0,
+        LTE: 100
+      }
+    })
+    .then(result =>
+      t.deepEqual(result, [
+        { _id: '3', _match: [{ FIELD: 'price', VALUE: 0 }] },
+        { _id: '6', _match: [{ FIELD: 'price', VALUE: 9 }] },
+        { _id: '4', _match: [{ FIELD: 'price', VALUE: 10 }] }
+      ])
+    )
 })

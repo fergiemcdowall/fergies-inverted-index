@@ -6,20 +6,8 @@ const exportingIndexName = sandbox + 'EXPORT'
 const importingIndexName = sandbox + 'IMPORT'
 
 const exportedIndexIdeal = [
-  { key: 'colour:Black', value: ['1'] },
-  { key: 'colour:Blue', value: ['0'] },
-  { key: 'drivetrain:Hybrid', value: ['0'] },
-  { key: 'drivetrain:Petrol', value: ['1'] },
-  { key: 'make:BMW', value: ['0'] },
-  { key: 'make:Volvo', value: ['1'] },
-  { key: 'model:3-series', value: ['0'] },
-  { key: 'model:XC90', value: ['1'] },
-  { key: 'price:44274', value: ['1'] },
-  { key: 'price:83988', value: ['0'] },
-  { key: 'year:2011', value: ['0'] },
-  { key: 'year:2016', value: ['1'] },
   {
-    key: '￮DOC￮0￮',
+    key: ['DOC', '0'],
     value: {
       _id: '0',
       make: 'BMW',
@@ -31,7 +19,7 @@ const exportedIndexIdeal = [
     }
   },
   {
-    key: '￮DOC￮1￮',
+    key: ['DOC', '1'],
     value: {
       _id: '1',
       make: 'Volvo',
@@ -42,12 +30,24 @@ const exportedIndexIdeal = [
       drivetrain: 'Petrol'
     }
   },
-  { key: '￮FIELD￮colour￮', value: 'colour' },
-  { key: '￮FIELD￮drivetrain￮', value: 'drivetrain' },
-  { key: '￮FIELD￮make￮', value: 'make' },
-  { key: '￮FIELD￮model￮', value: 'model' },
-  { key: '￮FIELD￮price￮', value: 'price' },
-  { key: '￮FIELD￮year￮', value: 'year' }
+  { key: ['FIELD', 'colour'], value: 'colour' },
+  { key: ['FIELD', 'drivetrain'], value: 'drivetrain' },
+  { key: ['FIELD', 'make'], value: 'make' },
+  { key: ['FIELD', 'model'], value: 'model' },
+  { key: ['FIELD', 'price'], value: 'price' },
+  { key: ['FIELD', 'year'], value: 'year' },
+  { key: [ 'IDX', 'colour', 'Black' ], value: ['1'] },
+  { key: [ 'IDX', 'colour', 'Blue' ], value: ['0'] },
+  { key: [ 'IDX', 'drivetrain', 'Hybrid' ], value: ['0'] },
+  { key: [ 'IDX', 'drivetrain', 'Petrol' ], value: ['1'] },
+  { key: [ 'IDX', 'make', 'BMW' ], value: ['0'] },
+  { key: [ 'IDX', 'make', 'Volvo' ], value: ['1'] },
+  { key: [ 'IDX', 'model', '3-series' ], value: ['0'] },
+  { key: [ 'IDX', 'model', 'XC90' ], value: ['1'] },
+  { key: [ 'IDX', 'price', 44274 ], value: ['1'] },
+  { key: [ 'IDX', 'price', 83988 ], value: ['0'] },
+  { key: [ 'IDX', 'year', 2011 ], value: ['0'] },
+  { key: [ 'IDX', 'year', 2016 ], value: ['1'] }
 ]
 
 var exportedIndex = null

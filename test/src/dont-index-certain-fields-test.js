@@ -53,11 +53,8 @@ test('can add data', t => {
 
 test('analyse index', t => {
   var storeState = [
-    { key: 'info.brand:Volvo', value: ['0', '1', '2'] },
-    { key: 'make:BMW', value: ['1'] },
-    { key: 'make:Tesla', value: ['0', '2'] },
     {
-      key: '￮DOC￮0￮',
+      key: ['DOC', '0'],
       value: {
         _id: '0',
         make: 'Tesla',
@@ -65,7 +62,7 @@ test('analyse index', t => {
       }
     },
     {
-      key: '￮DOC￮1￮',
+      key: ['DOC', '1'],
       value: {
         _id: '1',
         make: 'BMW',
@@ -73,18 +70,21 @@ test('analyse index', t => {
       }
     },
     {
-      key: '￮DOC￮2￮',
+      key: ['DOC', '2'],
       value: {
         _id: '2',
         make: 'Tesla',
         info: { manufacturer: 'Tesla', brand: 'Volvo' }
       }
     },
-    { key: '￮FIELD￮info.brand￮', value: 'info.brand' },
-    { key: '￮FIELD￮make￮', value: 'make' }
+    { key: ['FIELD', 'info.brand'], value: 'info.brand' },
+    { key: ['FIELD', 'make'], value: 'make' },
+    { key: [ 'IDX', 'info.brand', 'Volvo' ], value: ['0', '1', '2'] },
+    { key: [ 'IDX', 'make', 'BMW' ], value: ['1'] },
+    { key: [ 'IDX', 'make', 'Tesla' ], value: ['0', '2'] },
   ]
   t.plan(storeState.length)
-  const r = global[indexName].STORE.createReadStream({ lt: '￮￮' })
+  const r = global[indexName].STORE.createReadStream({ lt: ['~'] })
   r.on('data', d => t.deepEqual(d, storeState.shift()))
 })
 
@@ -136,13 +136,8 @@ test('can add data', t => {
 
 test('analyse index', t => {
   var storeState = [
-    { key: 'info.brand:Volvo', value: ['0', '1', '2'] },
-    { key: 'info.manufacturer:Tesla', value: ['2'] },
-    { key: 'info.manufacturer:Volvo', value: ['0', '1'] },
-    { key: 'make:BMW', value: ['1'] },
-    { key: 'make:Tesla', value: ['0', '2'] },
     {
-      key: '￮DOC￮0￮',
+      key: ['DOC', '0'],
       value: {
         _id: '0',
         make: 'Tesla',
@@ -150,7 +145,7 @@ test('analyse index', t => {
       }
     },
     {
-      key: '￮DOC￮1￮',
+      key: ['DOC', '1'],
       value: {
         _id: '1',
         make: 'BMW',
@@ -158,18 +153,23 @@ test('analyse index', t => {
       }
     },
     {
-      key: '￮DOC￮2￮',
+      key: ['DOC', '2'],
       value: {
         _id: '2',
         make: 'Tesla',
         info: { manufacturer: 'Tesla', brand: 'Volvo' }
       }
     },
-    { key: '￮FIELD￮info.brand￮', value: 'info.brand' },
-    { key: '￮FIELD￮info.manufacturer￮', value: 'info.manufacturer' },
-    { key: '￮FIELD￮make￮', value: 'make' }
+    { key: ['FIELD', 'info.brand'], value: 'info.brand' },
+    { key: ['FIELD', 'info.manufacturer'], value: 'info.manufacturer' },
+    { key: ['FIELD', 'make'], value: 'make' },
+    { key: [ 'IDX', 'info.brand', 'Volvo' ], value: ['0', '1', '2'] },
+    { key: [ 'IDX', 'info.manufacturer', 'Tesla' ], value: ['2'] },
+    { key: [ 'IDX', 'info.manufacturer', 'Volvo' ], value: ['0', '1'] },
+    { key: [ 'IDX', 'make', 'BMW' ], value: ['1'] },
+    { key: [ 'IDX', 'make', 'Tesla' ], value: ['0', '2'] },
   ]
   t.plan(storeState.length)
-  const r = global[indexName2].STORE.createReadStream({ lt: '￮￮' })
+  const r = global[indexName2].STORE.createReadStream({ lt: ['~'] })
   r.on('data', d => t.deepEqual(d, storeState.shift()))
 })

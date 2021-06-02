@@ -140,12 +140,12 @@ test('use AGGREGATION_FILTER with BUCKETS', t => {
     BUCKETS({
       FIELD: ['year'],
       VALUE: {
-        LTE: '2010'
+        LTE: 2010
       }
     }, {
       FIELD: ['year'],
       VALUE: {
-        GTE: '2010'
+        GTE: 2010
       }
     }),
     AND('colour:Black')
@@ -155,12 +155,12 @@ test('use AGGREGATION_FILTER with BUCKETS', t => {
       [
         {
           FIELD: ['year'],
-          VALUE: { GTE: '!', LTE: '2010' },
+          VALUE: { GTE: undefined, LTE: 2010 },
           _id: ['4']
         },
         {
           FIELD: ['year'],
-          VALUE: { GTE: '2010', LTE: '' },
+          VALUE: { GTE: 2010, LTE: '￮' },
           _id: ['1', '7']
         }
       ]

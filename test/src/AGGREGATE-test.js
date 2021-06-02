@@ -151,10 +151,10 @@ test('simple AGGREGATE with BUCKETS', t => {
     ],
     FACETS: [],
     RESULT: [
-      { _id: '1', _match: ['make:Volvo'] },
-      { _id: '2', _match: ['make:Volvo'] },
-      { _id: '3', _match: ['make:Volvo'] },
-      { _id: '9', _match: ['make:Volvo'] }
+      { _id: '1', _match: [ { FIELD: 'make', VALUE: 'Volvo' } ] },
+      { _id: '2', _match: [ { FIELD: 'make', VALUE: 'Volvo' } ] },
+      { _id: '3', _match: [ { FIELD: 'make', VALUE: 'Volvo' } ] },
+      { _id: '9', _match: [ { FIELD: 'make', VALUE: 'Volvo' } ] }
     ]
   }))
 })
@@ -176,10 +176,10 @@ test('simple AGGREGATE with FACETS', t => {
       { FIELD: 'drivetrain', VALUE: 'Petrol', _id: ['1'] }
     ],
     RESULT: [
-      { _id: '1', _match: ['make:Volvo'] },
-      { _id: '2', _match: ['make:Volvo'] },
-      { _id: '3', _match: ['make:Volvo'] },
-      { _id: '9', _match: ['make:Volvo'] }
+      { _id: '1', _match: [ { FIELD: 'make', VALUE: 'Volvo' } ] },
+      { _id: '2', _match: [ { FIELD: 'make', VALUE: 'Volvo' } ] },
+      { _id: '3', _match: [ { FIELD: 'make', VALUE: 'Volvo' } ] },
+      { _id: '9', _match: [ { FIELD: 'make', VALUE: 'Volvo' } ] }
     ]
   }))
 })
@@ -211,10 +211,10 @@ test('simple AGGREGATE with BUCKETS and FACETS', t => {
       { FIELD: 'colour', VALUE: 'White', _id: ['9'] }
     ],
     RESULT: [
-      { _id: '1', _match: ['make:Volvo'] },
-      { _id: '2', _match: ['make:Volvo'] },
-      { _id: '3', _match: ['make:Volvo'] },
-      { _id: '9', _match: ['make:Volvo'] }
+      { _id: '1', _match: [ { FIELD: 'make', VALUE: 'Volvo' } ] },
+      { _id: '2', _match: [ { FIELD: 'make', VALUE: 'Volvo' } ] },
+      { _id: '3', _match: [ { FIELD: 'make', VALUE: 'Volvo' } ] },
+      { _id: '9', _match: [ { FIELD: 'make', VALUE: 'Volvo' } ] }
     ]
   }))
 })
