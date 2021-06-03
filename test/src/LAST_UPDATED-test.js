@@ -4,7 +4,7 @@ const test = require('tape')
 const sandbox = 'test/sandbox/'
 const indexName = sandbox + 'LAST_UPDATED'
 
-var timestamp
+let timestamp
 
 test('create index', t => {
   t.plan(1)

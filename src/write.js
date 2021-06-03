@@ -3,7 +3,7 @@ const reader = require('./read.js')
 
 module.exports = ops => {
   // TODO: set reset this to the max value every time the DB is restarted
-  var incrementalId = 0
+  let incrementalId = 0
 
   // use trav lib to find all leaf nodes with corresponding paths
   const invertDoc = (obj, putOptions) => {
@@ -27,7 +27,9 @@ module.exports = ops => {
       if (
         putOptions.doNotIndexField.filter(item => fieldName.startsWith(item))
           .length
-      ) { searchable = false }
+      ) {
+        searchable = false
+      }
 
       // TODO: deal with "comments" using objects
 
@@ -80,9 +82,9 @@ module.exports = ops => {
     ).then(currentValues =>
       currentValues.map((cur, i) => {
         // set of current values in store
-        var curSet = new Set(cur)
+        const curSet = new Set(cur)
         // set of keys in delta index that is being merged in
-        var deltaSet = new Set(index[indexKeys[i]])
+        const deltaSet = new Set(index[indexKeys[i]])
 
         if (mode === 'put') {
           return {
@@ -92,7 +94,7 @@ module.exports = ops => {
           }
         } else if (mode === 'del') {
           // difference
-          var newSet = [...new Set([...curSet].filter(x => !deltaSet.has(x)))]
+          const newSet = [...new Set([...curSet].filter(x => !deltaSet.has(x)))]
           return {
             key: ['IDX', ...JSON.parse(indexKeys[i])],
             // if newSet is [] then simply remove the index entry
@@ -101,6 +103,7 @@ module.exports = ops => {
             value: newSet
           }
         }
+        return cur // should never be called: appease standard
       })
     )
   }

@@ -28,7 +28,7 @@ test('can add some worldbank data', t => {
 })
 
 test('can GET with string', t => {
-  var result = [
+  const result = [
     {
       key: ['DOC', 1],
       value: { land: 'SCOTLAND', colour: 'GREEN', _id: 1 }

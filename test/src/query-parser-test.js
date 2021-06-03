@@ -14,7 +14,7 @@ test('create index', t => {
 })
 
 test('can add some worldbank data', t => {
-  var dataSize = 10
+  const dataSize = 10
   const data = wbd.slice(0, dataSize).map(item => {
     return {
       _id: item._id.$oid,

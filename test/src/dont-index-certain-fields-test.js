@@ -57,7 +57,7 @@ test('can add data', t => {
 })
 
 test('analyse index', t => {
-  var storeState = [
+  const storeState = [
     {
       key: ['DOC', '0'],
       value: {
@@ -142,7 +142,7 @@ test('can add data', t => {
 })
 
 test('analyse index', t => {
-  var storeState = [
+  const storeState = [
     {
       key: ['DOC', '0'],
       value: {

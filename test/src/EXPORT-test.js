@@ -50,7 +50,7 @@ const exportedIndexIdeal = [
   { key: ['IDX', 'year', [2016]], value: ['1'] }
 ]
 
-var exportedIndex = null
+let exportedIndex = null
 
 const data = [
   {
