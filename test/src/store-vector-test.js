@@ -36,12 +36,12 @@ test('can add some data', t => {
 test('can verify store', t => {
   const entries = [
     { key: ['FIELD', 'text'], value: 'text' },
-    { key: ['IDX', 'text', 'a'], value: ['0', '1'] },
-    { key: ['IDX', 'text', 'interesting'], value: ['1'] },
-    { key: ['IDX', 'text', 'is'], value: ['0', '1'] },
-    { key: ['IDX', 'text', 'sentence'], value: ['0', '1'] },
-    { key: ['IDX', 'text', 'that'], value: ['1'] },
-    { key: ['IDX', 'text', 'this'], value: ['0'] }
+    { key: ['IDX', 'text', ['a']], value: ['0', '1'] },
+    { key: ['IDX', 'text', ['interesting']], value: ['1'] },
+    { key: ['IDX', 'text', ['is']], value: ['0', '1'] },
+    { key: ['IDX', 'text', ['sentence']], value: ['0', '1'] },
+    { key: ['IDX', 'text', ['that']], value: ['1'] },
+    { key: ['IDX', 'text', ['this']], value: ['0'] }
   ]
   t.plan(entries.length + 1)
   global[indexName].STORE.createReadStream({ lt: ['~'] })

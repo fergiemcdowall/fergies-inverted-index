@@ -39,11 +39,12 @@ test('can GET with string', t => {
     },
     { key: ['FIELD', 'colour'], value: 'colour' },
     { key: ['FIELD', 'land'], value: 'land' },
-    { key: [ 'IDX', 'colour', 'GREEN' ], value: [ 1, 2 ] },
-    { key: [ 'IDX', 'land', 'IRELAND' ], value: [ 2 ] },
-    { key: [ 'IDX', 'land', 'SCOTLAND' ], value: [ 1 ] }
+    { key: ['IDX', 'colour', ['GREEN']], value: [1, 2] },
+    { key: ['IDX', 'land', ['IRELAND']], value: [2] },
+    { key: ['IDX', 'land', ['SCOTLAND']], value: [1] }
   ]
   t.plan(result.length)
-  global[indexName].STORE.createReadStream({ lt: ['~'] })
-    .on('data', d => t.deepEqual(d, result.shift()))
+  global[indexName].STORE.createReadStream({ lt: ['~'] }).on('data', d =>
+    t.deepEqual(d, result.shift())
+  )
 })

@@ -1,7 +1,3 @@
-const Codec = require('level-codec')
-const charwise = require('charwise')
-const codec = Codec({ keyEncoding: charwise })
-
 module.exports = ops => {
   const isString = s => typeof s === 'string'
 
@@ -20,7 +16,6 @@ module.exports = ops => {
       // case: undefined
 
       const setCase = str => (ops.caseSensitive ? str : str.toLowerCase())
-      // const setNumber = num => typeof num ? codec.encodeKey(num) : num
 
       if (typeof token === 'undefined') token = {}
 
@@ -82,11 +77,11 @@ module.exports = ops => {
 
       token.VALUE = Object.assign(token.VALUE, {
         GTE:
-          typeof token.VALUE.GTE == 'number'
+          typeof token.VALUE.GTE === 'number'
             ? token.VALUE.GTE
             : setCase(token.VALUE.GTE),
         LTE:
-          typeof token.VALUE.LTE == 'number'
+          typeof token.VALUE.LTE === 'number'
             ? token.VALUE.LTE
             : setCase(token.VALUE.LTE || '￮')
       })
@@ -144,6 +139,12 @@ module.exports = ops => {
         a.filter(aItem => b.map(bItem => bItem._id).indexOf(aItem._id) === -1)
     )
 
+  const formatKey = (field, value) => [
+    'IDX',
+    field,
+    [value].filter(item => (item === 0 && typeof item === 'number') || item)
+  ]
+
   // TODO: there should be a query processing pipeline between GET
   // and RANGE. Also- RANGE should probably accept an array of TOKENS
   // in order to handle stuff like synonyms
@@ -158,9 +159,6 @@ module.exports = ops => {
         return resolve(undefined)
       }
 
-      // console.log('RANGE token ->')
-      // console.log(token)
-
       // TODO: rs should be a Map to preserve key order
       const rs = new Map() // resultset
       return Promise.all(
@@ -169,12 +167,8 @@ module.exports = ops => {
             new Promise(resolve =>
               ops._db
                 .createReadStream({
-                  gte: ['IDX', fieldName, token.VALUE.GTE].filter(
-                    item => (item == 0 && typeof item == 'number') || item
-                  ),
-                  lte: ['IDX', fieldName, token.VALUE.LTE].filter(
-                    item => (item == 0 && typeof item == 'number') || item
-                  ),
+                  gte: formatKey(fieldName, token.VALUE.GTE),
+                  lte: formatKey(fieldName, token.VALUE.LTE),
                   limit: token.LIMIT,
                   reverse: token.REVERSE
                 })
@@ -184,7 +178,7 @@ module.exports = ops => {
                       ...(rs.get(docId) || []),
                       JSON.stringify({
                         FIELD: token.key[1],
-                        VALUE: token.key[2]
+                        VALUE: token.key[2][0]
                       })
                     ])
                   )
@@ -261,11 +255,8 @@ module.exports = ops => {
   const BUCKET = token =>
     parseToken(
       token // TODO: is parseToken needed her? Already called in GET
-    ).then(token => {
-      // console.log('bucket token ->')
-      // console.log(token)
-
-      return GET(token).then(result =>
+    ).then(token =>
+      GET(token).then(result =>
         Object.assign(token, {
           _id: [
             ...result.reduce((acc, cur) => acc.add(cur._id), new Set())
@@ -273,7 +264,7 @@ module.exports = ops => {
           VALUE: token.VALUE
         })
       )
-    })
+    )
 
   const OBJECT = _ids =>
     Promise.all(
@@ -309,11 +300,9 @@ module.exports = ops => {
           })
         )
       )
-      .then(max => {
-        console.log(max)
-        // TODO: comments need to be stored in array to handle integers
-        return max.length ? JSON.parse(max.pop()._match.pop()).VALUE : null
-      })
+      .then(max =>
+        max.length ? JSON.parse(max.pop()._match.pop()).VALUE : null
+      )
 
   // TODO remove if DISTINCT is no longer used
   const DISTINCT = (...tokens) =>
@@ -331,33 +320,23 @@ module.exports = ops => {
   // TODO remove if DISTINCT is no longer used
   const DIST = token =>
     parseToken(token)
-      .then(token => {
-        // console.log('DIST token -> ')
-        // console.log(token)
-
-        return Promise.all(
-          token.FIELD.map(field => {
-            return getRange({
-              gte: ['IDX', field, token.VALUE.GTE].filter(
-                item => (item == 0 && typeof item == 'number') || item
-              ),
-              lte: ['IDX', field, token.VALUE.LTE].filter(
-                item => (item == 0 && typeof item == 'number') || item
-              ),
+      .then(token =>
+        Promise.all(
+          token.FIELD.map(field =>
+            getRange({
+              gte: formatKey(field, token.VALUE.GTE),
+              lte: formatKey(field, token.VALUE.LTE),
               keys: true,
               values: false
-            }).then(items => {
-              // console.log('items ->')
-              // console.log(items)
-
-              return items.map(item => ({
+            }).then(items =>
+              items.map(item => ({
                 FIELD: item[1],
-                VALUE: item[2]
+                VALUE: item[2][0]
               }))
-            })
-          })
+            )
+          )
         )
-      })
+      )
       .then(result => result.flat())
 
   const FACETS = (...tokens) =>
@@ -382,14 +361,12 @@ module.exports = ops => {
         Promise.all(
           token.FIELD.map(field =>
             getRange({
-              // gte: field + ':' + token.VALUE.GTE,
-              // lte: field + ':' + token.VALUE.LTE + '￮'
-              gte: ['IDX', field, token.VALUE.GTE].filter(item => item),
-              lte: ['IDX', field, (token.VALUE.LTE || '') + '￮']
+              gte: formatKey(field, token.VALUE.GTE),
+              lte: formatKey(field, token.VALUE.LTE)
             }).then(items =>
               items.map(item => ({
                 FIELD: item.key[1],
-                VALUE: item.key[2],
+                VALUE: item.key[2][0],
                 _id: item.value
               }))
             )

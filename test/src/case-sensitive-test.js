@@ -146,6 +146,7 @@ test('Match case and return results -> Make:volvo', t => {
 
 test('Match even with weird case', t => {
   t.plan(1)
+  console.log('TODO -> possible race condition here')
   global[caseInsensitiveIdx].GET('teSLA').then(result => {
     t.deepEqual(result, [
       {

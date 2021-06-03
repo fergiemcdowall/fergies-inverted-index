@@ -11,7 +11,7 @@ const flattenMatchArrayInResults = results =>
   results.map(result => {
     result._match = result._match
       .flat(Infinity)
-      .map(m => (typeof m == 'string' ? JSON.parse(m) : m))
+      .map(m => (typeof m === 'string' ? JSON.parse(m) : m))
     return result
   })
 

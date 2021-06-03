@@ -27,8 +27,7 @@ module.exports = ops => {
       if (
         putOptions.doNotIndexField.filter(item => fieldName.startsWith(item))
           .length
-      )
-        searchable = false
+      ) { searchable = false }
 
       // TODO: deal with "comments" using objects
 
@@ -41,14 +40,17 @@ module.exports = ops => {
       }
 
       if (searchable && this.isLeaf) {
-        // const key = fieldName + ':' + this.node
-        const key = JSON.stringify([fieldName, this.node])
+        let key
+        try {
+          const parsedJSON = JSON.parse(this.node)
+          if (!Array.isArray(parsedJSON)) throw new Error()
+          key = JSON.stringify([fieldName, parsedJSON])
+        } catch (e) {
+          key = JSON.stringify([fieldName, [this.node]])
+        }
+
         // bump to lower case if not case sensitive
-        // keys.push(ops.caseSensitive ? key : key.toLowerCase())
-        // keys.push(key)
-        keys.push(
-          ops.caseSensitive && typeof key == 'string' ? key : key.toLowerCase()
-        )
+        keys.push(ops.caseSensitive ? key : key.toLowerCase())
       }
     })
 

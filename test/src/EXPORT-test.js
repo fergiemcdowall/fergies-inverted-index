@@ -36,18 +36,18 @@ const exportedIndexIdeal = [
   { key: ['FIELD', 'model'], value: 'model' },
   { key: ['FIELD', 'price'], value: 'price' },
   { key: ['FIELD', 'year'], value: 'year' },
-  { key: [ 'IDX', 'colour', 'Black' ], value: ['1'] },
-  { key: [ 'IDX', 'colour', 'Blue' ], value: ['0'] },
-  { key: [ 'IDX', 'drivetrain', 'Hybrid' ], value: ['0'] },
-  { key: [ 'IDX', 'drivetrain', 'Petrol' ], value: ['1'] },
-  { key: [ 'IDX', 'make', 'BMW' ], value: ['0'] },
-  { key: [ 'IDX', 'make', 'Volvo' ], value: ['1'] },
-  { key: [ 'IDX', 'model', '3-series' ], value: ['0'] },
-  { key: [ 'IDX', 'model', 'XC90' ], value: ['1'] },
-  { key: [ 'IDX', 'price', 44274 ], value: ['1'] },
-  { key: [ 'IDX', 'price', 83988 ], value: ['0'] },
-  { key: [ 'IDX', 'year', 2011 ], value: ['0'] },
-  { key: [ 'IDX', 'year', 2016 ], value: ['1'] }
+  { key: ['IDX', 'colour', ['Black']], value: ['1'] },
+  { key: ['IDX', 'colour', ['Blue']], value: ['0'] },
+  { key: ['IDX', 'drivetrain', ['Hybrid']], value: ['0'] },
+  { key: ['IDX', 'drivetrain', ['Petrol']], value: ['1'] },
+  { key: ['IDX', 'make', ['BMW']], value: ['0'] },
+  { key: ['IDX', 'make', ['Volvo']], value: ['1'] },
+  { key: ['IDX', 'model', ['3-series']], value: ['0'] },
+  { key: ['IDX', 'model', ['XC90']], value: ['1'] },
+  { key: ['IDX', 'price', [44274]], value: ['1'] },
+  { key: ['IDX', 'price', [83988]], value: ['0'] },
+  { key: ['IDX', 'year', [2011]], value: ['0'] },
+  { key: ['IDX', 'year', [2016]], value: ['1'] }
 ]
 
 var exportedIndex = null
@@ -88,13 +88,12 @@ test('can add some data', t => {
 
 test('can export some data', t => {
   t.plan(1)
-  global[exportingIndexName].EXPORT()
-    .then(exported => {
-      exported.pop() // remove timestamps
-      exported.pop() // remove timestamps
-      t.deepEqual(exported, exportedIndexIdeal)
-      exportedIndex = exported
-    })
+  global[exportingIndexName].EXPORT().then(exported => {
+    exported.pop() // remove timestamps
+    exported.pop() // remove timestamps
+    t.deepEqual(exported, exportedIndexIdeal)
+    exportedIndex = exported
+  })
 })
 
 test('create an index for export', t => {
@@ -107,24 +106,25 @@ test('create an index for export', t => {
 
 test('added data will be overwritten by the import', t => {
   t.plan(1)
-  global[importingIndexName].PUT([{
-    id: '99',
-    text: 'this document will be overwritten by the import'
-  }]).then(t.pass)
+  global[importingIndexName]
+    .PUT([
+      {
+        id: '99',
+        text: 'this document will be overwritten by the import'
+      }
+    ])
+    .then(t.pass)
 })
 
 test('can IMPORT some data', t => {
   t.plan(1)
-  global[importingIndexName]
-    .IMPORT(exportedIndex)
-    .then(() => t.ok('imported'))
+  global[importingIndexName].IMPORT(exportedIndex).then(() => t.ok('imported'))
 })
 
 test('can export previously imported data. Index looks ok', t => {
   t.plan(1)
-  global[importingIndexName].EXPORT()
-    .then(exported => {
-      t.deepEqual(exported, exportedIndexIdeal)
-      exportedIndex = exported
-    })
+  global[importingIndexName].EXPORT().then(exported => {
+    t.deepEqual(exported, exportedIndexIdeal)
+    exportedIndex = exported
+  })
 })

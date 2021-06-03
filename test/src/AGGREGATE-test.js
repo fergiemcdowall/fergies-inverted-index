@@ -120,43 +120,49 @@ test('simple AGGREGATE with BUCKETS', t => {
   t.plan(1)
   const { GET, BUCKETS, AGGREGATE } = global[indexName]
   AGGREGATE({
-    BUCKETS: BUCKETS({
-      FIELD: 'drivetrain',
-      VALUE: 'Hybrid'
-    }, {
-      FIELD: 'drivetrain',
-      VALUE: 'Petrol'
-    }, {
-      FIELD: 'drivetrain',
-      VALUE: 'Electric'
-    }),
-    QUERY: GET('make:Volvo')
-  }).then(result => t.deepEqual(result, {
-    BUCKETS: [
+    BUCKETS: BUCKETS(
       {
-        FIELD: ['drivetrain'],
-        VALUE: { GTE: 'Hybrid', LTE: 'Hybrid' },
-        _id: ['2', '3', '9']
+        FIELD: 'drivetrain',
+        VALUE: 'Hybrid'
       },
       {
-        FIELD: ['drivetrain'],
-        VALUE: { GTE: 'Petrol', LTE: 'Petrol' },
-        _id: ['1']
+        FIELD: 'drivetrain',
+        VALUE: 'Petrol'
       },
       {
-        FIELD: ['drivetrain'],
-        VALUE: { GTE: 'Electric', LTE: 'Electric' },
-        _id: []
+        FIELD: 'drivetrain',
+        VALUE: 'Electric'
       }
-    ],
-    FACETS: [],
-    RESULT: [
-      { _id: '1', _match: [ { FIELD: 'make', VALUE: 'Volvo' } ] },
-      { _id: '2', _match: [ { FIELD: 'make', VALUE: 'Volvo' } ] },
-      { _id: '3', _match: [ { FIELD: 'make', VALUE: 'Volvo' } ] },
-      { _id: '9', _match: [ { FIELD: 'make', VALUE: 'Volvo' } ] }
-    ]
-  }))
+    ),
+    QUERY: GET('make:Volvo')
+  }).then(result =>
+    t.deepEqual(result, {
+      BUCKETS: [
+        {
+          FIELD: ['drivetrain'],
+          VALUE: { GTE: 'Hybrid', LTE: 'Hybrid' },
+          _id: ['2', '3', '9']
+        },
+        {
+          FIELD: ['drivetrain'],
+          VALUE: { GTE: 'Petrol', LTE: 'Petrol' },
+          _id: ['1']
+        },
+        {
+          FIELD: ['drivetrain'],
+          VALUE: { GTE: 'Electric', LTE: 'Electric' },
+          _id: []
+        }
+      ],
+      FACETS: [],
+      RESULT: [
+        { _id: '1', _match: [{ FIELD: 'make', VALUE: 'Volvo' }] },
+        { _id: '2', _match: [{ FIELD: 'make', VALUE: 'Volvo' }] },
+        { _id: '3', _match: [{ FIELD: 'make', VALUE: 'Volvo' }] },
+        { _id: '9', _match: [{ FIELD: 'make', VALUE: 'Volvo' }] }
+      ]
+    })
+  )
 })
 
 test('simple AGGREGATE with FACETS', t => {
@@ -167,21 +173,23 @@ test('simple AGGREGATE with FACETS', t => {
       FIELD: 'drivetrain'
     }),
     QUERY: GET('make:Volvo')
-  }).then(result => t.deepEqual(result, {
-    BUCKETS: [],
-    FACETS: [
-      { FIELD: 'drivetrain', VALUE: 'Diesel', _id: [] },
-      { FIELD: 'drivetrain', VALUE: 'Electric', _id: [] },
-      { FIELD: 'drivetrain', VALUE: 'Hybrid', _id: ['2', '3', '9'] },
-      { FIELD: 'drivetrain', VALUE: 'Petrol', _id: ['1'] }
-    ],
-    RESULT: [
-      { _id: '1', _match: [ { FIELD: 'make', VALUE: 'Volvo' } ] },
-      { _id: '2', _match: [ { FIELD: 'make', VALUE: 'Volvo' } ] },
-      { _id: '3', _match: [ { FIELD: 'make', VALUE: 'Volvo' } ] },
-      { _id: '9', _match: [ { FIELD: 'make', VALUE: 'Volvo' } ] }
-    ]
-  }))
+  }).then(result =>
+    t.deepEqual(result, {
+      BUCKETS: [],
+      FACETS: [
+        { FIELD: 'drivetrain', VALUE: 'Diesel', _id: [] },
+        { FIELD: 'drivetrain', VALUE: 'Electric', _id: [] },
+        { FIELD: 'drivetrain', VALUE: 'Hybrid', _id: ['2', '3', '9'] },
+        { FIELD: 'drivetrain', VALUE: 'Petrol', _id: ['1'] }
+      ],
+      RESULT: [
+        { _id: '1', _match: [{ FIELD: 'make', VALUE: 'Volvo' }] },
+        { _id: '2', _match: [{ FIELD: 'make', VALUE: 'Volvo' }] },
+        { _id: '3', _match: [{ FIELD: 'make', VALUE: 'Volvo' }] },
+        { _id: '9', _match: [{ FIELD: 'make', VALUE: 'Volvo' }] }
+      ]
+    })
+  )
 })
 
 test('simple AGGREGATE with BUCKETS and FACETS', t => {
@@ -189,34 +197,37 @@ test('simple AGGREGATE with BUCKETS and FACETS', t => {
   const { GET, BUCKETS, FACETS, AGGREGATE } = global[indexName]
   AGGREGATE({
     BUCKETS: BUCKETS({
-      FIELD: 'drivetrain', VALUE: 'Electric'
+      FIELD: 'drivetrain',
+      VALUE: 'Electric'
     }),
     FACETS: FACETS({
       FIELD: 'colour'
     }),
     QUERY: GET('make:Volvo')
-  }).then(result => t.deepEqual(result, {
-    BUCKETS: [
-      {
-        FIELD: ['drivetrain'],
-        VALUE: { GTE: 'Electric', LTE: 'Electric' },
-        _id: []
-      }
-    ],
-    FACETS: [
-      { FIELD: 'colour', VALUE: 'Black', _id: ['1'] },
-      { FIELD: 'colour', VALUE: 'Blue', _id: [] },
-      { FIELD: 'colour', VALUE: 'Red', _id: [] },
-      { FIELD: 'colour', VALUE: 'Silver', _id: ['2', '3'] },
-      { FIELD: 'colour', VALUE: 'White', _id: ['9'] }
-    ],
-    RESULT: [
-      { _id: '1', _match: [ { FIELD: 'make', VALUE: 'Volvo' } ] },
-      { _id: '2', _match: [ { FIELD: 'make', VALUE: 'Volvo' } ] },
-      { _id: '3', _match: [ { FIELD: 'make', VALUE: 'Volvo' } ] },
-      { _id: '9', _match: [ { FIELD: 'make', VALUE: 'Volvo' } ] }
-    ]
-  }))
+  }).then(result =>
+    t.deepEqual(result, {
+      BUCKETS: [
+        {
+          FIELD: ['drivetrain'],
+          VALUE: { GTE: 'Electric', LTE: 'Electric' },
+          _id: []
+        }
+      ],
+      FACETS: [
+        { FIELD: 'colour', VALUE: 'Black', _id: ['1'] },
+        { FIELD: 'colour', VALUE: 'Blue', _id: [] },
+        { FIELD: 'colour', VALUE: 'Red', _id: [] },
+        { FIELD: 'colour', VALUE: 'Silver', _id: ['2', '3'] },
+        { FIELD: 'colour', VALUE: 'White', _id: ['9'] }
+      ],
+      RESULT: [
+        { _id: '1', _match: [{ FIELD: 'make', VALUE: 'Volvo' }] },
+        { _id: '2', _match: [{ FIELD: 'make', VALUE: 'Volvo' }] },
+        { _id: '3', _match: [{ FIELD: 'make', VALUE: 'Volvo' }] },
+        { _id: '9', _match: [{ FIELD: 'make', VALUE: 'Volvo' }] }
+      ]
+    })
+  )
 })
 
 test('simple AGGREGATE with BUCKETS and FACETS, no QUERY', t => {
@@ -224,20 +235,24 @@ test('simple AGGREGATE with BUCKETS and FACETS, no QUERY', t => {
   const { BUCKETS, FACETS, AGGREGATE } = global[indexName]
   AGGREGATE({
     BUCKETS: BUCKETS({
-      FIELD: 'drivetrain', VALUE: 'Electric'
+      FIELD: 'drivetrain',
+      VALUE: 'Electric'
     }),
     FACETS: FACETS({
       FIELD: 'colour'
     })
   }).then(result => {
     return t.deepEqual(result, {
-      BUCKETS: [{
-        FIELD: ['drivetrain'],
-        VALUE: {
-          GTE: 'Electric', LTE: 'Electric'
-        },
-        _id: ['5', '6']
-      }],
+      BUCKETS: [
+        {
+          FIELD: ['drivetrain'],
+          VALUE: {
+            GTE: 'Electric',
+            LTE: 'Electric'
+          },
+          _id: ['5', '6']
+        }
+      ],
       FACETS: [
         { FIELD: 'colour', VALUE: 'Black', _id: ['1', '4', '7'] },
         { FIELD: 'colour', VALUE: 'Blue', _id: ['0', '6'] },

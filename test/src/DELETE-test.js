@@ -47,9 +47,9 @@ test('can GET with string', t => {
   })
     .then(result => {
       t.deepEqual(result, [
-        { _id: '52b213b38594d8a2be17c780', _match: [ { FIELD: 'board_approval_month', VALUE: 'November' }  ] },
-        { _id: '52b213b38594d8a2be17c781', _match: [ { FIELD: 'board_approval_month', VALUE: 'November' }  ] },
-        { _id: '52b213b38594d8a2be17c782', _match: [ { FIELD: 'board_approval_month', VALUE: 'November' }  ] }
+        { _id: '52b213b38594d8a2be17c780', _match: [{ FIELD: 'board_approval_month', VALUE: 'November' }] },
+        { _id: '52b213b38594d8a2be17c781', _match: [{ FIELD: 'board_approval_month', VALUE: 'November' }] },
+        { _id: '52b213b38594d8a2be17c782', _match: [{ FIELD: 'board_approval_month', VALUE: 'November' }] }
       ])
     })
 })
@@ -120,7 +120,7 @@ test('can GET with object having deleted two docs', t => {
       t.deepEqual(result, [
         {
           _id: '52b213b38594d8a2be17c780',
-          _match: [ { FIELD: 'board_approval_month', VALUE: 'November' }  ]
+          _match: [{ FIELD: 'board_approval_month', VALUE: 'November' }]
         }
       ])
     })

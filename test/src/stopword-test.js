@@ -41,8 +41,8 @@ test('can verify store', t => {
       value: { _id: '1', text: ['a', 'sentence', 'that', 'is', 'interesting'] }
     },
     { key: ['FIELD', 'text'], value: 'text' },
-    { key: ['IDX', 'text', 'interesting'], value: ['1'] },
-    { key: ['IDX', 'text', 'sentence'], value: ['0', '1'] }
+    { key: ['IDX', 'text', ['interesting']], value: ['1'] },
+    { key: ['IDX', 'text', ['sentence']], value: ['0', '1'] }
   ]
   t.plan(entries.length + 1)
   global[indexName].STORE.createReadStream({ lt: ['~'] })

@@ -105,6 +105,7 @@ test('can GET with string specifying a field', t => {
   })
 })
 
+// TODO: there is a race condition here. This test appears to be non-deterministic
 test('can GET with string without specifying field (GET from all fields)', t => {
   t.plan(1)
   global[indexName].GET('Tesla').then(result => {
@@ -140,6 +141,7 @@ test('can GET with string without specifying field (GET from all fields)', t => 
 })
 
 test('can GET without specifying field (GET from all fields)', t => {
+  console.log('TODO -> possible race condition here')
   t.plan(1)
   global[indexName]
     .GET({
