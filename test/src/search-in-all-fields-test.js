@@ -105,62 +105,13 @@ test('can GET with string specifying a field', t => {
   })
 })
 
-// TODO: there is a race condition here. This test appears to be non-deterministic
 test('can GET with string without specifying field (GET from all fields)', t => {
   t.plan(1)
-  global[indexName].GET('Tesla').then(result => {
-    t.deepEqual(result, [
-      {
-        _id: '7',
-        _match: [
-          { FIELD: 'brand', VALUE: 'Tesla' },
-          { FIELD: 'manufacturer', VALUE: 'Tesla' }
-        ]
-      },
-      { _id: '8', _match: [{ FIELD: 'brand', VALUE: 'Tesla' }] },
-      { _id: '0', _match: [{ FIELD: 'make', VALUE: 'Tesla' }] },
-      {
-        _id: '2',
-        _match: [
-          { FIELD: 'make', VALUE: 'Tesla' },
-          { FIELD: 'manufacturer', VALUE: 'Tesla' }
-        ]
-      },
-      { _id: '3', _match: [{ FIELD: 'make', VALUE: 'Tesla' }] },
-      {
-        _id: '6',
-        _match: [
-          { FIELD: 'make', VALUE: 'Tesla' },
-          { FIELD: 'manufacturer', VALUE: 'Tesla' }
-        ]
-      },
-      { _id: '5', _match: [{ FIELD: 'manufacturer', VALUE: 'Tesla' }] },
-      { _id: '9', _match: [{ FIELD: 'manufacturer', VALUE: 'Tesla' }] }
-    ])
-  })
-})
-
-test('can GET without specifying field (GET from all fields)', t => {
-  console.log('TODO -> possible race condition here')
-  t.plan(1)
-  global[indexName]
-    .GET({
-      VALUE: {
-        GTE: 'Tesla',
-        LTE: 'Tesla'
-      }
-    })
+  const { GET, SORT } = global[indexName]
+  GET('Tesla')
+    .then(SORT)
     .then(result => {
       t.deepEqual(result, [
-        {
-          _id: '7',
-          _match: [
-            { FIELD: 'brand', VALUE: 'Tesla' },
-            { FIELD: 'manufacturer', VALUE: 'Tesla' }
-          ]
-        },
-        { _id: '8', _match: [{ FIELD: 'brand', VALUE: 'Tesla' }] },
-        { _id: '0', _match: [{ FIELD: 'make', VALUE: 'Tesla' }] },
         {
           _id: '2',
           _match: [
@@ -168,7 +119,6 @@ test('can GET without specifying field (GET from all fields)', t => {
             { FIELD: 'manufacturer', VALUE: 'Tesla' }
           ]
         },
-        { _id: '3', _match: [{ FIELD: 'make', VALUE: 'Tesla' }] },
         {
           _id: '6',
           _match: [
@@ -176,7 +126,59 @@ test('can GET without specifying field (GET from all fields)', t => {
             { FIELD: 'manufacturer', VALUE: 'Tesla' }
           ]
         },
+        {
+          _id: '7',
+          _match: [
+            { FIELD: 'brand', VALUE: 'Tesla' },
+            { FIELD: 'manufacturer', VALUE: 'Tesla' }
+          ]
+        },
+        { _id: '0', _match: [{ FIELD: 'make', VALUE: 'Tesla' }] },
+        { _id: '3', _match: [{ FIELD: 'make', VALUE: 'Tesla' }] },
         { _id: '5', _match: [{ FIELD: 'manufacturer', VALUE: 'Tesla' }] },
+        { _id: '8', _match: [{ FIELD: 'brand', VALUE: 'Tesla' }] },
+        { _id: '9', _match: [{ FIELD: 'manufacturer', VALUE: 'Tesla' }] }
+      ])
+    })
+})
+
+test('can GET without specifying field (GET from all fields)', t => {
+  t.plan(1)
+  const { GET, SORT } = global[indexName]
+  GET({
+    VALUE: {
+      GTE: 'Tesla',
+      LTE: 'Tesla'
+    }
+  })
+    .then(SORT)
+    .then(result => {
+      t.deepEqual(result, [
+        {
+          _id: '2',
+          _match: [
+            { FIELD: 'make', VALUE: 'Tesla' },
+            { FIELD: 'manufacturer', VALUE: 'Tesla' }
+          ]
+        },
+        {
+          _id: '6',
+          _match: [
+            { FIELD: 'make', VALUE: 'Tesla' },
+            { FIELD: 'manufacturer', VALUE: 'Tesla' }
+          ]
+        },
+        {
+          _id: '7',
+          _match: [
+            { FIELD: 'brand', VALUE: 'Tesla' },
+            { FIELD: 'manufacturer', VALUE: 'Tesla' }
+          ]
+        },
+        { _id: '0', _match: [{ FIELD: 'make', VALUE: 'Tesla' }] },
+        { _id: '3', _match: [{ FIELD: 'make', VALUE: 'Tesla' }] },
+        { _id: '5', _match: [{ FIELD: 'manufacturer', VALUE: 'Tesla' }] },
+        { _id: '8', _match: [{ FIELD: 'brand', VALUE: 'Tesla' }] },
         { _id: '9', _match: [{ FIELD: 'manufacturer', VALUE: 'Tesla' }] }
       ])
     })
@@ -184,14 +186,15 @@ test('can GET without specifying field (GET from all fields)', t => {
 
 test('can GET specifying 2 fields (GET from all fields)', t => {
   t.plan(1)
-  global[indexName]
-    .GET({
-      FIELD: ['brand', 'manufacturer'],
-      VALUE: {
-        GTE: 'Tesla',
-        LTE: 'Tesla'
-      }
-    })
+  const { GET, SORT } = global[indexName]
+  GET({
+    FIELD: ['brand', 'manufacturer'],
+    VALUE: {
+      GTE: 'Tesla',
+      LTE: 'Tesla'
+    }
+  })
+    .then(SORT)
     .then(result => {
       t.deepEqual(result, [
         {
@@ -201,10 +204,10 @@ test('can GET specifying 2 fields (GET from all fields)', t => {
             { FIELD: 'manufacturer', VALUE: 'Tesla' }
           ]
         },
-        { _id: '8', _match: [{ FIELD: 'brand', VALUE: 'Tesla' }] },
         { _id: '2', _match: [{ FIELD: 'manufacturer', VALUE: 'Tesla' }] },
         { _id: '5', _match: [{ FIELD: 'manufacturer', VALUE: 'Tesla' }] },
         { _id: '6', _match: [{ FIELD: 'manufacturer', VALUE: 'Tesla' }] },
+        { _id: '8', _match: [{ FIELD: 'brand', VALUE: 'Tesla' }] },
         { _id: '9', _match: [{ FIELD: 'manufacturer', VALUE: 'Tesla' }] }
       ])
     })
@@ -228,7 +231,7 @@ test('can GET specifying 2 fields (GET from all fields)', t => {
     })
 })
 
-test('can GET specifying 2 fields (GET from all fields)', t => {
+test('can GET specifying FIELD and VALUE', t => {
   t.plan(1)
   global[indexName]
     .GET({

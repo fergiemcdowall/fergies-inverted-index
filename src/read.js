@@ -190,7 +190,7 @@ module.exports = ops => {
         resolve(
           Array.from(rs.keys()).map(id => ({
             _id: id,
-            _match: rs.get(id)
+            _match: rs.get(id).sort()
           }))
         )
       )
@@ -375,6 +375,15 @@ module.exports = ops => {
       )
       .then(result => result.flat())
 
+  const SORT = results =>
+    new Promise(resolve =>
+      resolve(
+        results
+          .sort((a, b) => a._id.localeCompare(b._id))
+          .sort((a, b) => b._match.length - a._match.length)
+      )
+    )
+
   return {
     AGGREGATE: AGGREGATE, // TODO: remove
     AGGREGATION_FILTER: AGGREGATION_FILTER, // TODO: remove
@@ -399,6 +408,7 @@ module.exports = ops => {
     MIN: BOUNDING_VALUE,
     OBJECT: OBJECT,
     SET_SUBTRACTION: SET_SUBTRACTION,
+    SORT: SORT,
     UNION: UNION, // OR,
     parseToken: parseToken
   }

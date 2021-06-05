@@ -88,6 +88,7 @@ const makeAFii = ops => {
         .then(flattenMatchArrayInResults),
     PUT: w.PUT,
     SET_SUBTRACTION: r.SET_SUBTRACTION,
+    SORT: r.SORT,
     STORE: ops._db,
     TIMESTAMP_LAST_UPDATED: w.TIMESTAMP_LAST_UPDATED,
     parseToken: r.parseToken
