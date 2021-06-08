@@ -96,7 +96,6 @@ module.exports = ops => {
           )
         )
       }
-
       // Allow FIELD to be an array or a string
       token.FIELD = [token.FIELD].flat()
 
@@ -139,11 +138,14 @@ module.exports = ops => {
         a.filter(aItem => b.map(bItem => bItem._id).indexOf(aItem._id) === -1)
     )
 
-  const formatKey = (field, value) => [
-    'IDX',
-    field,
-    [value].filter(item => (item === 0 && typeof item === 'number') || item)
-  ]
+  const formatKey = (field, value, lte) => {
+    const valueAndScore = []
+    if (value !== undefined || typeof value === 'number') {
+      valueAndScore.push(value)
+    }
+    if (valueAndScore.length && lte) valueAndScore.push('￮')
+    return ['IDX', field, valueAndScore]
+  }
 
   // TODO: there should be a query processing pipeline between GET
   // and RANGE. Also- RANGE should probably accept an array of TOKENS
@@ -159,33 +161,41 @@ module.exports = ops => {
         return resolve(undefined)
       }
 
+      // console.log(token)
+
       // TODO: rs should be a Map to preserve key order
       const rs = new Map() // resultset
       return Promise.all(
-        token.FIELD.map(
-          fieldName =>
-            new Promise(resolve =>
-              ops._db
-                .createReadStream({
-                  gte: formatKey(fieldName, token.VALUE.GTE),
-                  lte: formatKey(fieldName, token.VALUE.LTE),
-                  limit: token.LIMIT,
-                  reverse: token.REVERSE
+        token.FIELD.map(fieldName => {
+          // console.log(formatKey(fieldName, token.VALUE.GTE))
+          // console.log(formatKey(fieldName, token.VALUE.LTE))
+          return new Promise(resolve =>
+            ops._db
+              .createReadStream({
+                gte: formatKey(fieldName, token.VALUE.GTE),
+                lte: formatKey(fieldName, token.VALUE.LTE, true),
+
+                // gte: ['IDX', 'year', [2000]],
+                // lte: ['IDX', 'year', [2000, '￮']],
+                limit: token.LIMIT,
+                reverse: token.REVERSE
+              })
+              .on('data', token =>
+                token.value.forEach(docId => {
+                  // console.log(token)
+                  return rs.set(docId, [
+                    ...(rs.get(docId) || []),
+                    JSON.stringify({
+                      FIELD: token.key[1],
+                      VALUE: token.key[2][0],
+                      SCORE: token.key[2][1]
+                    })
+                  ])
                 })
-                .on('data', token =>
-                  token.value.forEach(docId =>
-                    rs.set(docId, [
-                      ...(rs.get(docId) || []),
-                      JSON.stringify({
-                        FIELD: token.key[1],
-                        VALUE: token.key[2][0]
-                      })
-                    ])
-                  )
-                )
-                .on('end', resolve)
-            )
-        )
+              )
+              .on('end', resolve)
+          )
+        })
       ).then(() =>
         resolve(
           Array.from(rs.keys()).map(id => ({
