@@ -112,149 +112,172 @@ test('can add some data', t => {
 
 test('get FACETS for one field', t => {
   t.plan(1)
-  global[indexName].FACETS({
-    FIELD: 'drivetrain'
-  }).then(result => t.deepEqual(result, [
-    { FIELD: 'drivetrain', VALUE: 'Diesel', _id: ['4'] },
-    { FIELD: 'drivetrain', VALUE: 'Electric', _id: ['5', '6'] },
-    { FIELD: 'drivetrain', VALUE: 'Hybrid', _id: ['0', '2', '3', '9'] },
-    { FIELD: 'drivetrain', VALUE: 'Petrol', _id: ['1', '7', '8'] }
-  ]))
+  global[indexName]
+    .FACETS({
+      FIELD: 'drivetrain'
+    })
+    .then(result =>
+      t.deepEqual(result, [
+        { FIELD: 'drivetrain', VALUE: 'Diesel', _id: ['4'] },
+        { FIELD: 'drivetrain', VALUE: 'Electric', _id: ['5', '6'] },
+        { FIELD: 'drivetrain', VALUE: 'Hybrid', _id: ['0', '2', '3', '9'] },
+        { FIELD: 'drivetrain', VALUE: 'Petrol', _id: ['1', '7', '8'] }
+      ])
+    )
 })
 
 test('get FACETS for another FIELD', t => {
   t.plan(1)
-  global[indexName].FACETS({
-    FIELD: 'colour'
-  }).then(result => t.deepEqual(result, [
-    { FIELD: 'colour', VALUE: 'Black', _id: ['1', '4', '7'] },
-    { FIELD: 'colour', VALUE: 'Blue', _id: ['0', '6'] },
-    { FIELD: 'colour', VALUE: 'Red', _id: ['5'] },
-    { FIELD: 'colour', VALUE: 'Silver', _id: ['2', '3', '8'] },
-    { FIELD: 'colour', VALUE: 'White', _id: ['9'] }
-  ]))
+  global[indexName]
+    .FACETS({
+      FIELD: 'colour'
+    })
+    .then(result =>
+      t.deepEqual(result, [
+        { FIELD: 'colour', VALUE: 'Black', _id: ['1', '4', '7'] },
+        { FIELD: 'colour', VALUE: 'Blue', _id: ['0', '6'] },
+        { FIELD: 'colour', VALUE: 'Red', _id: ['5'] },
+        { FIELD: 'colour', VALUE: 'Silver', _id: ['2', '3', '8'] },
+        { FIELD: 'colour', VALUE: 'White', _id: ['9'] }
+      ])
+    )
 })
 
 test('get FACETS for two FIELDs', t => {
   t.plan(1)
-  global[indexName].FACETS({
-    FIELD: ['colour', 'drivetrain']
-  }).then(result => t.deepEqual(result, [
-    { FIELD: 'colour', VALUE: 'Black', _id: ['1', '4', '7'] },
-    { FIELD: 'colour', VALUE: 'Blue', _id: ['0', '6'] },
-    { FIELD: 'colour', VALUE: 'Red', _id: ['5'] },
-    { FIELD: 'colour', VALUE: 'Silver', _id: ['2', '3', '8'] },
-    { FIELD: 'colour', VALUE: 'White', _id: ['9'] },
-    { FIELD: 'drivetrain', VALUE: 'Diesel', _id: ['4'] },
-    { FIELD: 'drivetrain', VALUE: 'Electric', _id: ['5', '6'] },
-    { FIELD: 'drivetrain', VALUE: 'Hybrid', _id: ['0', '2', '3', '9'] },
-    { FIELD: 'drivetrain', VALUE: 'Petrol', _id: ['1', '7', '8'] }
-  ]))
+  global[indexName]
+    .FACETS({
+      FIELD: ['colour', 'drivetrain']
+    })
+    .then(result =>
+      t.deepEqual(result, [
+        { FIELD: 'colour', VALUE: 'Black', _id: ['1', '4', '7'] },
+        { FIELD: 'colour', VALUE: 'Blue', _id: ['0', '6'] },
+        { FIELD: 'colour', VALUE: 'Red', _id: ['5'] },
+        { FIELD: 'colour', VALUE: 'Silver', _id: ['2', '3', '8'] },
+        { FIELD: 'colour', VALUE: 'White', _id: ['9'] },
+        { FIELD: 'drivetrain', VALUE: 'Diesel', _id: ['4'] },
+        { FIELD: 'drivetrain', VALUE: 'Electric', _id: ['5', '6'] },
+        { FIELD: 'drivetrain', VALUE: 'Hybrid', _id: ['0', '2', '3', '9'] },
+        { FIELD: 'drivetrain', VALUE: 'Petrol', _id: ['1', '7', '8'] }
+      ])
+    )
 })
 
 test('get FACETS for two FIELDs (spread)', t => {
   t.plan(1)
-  global[indexName].FACETS({
-    FIELD: 'colour'
-  }, {
-    FIELD: 'drivetrain'
-  }).then(result => t.deepEqual(result, [
-    { FIELD: 'colour', VALUE: 'Black', _id: ['1', '4', '7'] },
-    { FIELD: 'colour', VALUE: 'Blue', _id: ['0', '6'] },
-    { FIELD: 'colour', VALUE: 'Red', _id: ['5'] },
-    { FIELD: 'colour', VALUE: 'Silver', _id: ['2', '3', '8'] },
-    { FIELD: 'colour', VALUE: 'White', _id: ['9'] },
-    { FIELD: 'drivetrain', VALUE: 'Diesel', _id: ['4'] },
-    { FIELD: 'drivetrain', VALUE: 'Electric', _id: ['5', '6'] },
-    { FIELD: 'drivetrain', VALUE: 'Hybrid', _id: ['0', '2', '3', '9'] },
-    { FIELD: 'drivetrain', VALUE: 'Petrol', _id: ['1', '7', '8'] }
-  ]))
+  global[indexName]
+    .FACETS(
+      {
+        FIELD: 'colour'
+      },
+      {
+        FIELD: 'drivetrain'
+      }
+    )
+    .then(result =>
+      t.deepEqual(result, [
+        { FIELD: 'colour', VALUE: 'Black', _id: ['1', '4', '7'] },
+        { FIELD: 'colour', VALUE: 'Blue', _id: ['0', '6'] },
+        { FIELD: 'colour', VALUE: 'Red', _id: ['5'] },
+        { FIELD: 'colour', VALUE: 'Silver', _id: ['2', '3', '8'] },
+        { FIELD: 'colour', VALUE: 'White', _id: ['9'] },
+        { FIELD: 'drivetrain', VALUE: 'Diesel', _id: ['4'] },
+        { FIELD: 'drivetrain', VALUE: 'Electric', _id: ['5', '6'] },
+        { FIELD: 'drivetrain', VALUE: 'Hybrid', _id: ['0', '2', '3', '9'] },
+        { FIELD: 'drivetrain', VALUE: 'Petrol', _id: ['1', '7', '8'] }
+      ])
+    )
 })
 
 test('get FACETS for all FIELDS', t => {
   t.plan(1)
-  global[indexName].FACETS().then(result => t.deepEqual(result, [
-    { FIELD: 'colour', VALUE: 'Black', _id: ['1', '4', '7'] },
-    { FIELD: 'colour', VALUE: 'Blue', _id: ['0', '6'] },
-    { FIELD: 'colour', VALUE: 'Red', _id: ['5'] },
-    { FIELD: 'colour', VALUE: 'Silver', _id: ['2', '3', '8'] },
-    { FIELD: 'colour', VALUE: 'White', _id: ['9'] },
-    { FIELD: 'drivetrain', VALUE: 'Diesel', _id: ['4'] },
-    { FIELD: 'drivetrain', VALUE: 'Electric', _id: ['5', '6'] },
-    { FIELD: 'drivetrain', VALUE: 'Hybrid', _id: ['0', '2', '3', '9'] },
-    { FIELD: 'drivetrain', VALUE: 'Petrol', _id: ['1', '7', '8'] },
-    { FIELD: 'make', VALUE: 'BMW', _id: ['0', '4', '7', '8'] },
-    { FIELD: 'make', VALUE: 'Tesla', _id: ['5', '6'] },
-    { FIELD: 'make', VALUE: 'Volvo', _id: ['1', '2', '3', '9'] },
-    { FIELD: 'model', VALUE: '3-series', _id: ['0', '7', '8'] },
-    { FIELD: 'model', VALUE: '5-series', _id: ['4'] },
-    { FIELD: 'model', VALUE: 'S', _id: ['6'] },
-    { FIELD: 'model', VALUE: 'X', _id: ['5'] },
-    { FIELD: 'model', VALUE: 'XC60', _id: ['3'] },
-    { FIELD: 'model', VALUE: 'XC90', _id: ['1', '2', '9'] },
-    { FIELD: 'price', VALUE: 33114, _id: ['2'] },
-    { FIELD: 'price', VALUE: 37512, _id: ['9'] },
-    { FIELD: 'price', VALUE: 44274, _id: ['1'] },
-    { FIELD: 'price', VALUE: 47391, _id: ['3'] },
-    { FIELD: 'price', VALUE: 57280, _id: ['7'] },
-    { FIELD: 'price', VALUE: 75397, _id: ['5'] },
-    { FIELD: 'price', VALUE: 79540, _id: ['6'] },
-    { FIELD: 'price', VALUE: 81177, _id: ['8'] },
-    { FIELD: 'price', VALUE: 83988, _id: ['0'] },
-    { FIELD: 'price', VALUE: 88652, _id: ['4'] },
-    { FIELD: 'year', VALUE: 2000, _id: ['4'] },
-    { FIELD: 'year', VALUE: 2004, _id: ['9'] },
-    { FIELD: 'year', VALUE: 2007, _id: ['3'] },
-    { FIELD: 'year', VALUE: 2008, _id: ['2'] },
-    { FIELD: 'year', VALUE: 2011, _id: ['0'] },
-    { FIELD: 'year', VALUE: 2014, _id: ['5'] },
-    { FIELD: 'year', VALUE: 2015, _id: ['8'] },
-    { FIELD: 'year', VALUE: 2016, _id: ['1'] },
-    { FIELD: 'year', VALUE: 2017, _id: ['6'] },
-    { FIELD: 'year', VALUE: 2019, _id: ['7'] }
-  ]))
+  global[indexName].FACETS().then(result =>
+    t.deepEqual(result, [
+      { FIELD: 'colour', VALUE: 'Black', _id: ['1', '4', '7'] },
+      { FIELD: 'colour', VALUE: 'Blue', _id: ['0', '6'] },
+      { FIELD: 'colour', VALUE: 'Red', _id: ['5'] },
+      { FIELD: 'colour', VALUE: 'Silver', _id: ['2', '3', '8'] },
+      { FIELD: 'colour', VALUE: 'White', _id: ['9'] },
+      { FIELD: 'drivetrain', VALUE: 'Diesel', _id: ['4'] },
+      { FIELD: 'drivetrain', VALUE: 'Electric', _id: ['5', '6'] },
+      { FIELD: 'drivetrain', VALUE: 'Hybrid', _id: ['0', '2', '3', '9'] },
+      { FIELD: 'drivetrain', VALUE: 'Petrol', _id: ['1', '7', '8'] },
+      { FIELD: 'make', VALUE: 'BMW', _id: ['0', '4', '7', '8'] },
+      { FIELD: 'make', VALUE: 'Tesla', _id: ['5', '6'] },
+      { FIELD: 'make', VALUE: 'Volvo', _id: ['1', '2', '3', '9'] },
+      { FIELD: 'model', VALUE: '3-series', _id: ['0', '7', '8'] },
+      { FIELD: 'model', VALUE: '5-series', _id: ['4'] },
+      { FIELD: 'model', VALUE: 'S', _id: ['6'] },
+      { FIELD: 'model', VALUE: 'X', _id: ['5'] },
+      { FIELD: 'model', VALUE: 'XC60', _id: ['3'] },
+      { FIELD: 'model', VALUE: 'XC90', _id: ['1', '2', '9'] },
+      { FIELD: 'price', VALUE: 33114, _id: ['2'] },
+      { FIELD: 'price', VALUE: 37512, _id: ['9'] },
+      { FIELD: 'price', VALUE: 44274, _id: ['1'] },
+      { FIELD: 'price', VALUE: 47391, _id: ['3'] },
+      { FIELD: 'price', VALUE: 57280, _id: ['7'] },
+      { FIELD: 'price', VALUE: 75397, _id: ['5'] },
+      { FIELD: 'price', VALUE: 79540, _id: ['6'] },
+      { FIELD: 'price', VALUE: 81177, _id: ['8'] },
+      { FIELD: 'price', VALUE: 83988, _id: ['0'] },
+      { FIELD: 'price', VALUE: 88652, _id: ['4'] },
+      { FIELD: 'year', VALUE: 2000, _id: ['4'] },
+      { FIELD: 'year', VALUE: 2004, _id: ['9'] },
+      { FIELD: 'year', VALUE: 2007, _id: ['3'] },
+      { FIELD: 'year', VALUE: 2008, _id: ['2'] },
+      { FIELD: 'year', VALUE: 2011, _id: ['0'] },
+      { FIELD: 'year', VALUE: 2014, _id: ['5'] },
+      { FIELD: 'year', VALUE: 2015, _id: ['8'] },
+      { FIELD: 'year', VALUE: 2016, _id: ['1'] },
+      { FIELD: 'year', VALUE: 2017, _id: ['6'] },
+      { FIELD: 'year', VALUE: 2019, _id: ['7'] }
+    ])
+  )
 })
 
 test('get FACETS for all FIELDS with {}', t => {
   t.plan(1)
-  global[indexName].FACETS({}).then(result => t.deepEqual(result, [
-    { FIELD: 'colour', VALUE: 'Black', _id: ['1', '4', '7'] },
-    { FIELD: 'colour', VALUE: 'Blue', _id: ['0', '6'] },
-    { FIELD: 'colour', VALUE: 'Red', _id: ['5'] },
-    { FIELD: 'colour', VALUE: 'Silver', _id: ['2', '3', '8'] },
-    { FIELD: 'colour', VALUE: 'White', _id: ['9'] },
-    { FIELD: 'drivetrain', VALUE: 'Diesel', _id: ['4'] },
-    { FIELD: 'drivetrain', VALUE: 'Electric', _id: ['5', '6'] },
-    { FIELD: 'drivetrain', VALUE: 'Hybrid', _id: ['0', '2', '3', '9'] },
-    { FIELD: 'drivetrain', VALUE: 'Petrol', _id: ['1', '7', '8'] },
-    { FIELD: 'make', VALUE: 'BMW', _id: ['0', '4', '7', '8'] },
-    { FIELD: 'make', VALUE: 'Tesla', _id: ['5', '6'] },
-    { FIELD: 'make', VALUE: 'Volvo', _id: ['1', '2', '3', '9'] },
-    { FIELD: 'model', VALUE: '3-series', _id: ['0', '7', '8'] },
-    { FIELD: 'model', VALUE: '5-series', _id: ['4'] },
-    { FIELD: 'model', VALUE: 'S', _id: ['6'] },
-    { FIELD: 'model', VALUE: 'X', _id: ['5'] },
-    { FIELD: 'model', VALUE: 'XC60', _id: ['3'] },
-    { FIELD: 'model', VALUE: 'XC90', _id: ['1', '2', '9'] },
-    { FIELD: 'price', VALUE: 33114, _id: ['2'] },
-    { FIELD: 'price', VALUE: 37512, _id: ['9'] },
-    { FIELD: 'price', VALUE: 44274, _id: ['1'] },
-    { FIELD: 'price', VALUE: 47391, _id: ['3'] },
-    { FIELD: 'price', VALUE: 57280, _id: ['7'] },
-    { FIELD: 'price', VALUE: 75397, _id: ['5'] },
-    { FIELD: 'price', VALUE: 79540, _id: ['6'] },
-    { FIELD: 'price', VALUE: 81177, _id: ['8'] },
-    { FIELD: 'price', VALUE: 83988, _id: ['0'] },
-    { FIELD: 'price', VALUE: 88652, _id: ['4'] },
-    { FIELD: 'year', VALUE: 2000, _id: ['4'] },
-    { FIELD: 'year', VALUE: 2004, _id: ['9'] },
-    { FIELD: 'year', VALUE: 2007, _id: ['3'] },
-    { FIELD: 'year', VALUE: 2008, _id: ['2'] },
-    { FIELD: 'year', VALUE: 2011, _id: ['0'] },
-    { FIELD: 'year', VALUE: 2014, _id: ['5'] },
-    { FIELD: 'year', VALUE: 2015, _id: ['8'] },
-    { FIELD: 'year', VALUE: 2016, _id: ['1'] },
-    { FIELD: 'year', VALUE: 2017, _id: ['6'] },
-    { FIELD: 'year', VALUE: 2019, _id: ['7'] }
-  ]))
+  global[indexName].FACETS({}).then(result =>
+    t.deepEqual(result, [
+      { FIELD: 'colour', VALUE: 'Black', _id: ['1', '4', '7'] },
+      { FIELD: 'colour', VALUE: 'Blue', _id: ['0', '6'] },
+      { FIELD: 'colour', VALUE: 'Red', _id: ['5'] },
+      { FIELD: 'colour', VALUE: 'Silver', _id: ['2', '3', '8'] },
+      { FIELD: 'colour', VALUE: 'White', _id: ['9'] },
+      { FIELD: 'drivetrain', VALUE: 'Diesel', _id: ['4'] },
+      { FIELD: 'drivetrain', VALUE: 'Electric', _id: ['5', '6'] },
+      { FIELD: 'drivetrain', VALUE: 'Hybrid', _id: ['0', '2', '3', '9'] },
+      { FIELD: 'drivetrain', VALUE: 'Petrol', _id: ['1', '7', '8'] },
+      { FIELD: 'make', VALUE: 'BMW', _id: ['0', '4', '7', '8'] },
+      { FIELD: 'make', VALUE: 'Tesla', _id: ['5', '6'] },
+      { FIELD: 'make', VALUE: 'Volvo', _id: ['1', '2', '3', '9'] },
+      { FIELD: 'model', VALUE: '3-series', _id: ['0', '7', '8'] },
+      { FIELD: 'model', VALUE: '5-series', _id: ['4'] },
+      { FIELD: 'model', VALUE: 'S', _id: ['6'] },
+      { FIELD: 'model', VALUE: 'X', _id: ['5'] },
+      { FIELD: 'model', VALUE: 'XC60', _id: ['3'] },
+      { FIELD: 'model', VALUE: 'XC90', _id: ['1', '2', '9'] },
+      { FIELD: 'price', VALUE: 33114, _id: ['2'] },
+      { FIELD: 'price', VALUE: 37512, _id: ['9'] },
+      { FIELD: 'price', VALUE: 44274, _id: ['1'] },
+      { FIELD: 'price', VALUE: 47391, _id: ['3'] },
+      { FIELD: 'price', VALUE: 57280, _id: ['7'] },
+      { FIELD: 'price', VALUE: 75397, _id: ['5'] },
+      { FIELD: 'price', VALUE: 79540, _id: ['6'] },
+      { FIELD: 'price', VALUE: 81177, _id: ['8'] },
+      { FIELD: 'price', VALUE: 83988, _id: ['0'] },
+      { FIELD: 'price', VALUE: 88652, _id: ['4'] },
+      { FIELD: 'year', VALUE: 2000, _id: ['4'] },
+      { FIELD: 'year', VALUE: 2004, _id: ['9'] },
+      { FIELD: 'year', VALUE: 2007, _id: ['3'] },
+      { FIELD: 'year', VALUE: 2008, _id: ['2'] },
+      { FIELD: 'year', VALUE: 2011, _id: ['0'] },
+      { FIELD: 'year', VALUE: 2014, _id: ['5'] },
+      { FIELD: 'year', VALUE: 2015, _id: ['8'] },
+      { FIELD: 'year', VALUE: 2016, _id: ['1'] },
+      { FIELD: 'year', VALUE: 2017, _id: ['6'] },
+      { FIELD: 'year', VALUE: 2019, _id: ['7'] }
+    ])
+  )
 })

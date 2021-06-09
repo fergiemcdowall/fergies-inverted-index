@@ -1,3 +1,8 @@
+const charwise = require('charwise')
+// polyfill- HI and LO coming in next version of charwise
+charwise.LO = null
+charwise.HI = undefined
+
 module.exports = ops => {
   const isString = s => typeof s === 'string'
 
@@ -15,7 +20,9 @@ module.exports = ops => {
       // case: <FIELD>:<VALUE>
       // case: undefined
 
-      const setCase = str => (ops.caseSensitive ? str : str.toLowerCase())
+      // TODO: this should be moved into a query processing pipeline
+      const setCase = str =>
+        ops.caseSensitive || typeof str !== 'string' ? str : str.toLowerCase()
 
       if (typeof token === 'undefined') token = {}
 
@@ -53,37 +60,29 @@ module.exports = ops => {
       // }
 
       // parse object string VALUE
-      if (typeof token.VALUE === 'string') {
+      if (typeof token.VALUE === 'string' || typeof token.VALUE === 'number') {
         token.VALUE = {
           GTE: setCase(token.VALUE),
           LTE: setCase(token.VALUE)
         }
       }
 
-      // parse object number VALUE
-      if (typeof token.VALUE === 'number') {
+      if (
+        typeof token.VALUE === 'undefined' || // VALUE is not present
+        !Object.keys(token.VALUE).length // VALUE is an empty object- {}
+      ) {
         token.VALUE = {
-          GTE: token.VALUE,
-          LTE: token.VALUE
+          GTE: charwise.LO,
+          LTE: charwise.HI
         }
       }
 
-      if (typeof token.VALUE === 'undefined') {
-        token.VALUE = {
-          // GTE: '!',
-          // LTE: '￮'
-        }
-      }
+      if (typeof token.VALUE.GTE === 'undefined') token.VALUE.GTE = charwise.LO
+      if (typeof token.VALUE.LTE === 'undefined') token.VALUE.LTE = charwise.HI
 
       token.VALUE = Object.assign(token.VALUE, {
-        GTE:
-          typeof token.VALUE.GTE === 'number'
-            ? token.VALUE.GTE
-            : setCase(token.VALUE.GTE),
-        LTE:
-          typeof token.VALUE.LTE === 'number'
-            ? token.VALUE.LTE
-            : setCase(token.VALUE.LTE || '￮')
+        GTE: setCase(token.VALUE.GTE),
+        LTE: setCase(token.VALUE.LTE)
       })
 
       // parse object FIELD
@@ -143,7 +142,9 @@ module.exports = ops => {
     if (value !== undefined || typeof value === 'number') {
       valueAndScore.push(value)
     }
-    if (valueAndScore.length && lte) valueAndScore.push('￮')
+    //    if (valueAndScore.length && lte) valueAndScore.push('￮')
+    if (lte) valueAndScore.push(charwise.HI)
+    //    console.log(['IDX', field, valueAndScore])
     return ['IDX', field, valueAndScore]
   }
 
@@ -211,8 +212,8 @@ module.exports = ops => {
       const fieldNames = []
       ops._db
         .createReadStream({
-          gte: ['FIELD', ''],
-          lte: ['FIELD', '￮']
+          gte: ['FIELD', charwise.LO],
+          lte: ['FIELD', charwise.HI]
         })
         .on('data', d => fieldNames.push(d.value))
         .on('end', () => resolve(fieldNames))
@@ -229,8 +230,8 @@ module.exports = ops => {
       const existingIds = []
       ops._db
         .createReadStream({
-          gte: [ops.docExistsSpace, ''],
-          lte: [ops.docExistsSpace, '￮'],
+          gte: [ops.docExistsSpace, charwise.LO],
+          lte: [ops.docExistsSpace, charwise.HI],
           values: false
         })
         .on('data', d => existingIds.push(d[1]))
@@ -335,7 +336,7 @@ module.exports = ops => {
           token.FIELD.map(field =>
             getRange({
               gte: formatKey(field, token.VALUE.GTE),
-              lte: formatKey(field, token.VALUE.LTE),
+              lte: formatKey(field, token.VALUE.LTE, true),
               keys: true,
               values: false
             }).then(items =>
@@ -372,7 +373,7 @@ module.exports = ops => {
           token.FIELD.map(field =>
             getRange({
               gte: formatKey(field, token.VALUE.GTE),
-              lte: formatKey(field, token.VALUE.LTE)
+              lte: formatKey(field, token.VALUE.LTE, true)
             }).then(items =>
               items.map(item => ({
                 FIELD: item.key[1],

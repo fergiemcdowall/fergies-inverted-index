@@ -142,8 +142,8 @@ test('can parse a token of the format { FIELD: <field name> }', t => {
     t.deepEqual(result, {
       FIELD: ['make'],
       VALUE: {
-        GTE: undefined,
-        LTE: '￮'
+        GTE: null,
+        LTE: undefined
       }
     })
   )
@@ -220,7 +220,7 @@ test('can parse a token of the format { VALUE: <value> }', t => {
     )
 })
 
-test('can parse an object token without LTE', t => {
+test('can parse an object token with LTE "￮"', t => {
   t.plan(1)
   global[indexName]
     .parseToken({
@@ -254,7 +254,7 @@ test('can parse an object token without GTE', t => {
       t.deepEqual(result, {
         FIELD: ['make', 'model'],
         VALUE: {
-          GTE: undefined,
+          GTE: null,
           LTE: 'volvo'
         }
       })

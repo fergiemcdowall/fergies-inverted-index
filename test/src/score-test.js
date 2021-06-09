@@ -36,7 +36,12 @@ const data = [
     _id: 3,
     make: 'Volvo',
     colour: 'Silver',
-    year: JSON.stringify([2007, -1]),
+    year: JSON.stringify([
+      2007,
+      JSON.stringify({
+        foo: -1
+      })
+    ]),
     price: 4739100,
     model: 'XC60',
     drivetrain: 'Hybrid'
@@ -135,7 +140,10 @@ test('search in specified field', t => {
   }).then(result =>
     t.deepEquals(result, [
       { _id: '9', _match: [{ FIELD: 'year', VALUE: 2004, SCORE: 'ÅØÆ' }] },
-      { _id: '3', _match: [{ FIELD: 'year', VALUE: 2007, SCORE: -1 }] },
+      {
+        _id: '3',
+        _match: [{ FIELD: 'year', VALUE: 2007, SCORE: '{"foo":-1}' }]
+      },
       { _id: '2', _match: [{ FIELD: 'year', VALUE: 2008, SCORE: 98623 }] },
       { _id: '0', _match: [{ FIELD: 'year', VALUE: 2011, SCORE: 0.3 }] },
       { _id: '5', _match: [{ FIELD: 'year', VALUE: 2014, SCORE: -0.95 }] },

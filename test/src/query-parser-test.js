@@ -834,9 +834,6 @@ test('can aggregate totalamt', t => {
   t.plan(1)
   global[indexName]
     .AGGREGATE({
-      // global[indexName].DISTINCT({
-      //   FIELD: 'totalamt'
-      // }).then(result => result.map(global[indexName].BUCKET)),
       FACETS: global[indexName].FACETS({
         FIELD: 'totalamt'
       }),
@@ -1002,7 +999,7 @@ test('can do custom buckets', t => {
     t.deepEqual(result, [
       {
         FIELD: ['totalamt'],
-        VALUE: { LTE: 13100000, GTE: undefined },
+        VALUE: { GTE: null, LTE: 13100000 },
         _id: [
           '52b213b38594d8a2be17c781',
           '52b213b38594d8a2be17c782',
@@ -1014,7 +1011,7 @@ test('can do custom buckets', t => {
       },
       {
         FIELD: ['totalamt'],
-        VALUE: { GTE: 13200000, LTE: '￮' },
+        VALUE: { GTE: 13200000, LTE: undefined },
         _id: [
           '52b213b38594d8a2be17c780',
           '52b213b38594d8a2be17c786',

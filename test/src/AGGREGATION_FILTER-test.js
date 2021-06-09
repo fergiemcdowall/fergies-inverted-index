@@ -120,8 +120,9 @@ test('use AGGREGATION_FILTER with FACETS', t => {
     AND('colour:Black')
   ]).then(([facetResult, queryResult]) => {
     t.deepEqual(
-      AGGREGATION_FILTER(facetResult, queryResult)
-        .filter(item => item._id.length),
+      AGGREGATION_FILTER(facetResult, queryResult).filter(
+        item => item._id.length
+      ),
       [
         { FIELD: 'drivetrain', VALUE: 'Diesel', _id: ['4'] },
         { FIELD: 'drivetrain', VALUE: 'Petrol', _id: ['1', '7'] },
@@ -137,33 +138,33 @@ test('use AGGREGATION_FILTER with BUCKETS', t => {
   t.plan(1)
   const { BUCKETS, AGGREGATION_FILTER, AND } = global[indexName]
   Promise.all([
-    BUCKETS({
-      FIELD: ['year'],
-      VALUE: {
-        LTE: 2010
+    BUCKETS(
+      {
+        FIELD: ['year'],
+        VALUE: {
+          LTE: 2010
+        }
+      },
+      {
+        FIELD: ['year'],
+        VALUE: {
+          GTE: 2010
+        }
       }
-    }, {
-      FIELD: ['year'],
-      VALUE: {
-        GTE: 2010
-      }
-    }),
+    ),
     AND('colour:Black')
   ]).then(([facetResult, queryResult]) => {
-    t.deepEqual(
-      AGGREGATION_FILTER(facetResult, queryResult),
-      [
-        {
-          FIELD: ['year'],
-          VALUE: { GTE: undefined, LTE: 2010 },
-          _id: ['4']
-        },
-        {
-          FIELD: ['year'],
-          VALUE: { GTE: 2010, LTE: '￮' },
-          _id: ['1', '7']
-        }
-      ]
-    )
+    t.deepEqual(AGGREGATION_FILTER(facetResult, queryResult), [
+      {
+        FIELD: ['year'],
+        VALUE: { GTE: null, LTE: 2010 },
+        _id: ['4']
+      },
+      {
+        FIELD: ['year'],
+        VALUE: { GTE: 2010, LTE: undefined },
+        _id: ['1', '7']
+      }
+    ])
   })
 })
