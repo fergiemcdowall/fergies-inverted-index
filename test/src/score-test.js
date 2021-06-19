@@ -123,7 +123,7 @@ test('search in specified field', t => {
     VALUE: 2000
   }).then(result =>
     t.deepEquals(result, [
-      { _id: '4', _match: [{ FIELD: 'year', VALUE: 2000, SCORE: 'comment' }] }
+      { _id: 4, _match: [{ FIELD: 'year', VALUE: 2000, SCORE: 'comment' }] }
     ])
   )
 })
@@ -139,15 +139,15 @@ test('search in specified field', t => {
     }
   }).then(result =>
     t.deepEquals(result, [
-      { _id: '9', _match: [{ FIELD: 'year', VALUE: 2004, SCORE: 'ÅØÆ' }] },
+      { _id: 9, _match: [{ FIELD: 'year', VALUE: 2004, SCORE: 'ÅØÆ' }] },
       {
-        _id: '3',
+        _id: 3,
         _match: [{ FIELD: 'year', VALUE: 2007, SCORE: '{"foo":-1}' }]
       },
-      { _id: '2', _match: [{ FIELD: 'year', VALUE: 2008, SCORE: 98623 }] },
-      { _id: '0', _match: [{ FIELD: 'year', VALUE: 2011, SCORE: 0.3 }] },
-      { _id: '5', _match: [{ FIELD: 'year', VALUE: 2014, SCORE: -0.95 }] },
-      { _id: '8', _match: [{ FIELD: 'year', VALUE: 2015, SCORE: 12345 }] }
+      { _id: 2, _match: [{ FIELD: 'year', VALUE: 2008, SCORE: 98623 }] },
+      { _id: 0, _match: [{ FIELD: 'year', VALUE: 2011, SCORE: 0.3 }] },
+      { _id: 5, _match: [{ FIELD: 'year', VALUE: 2014, SCORE: -0.95 }] },
+      { _id: 8, _match: [{ FIELD: 'year', VALUE: 2015, SCORE: 12345 }] }
     ])
   )
 })
@@ -159,7 +159,7 @@ test('search in all fields', t => {
     VALUE: 2000
   }).then(result =>
     t.deepEquals(result, [
-      { _id: '4', _match: [{ FIELD: 'year', VALUE: 2000, SCORE: 'comment' }] }
+      { _id: 4, _match: [{ FIELD: 'year', VALUE: 2000, SCORE: 'comment' }] }
     ])
   )
 })

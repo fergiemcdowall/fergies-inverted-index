@@ -7,13 +7,15 @@ const write = require('./write.js')
 
 // _match is nested by default so that AND and OR work correctly under
 // the bonnet. Flatten array before presenting to consumer
-const flattenMatchArrayInResults = results =>
-  results.map(result => {
+const flattenMatchArrayInResults = results => {
+  //  console.log(results)
+  return results.map(result => {
     result._match = result._match
       .flat(Infinity)
       .map(m => (typeof m === 'string' ? JSON.parse(m) : m))
     return result
   })
+}
 
 const initStore = (ops = {}) =>
   new Promise((resolve, reject) => {
@@ -87,7 +89,7 @@ const makeAFii = ops => {
         .then(result => result.union)
         .then(flattenMatchArrayInResults),
     PUT: w.PUT,
-    SET_SUBTRACTION: r.SET_SUBTRACTION,
+    //    SET_SUBTRACTION: r.SET_SUBTRACTION,
     SORT: r.SORT,
     STORE: ops._db,
     TIMESTAMP_LAST_UPDATED: w.TIMESTAMP_LAST_UPDATED,

@@ -124,11 +124,11 @@ test('use AGGREGATION_FILTER with FACETS', t => {
         item => item._id.length
       ),
       [
-        { FIELD: 'drivetrain', VALUE: 'Diesel', _id: ['4'] },
-        { FIELD: 'drivetrain', VALUE: 'Petrol', _id: ['1', '7'] },
-        { FIELD: 'model', VALUE: '3-series', _id: ['7'] },
-        { FIELD: 'model', VALUE: '5-series', _id: ['4'] },
-        { FIELD: 'model', VALUE: 'XC90', _id: ['1'] }
+        { FIELD: 'drivetrain', VALUE: 'Diesel', _id: [4] },
+        { FIELD: 'drivetrain', VALUE: 'Petrol', _id: [1, 7] },
+        { FIELD: 'model', VALUE: '3-series', _id: [7] },
+        { FIELD: 'model', VALUE: '5-series', _id: [4] },
+        { FIELD: 'model', VALUE: 'XC90', _id: [1] }
       ]
     )
   })
@@ -158,12 +158,12 @@ test('use AGGREGATION_FILTER with BUCKETS', t => {
       {
         FIELD: ['year'],
         VALUE: { GTE: null, LTE: 2010 },
-        _id: ['4']
+        _id: [4]
       },
       {
         FIELD: ['year'],
         VALUE: { GTE: 2010, LTE: undefined },
-        _id: ['1', '7']
+        _id: [1, 7]
       }
     ])
   })

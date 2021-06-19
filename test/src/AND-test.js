@@ -115,7 +115,7 @@ test('get simple AND', t => {
   global[indexName].AND('drivetrain:Diesel', 'colour:Black').then(result =>
     t.deepEqual(result, [
       {
-        _id: '4',
+        _id: 4,
         _match: [
           { FIELD: 'drivetrain', VALUE: 'Diesel' },
           { FIELD: 'colour', VALUE: 'Black' }
@@ -133,16 +133,16 @@ test('get simple AND for NUMERIC values, no VALUE specified', t => {
     })
     .then(result =>
       t.deepEqual(result, [
-        { _id: '3', _match: [{ FIELD: 'price', VALUE: 0 }] },
-        { _id: '6', _match: [{ FIELD: 'price', VALUE: 9 }] },
-        { _id: '4', _match: [{ FIELD: 'price', VALUE: 10 }] },
-        { _id: '9', _match: [{ FIELD: 'price', VALUE: 3751 }] },
-        { _id: '0', _match: [{ FIELD: 'price', VALUE: 8398 }] },
-        { _id: '2', _match: [{ FIELD: 'price', VALUE: 33114 }] },
-        { _id: '7', _match: [{ FIELD: 'price', VALUE: 57280 }] },
-        { _id: '8', _match: [{ FIELD: 'price', VALUE: 81177 }] },
-        { _id: '1', _match: [{ FIELD: 'price', VALUE: 442742 }] },
-        { _id: '5', _match: [{ FIELD: 'price', VALUE: 100000000000000000 }] }
+        { _id: 3, _match: [{ FIELD: 'price', VALUE: 0 }] },
+        { _id: 6, _match: [{ FIELD: 'price', VALUE: 9 }] },
+        { _id: 4, _match: [{ FIELD: 'price', VALUE: 10 }] },
+        { _id: 9, _match: [{ FIELD: 'price', VALUE: 3751 }] },
+        { _id: 0, _match: [{ FIELD: 'price', VALUE: 8398 }] },
+        { _id: 2, _match: [{ FIELD: 'price', VALUE: 33114 }] },
+        { _id: 7, _match: [{ FIELD: 'price', VALUE: 57280 }] },
+        { _id: 8, _match: [{ FIELD: 'price', VALUE: 81177 }] },
+        { _id: 1, _match: [{ FIELD: 'price', VALUE: 442742 }] },
+        { _id: 5, _match: [{ FIELD: 'price', VALUE: 100000000000000000 }] }
       ])
     )
 })
@@ -155,16 +155,16 @@ test('get simple AND for ALPHABETICAL values, no VALUE specified', t => {
     })
     .then(result =>
       t.deepEqual(result, [
-        { _id: '0', _match: [{ FIELD: 'make', VALUE: 'BMW' }] },
-        { _id: '4', _match: [{ FIELD: 'make', VALUE: 'BMW' }] },
-        { _id: '7', _match: [{ FIELD: 'make', VALUE: 'BMW' }] },
-        { _id: '8', _match: [{ FIELD: 'make', VALUE: 'BMW' }] },
-        { _id: '5', _match: [{ FIELD: 'make', VALUE: 'Tesla' }] },
-        { _id: '6', _match: [{ FIELD: 'make', VALUE: 'Tesla' }] },
-        { _id: '1', _match: [{ FIELD: 'make', VALUE: 'Volvo' }] },
-        { _id: '2', _match: [{ FIELD: 'make', VALUE: 'Volvo' }] },
-        { _id: '3', _match: [{ FIELD: 'make', VALUE: 'Volvo' }] },
-        { _id: '9', _match: [{ FIELD: 'make', VALUE: 'Volvo' }] }
+        { _id: 0, _match: [{ FIELD: 'make', VALUE: 'BMW' }] },
+        { _id: 4, _match: [{ FIELD: 'make', VALUE: 'BMW' }] },
+        { _id: 7, _match: [{ FIELD: 'make', VALUE: 'BMW' }] },
+        { _id: 8, _match: [{ FIELD: 'make', VALUE: 'BMW' }] },
+        { _id: 5, _match: [{ FIELD: 'make', VALUE: 'Tesla' }] },
+        { _id: 6, _match: [{ FIELD: 'make', VALUE: 'Tesla' }] },
+        { _id: 1, _match: [{ FIELD: 'make', VALUE: 'Volvo' }] },
+        { _id: 2, _match: [{ FIELD: 'make', VALUE: 'Volvo' }] },
+        { _id: 3, _match: [{ FIELD: 'make', VALUE: 'Volvo' }] },
+        { _id: 9, _match: [{ FIELD: 'make', VALUE: 'Volvo' }] }
       ])
     )
 })
@@ -181,10 +181,10 @@ test('get simple AND for NUMERIC values', t => {
     })
     .then(result =>
       t.deepEqual(result, [
-        { _id: '9', _match: [{ FIELD: 'price', VALUE: 3751 }] },
-        { _id: '0', _match: [{ FIELD: 'price', VALUE: 8398 }] },
-        { _id: '2', _match: [{ FIELD: 'price', VALUE: 33114 }] },
-        { _id: '7', _match: [{ FIELD: 'price', VALUE: 57280 }] }
+        { _id: 9, _match: [{ FIELD: 'price', VALUE: 3751 }] },
+        { _id: 0, _match: [{ FIELD: 'price', VALUE: 8398 }] },
+        { _id: 2, _match: [{ FIELD: 'price', VALUE: 33114 }] },
+        { _id: 7, _match: [{ FIELD: 'price', VALUE: 57280 }] }
       ])
     )
 })
@@ -201,9 +201,9 @@ test('get simple AND for NUMERIC values', t => {
     })
     .then(result =>
       t.deepEqual(result, [
-        { _id: '3', _match: [{ FIELD: 'price', VALUE: 0 }] },
-        { _id: '6', _match: [{ FIELD: 'price', VALUE: 9 }] },
-        { _id: '4', _match: [{ FIELD: 'price', VALUE: 10 }] }
+        { _id: 3, _match: [{ FIELD: 'price', VALUE: 0 }] },
+        { _id: 6, _match: [{ FIELD: 'price', VALUE: 9 }] },
+        { _id: 4, _match: [{ FIELD: 'price', VALUE: 10 }] }
       ])
     )
 })

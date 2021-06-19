@@ -33,16 +33,16 @@ test('can add some data', t => {
 test('can verify store', t => {
   const entries = [
     {
-      key: ['DOC', '0'],
-      value: { _id: '0', text: ['this', 'is', 'a', 'sentence'] }
+      key: ['DOC', 0],
+      value: { _id: 0, text: ['this', 'is', 'a', 'sentence'] }
     },
     {
-      key: ['DOC', '1'],
-      value: { _id: '1', text: ['a', 'sentence', 'that', 'is', 'interesting'] }
+      key: ['DOC', 1],
+      value: { _id: 1, text: ['a', 'sentence', 'that', 'is', 'interesting'] }
     },
     { key: ['FIELD', 'text'], value: 'text' },
-    { key: ['IDX', 'text', ['interesting']], value: ['1'] },
-    { key: ['IDX', 'text', ['sentence']], value: ['0', '1'] }
+    { key: ['IDX', 'text', ['interesting']], value: [1] },
+    { key: ['IDX', 'text', ['sentence']], value: [0, 1] }
   ]
   t.plan(entries.length + 1)
   global[indexName].STORE.createReadStream({ lt: ['~'] })
@@ -56,8 +56,8 @@ test('can read data ignoring stopwords', t => {
     .AND('this', 'is', 'a', 'sentence', 'bananas')
     .then(result => {
       t.deepEqual(result, [
-        { _id: '0', _match: [{ FIELD: 'text', VALUE: 'sentence' }] },
-        { _id: '1', _match: [{ FIELD: 'text', VALUE: 'sentence' }] }
+        { _id: 0, _match: [{ FIELD: 'text', VALUE: 'sentence' }] },
+        { _id: 1, _match: [{ FIELD: 'text', VALUE: 'sentence' }] }
       ])
     })
 })

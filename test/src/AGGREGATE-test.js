@@ -141,12 +141,12 @@ test('simple AGGREGATE with BUCKETS', t => {
         {
           FIELD: ['drivetrain'],
           VALUE: { GTE: 'Hybrid', LTE: 'Hybrid' },
-          _id: ['2', '3', '9']
+          _id: [2, 3, 9]
         },
         {
           FIELD: ['drivetrain'],
           VALUE: { GTE: 'Petrol', LTE: 'Petrol' },
-          _id: ['1']
+          _id: [1]
         },
         {
           FIELD: ['drivetrain'],
@@ -156,10 +156,10 @@ test('simple AGGREGATE with BUCKETS', t => {
       ],
       FACETS: [],
       RESULT: [
-        { _id: '1', _match: [{ FIELD: 'make', VALUE: 'Volvo' }] },
-        { _id: '2', _match: [{ FIELD: 'make', VALUE: 'Volvo' }] },
-        { _id: '3', _match: [{ FIELD: 'make', VALUE: 'Volvo' }] },
-        { _id: '9', _match: [{ FIELD: 'make', VALUE: 'Volvo' }] }
+        { _id: 1, _match: [{ FIELD: 'make', VALUE: 'Volvo' }] },
+        { _id: 2, _match: [{ FIELD: 'make', VALUE: 'Volvo' }] },
+        { _id: 3, _match: [{ FIELD: 'make', VALUE: 'Volvo' }] },
+        { _id: 9, _match: [{ FIELD: 'make', VALUE: 'Volvo' }] }
       ]
     })
   )
@@ -179,14 +179,14 @@ test('simple AGGREGATE with FACETS', t => {
       FACETS: [
         { FIELD: 'drivetrain', VALUE: 'Diesel', _id: [] },
         { FIELD: 'drivetrain', VALUE: 'Electric', _id: [] },
-        { FIELD: 'drivetrain', VALUE: 'Hybrid', _id: ['2', '3', '9'] },
-        { FIELD: 'drivetrain', VALUE: 'Petrol', _id: ['1'] }
+        { FIELD: 'drivetrain', VALUE: 'Hybrid', _id: [2, 3, 9] },
+        { FIELD: 'drivetrain', VALUE: 'Petrol', _id: [1] }
       ],
       RESULT: [
-        { _id: '1', _match: [{ FIELD: 'make', VALUE: 'Volvo' }] },
-        { _id: '2', _match: [{ FIELD: 'make', VALUE: 'Volvo' }] },
-        { _id: '3', _match: [{ FIELD: 'make', VALUE: 'Volvo' }] },
-        { _id: '9', _match: [{ FIELD: 'make', VALUE: 'Volvo' }] }
+        { _id: 1, _match: [{ FIELD: 'make', VALUE: 'Volvo' }] },
+        { _id: 2, _match: [{ FIELD: 'make', VALUE: 'Volvo' }] },
+        { _id: 3, _match: [{ FIELD: 'make', VALUE: 'Volvo' }] },
+        { _id: 9, _match: [{ FIELD: 'make', VALUE: 'Volvo' }] }
       ]
     })
   )
@@ -214,17 +214,17 @@ test('simple AGGREGATE with BUCKETS and FACETS', t => {
         }
       ],
       FACETS: [
-        { FIELD: 'colour', VALUE: 'Black', _id: ['1'] },
+        { FIELD: 'colour', VALUE: 'Black', _id: [1] },
         { FIELD: 'colour', VALUE: 'Blue', _id: [] },
         { FIELD: 'colour', VALUE: 'Red', _id: [] },
-        { FIELD: 'colour', VALUE: 'Silver', _id: ['2', '3'] },
-        { FIELD: 'colour', VALUE: 'White', _id: ['9'] }
+        { FIELD: 'colour', VALUE: 'Silver', _id: [2, 3] },
+        { FIELD: 'colour', VALUE: 'White', _id: [9] }
       ],
       RESULT: [
-        { _id: '1', _match: [{ FIELD: 'make', VALUE: 'Volvo' }] },
-        { _id: '2', _match: [{ FIELD: 'make', VALUE: 'Volvo' }] },
-        { _id: '3', _match: [{ FIELD: 'make', VALUE: 'Volvo' }] },
-        { _id: '9', _match: [{ FIELD: 'make', VALUE: 'Volvo' }] }
+        { _id: 1, _match: [{ FIELD: 'make', VALUE: 'Volvo' }] },
+        { _id: 2, _match: [{ FIELD: 'make', VALUE: 'Volvo' }] },
+        { _id: 3, _match: [{ FIELD: 'make', VALUE: 'Volvo' }] },
+        { _id: 9, _match: [{ FIELD: 'make', VALUE: 'Volvo' }] }
       ]
     })
   )
@@ -250,15 +250,15 @@ test('simple AGGREGATE with BUCKETS and FACETS, no QUERY', t => {
             GTE: 'Electric',
             LTE: 'Electric'
           },
-          _id: ['5', '6']
+          _id: [5, 6]
         }
       ],
       FACETS: [
-        { FIELD: 'colour', VALUE: 'Black', _id: ['1', '4', '7'] },
-        { FIELD: 'colour', VALUE: 'Blue', _id: ['0', '6'] },
-        { FIELD: 'colour', VALUE: 'Red', _id: ['5'] },
-        { FIELD: 'colour', VALUE: 'Silver', _id: ['2', '3', '8'] },
-        { FIELD: 'colour', VALUE: 'White', _id: ['9'] }
+        { FIELD: 'colour', VALUE: 'Black', _id: [1, 4, 7] },
+        { FIELD: 'colour', VALUE: 'Blue', _id: [0, 6] },
+        { FIELD: 'colour', VALUE: 'Red', _id: [5] },
+        { FIELD: 'colour', VALUE: 'Silver', _id: [2, 3, 8] },
+        { FIELD: 'colour', VALUE: 'White', _id: [9] }
       ],
       RESULT: []
     })

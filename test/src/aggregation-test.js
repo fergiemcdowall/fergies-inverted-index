@@ -112,76 +112,88 @@ test('can add some data', t => {
 
 test('can GET a single bucket', t => {
   t.plan(1)
-  global[indexName].BUCKET({
-    FIELD: 'make',
-    VALUE: 'Volvo'
-  }).then(result => {
-    t.deepEqual(result, {
-      FIELD: ['make'],
-      VALUE: {
-        GTE: 'Volvo',
-        LTE: 'Volvo'
-      },
-      _id: ['1', '2', '3', '9']
+  global[indexName]
+    .BUCKET({
+      FIELD: 'make',
+      VALUE: 'Volvo'
     })
-  })
+    .then(result => {
+      t.deepEqual(result, {
+        FIELD: ['make'],
+        VALUE: {
+          GTE: 'Volvo',
+          LTE: 'Volvo'
+        },
+        _id: [1, 2, 3, 9]
+      })
+    })
 })
 
 test('can GET a single bucket with gte LTE', t => {
   t.plan(1)
-  global[indexName].BUCKET({
-    FIELD: 'make',
-    VALUE: {
-      GTE: 'Volvo',
-      LTE: 'Volvo'
-    }
-  }).then(result => {
-    t.deepEqual(result, {
-      FIELD: ['make'],
+  global[indexName]
+    .BUCKET({
+      FIELD: 'make',
       VALUE: {
         GTE: 'Volvo',
         LTE: 'Volvo'
-      },
-      _id: ['1', '2', '3', '9']
+      }
     })
-  })
+    .then(result => {
+      t.deepEqual(result, {
+        FIELD: ['make'],
+        VALUE: {
+          GTE: 'Volvo',
+          LTE: 'Volvo'
+        },
+        _id: [1, 2, 3, 9]
+      })
+    })
 })
 
 test('can get DISTINCT values', t => {
   t.plan(1)
-  global[indexName].DISTINCT({
-    FIELD: 'make'
-  }).then(result => t.deepEquals(result, [
-    { FIELD: 'make', VALUE: 'BMW' },
-    { FIELD: 'make', VALUE: 'Tesla' },
-    { FIELD: 'make', VALUE: 'Volvo' }
-  ]))
+  global[indexName]
+    .DISTINCT({
+      FIELD: 'make'
+    })
+    .then(result =>
+      t.deepEquals(result, [
+        { FIELD: 'make', VALUE: 'BMW' },
+        { FIELD: 'make', VALUE: 'Tesla' },
+        { FIELD: 'make', VALUE: 'Volvo' }
+      ])
+    )
 })
 
 test('can get DISTINCT values with gte', t => {
   t.plan(1)
-  global[indexName].DISTINCT({
-    FIELD: 'make',
-    VALUE: {
-      GTE: 'C'
-    }
-  }).then(result => t.deepEquals(result, [
-    { FIELD: 'make', VALUE: 'Tesla' },
-    { FIELD: 'make', VALUE: 'Volvo' }
-  ]))
+  global[indexName]
+    .DISTINCT({
+      FIELD: 'make',
+      VALUE: {
+        GTE: 'C'
+      }
+    })
+    .then(result =>
+      t.deepEquals(result, [
+        { FIELD: 'make', VALUE: 'Tesla' },
+        { FIELD: 'make', VALUE: 'Volvo' }
+      ])
+    )
 })
 
 test('can get DISTINCT VALUEs with GTE and LTE', t => {
   t.plan(1)
-  global[indexName].DISTINCT({
-    FIELD: 'make',
-    VALUE: {
-      GTE: 'C',
-      LTE: 'U'
-    }
-  }).then(result => t.deepEquals(result, [
-    { FIELD: 'make', VALUE: 'Tesla' }
-  ]))
+  global[indexName]
+    .DISTINCT({
+      FIELD: 'make',
+      VALUE: {
+        GTE: 'C',
+        LTE: 'U'
+      }
+    })
+    .then(result => t.deepEquals(result, [{ FIELD: 'make', VALUE: 'Tesla' }]))
 })
 
 // TODO

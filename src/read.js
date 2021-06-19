@@ -105,8 +105,8 @@ module.exports = ops => {
     token instanceof Promise ? token : parseToken(token).then(RANGE)
 
   // OR
-  const UNION = (...keys) =>
-    Promise.all(keys.map(GET)).then(sets => {
+  const UNION = (...keys) => {
+    return Promise.all(keys.map(GET)).then(sets => {
       const setObject = sets.flat(Infinity).reduce((acc, cur) => {
         // TODO: handle stopwords in query pipeline
         // cur will be undefined if stopword
@@ -121,14 +121,16 @@ module.exports = ops => {
         }))
       }
     })
+  }
 
   // AND
-  const INTERSECTION = (...tokens) =>
-    UNION(...tokens).then(result =>
-      result.union.filter(
+  const INTERSECTION = (...tokens) => {
+    return UNION(...tokens).then(result => {
+      return result.union.filter(
         item => item._match.length === result.sumTokensMinusStopwords
       )
-    )
+    })
+  }
 
   // NOT (set a minus set b)
   const SET_SUBTRACTION = (a, b) =>
@@ -142,17 +144,16 @@ module.exports = ops => {
     if (value !== undefined || typeof value === 'number') {
       valueAndScore.push(value)
     }
-    //    if (valueAndScore.length && lte) valueAndScore.push('￮')
     if (lte) valueAndScore.push(charwise.HI)
-    //    console.log(['IDX', field, valueAndScore])
+
     return ['IDX', field, valueAndScore]
   }
 
   // TODO: there should be a query processing pipeline between GET
   // and RANGE. Also- RANGE should probably accept an array of TOKENS
   // in order to handle stuff like synonyms
-  const RANGE = token =>
-    new Promise(resolve => {
+  const RANGE = token => {
+    return new Promise(resolve => {
       // TODO: move this to some sort of query processing pipeline
       // If this token is a stopword then return 'undefined'
       if (
@@ -161,8 +162,6 @@ module.exports = ops => {
       ) {
         return resolve(undefined)
       }
-
-      // console.log(token)
 
       // TODO: rs should be a Map to preserve key order
       const rs = new Map() // resultset
@@ -175,15 +174,11 @@ module.exports = ops => {
               .createReadStream({
                 gte: formatKey(fieldName, token.VALUE.GTE),
                 lte: formatKey(fieldName, token.VALUE.LTE, true),
-
-                // gte: ['IDX', 'year', [2000]],
-                // lte: ['IDX', 'year', [2000, '￮']],
                 limit: token.LIMIT,
                 reverse: token.REVERSE
               })
-              .on('data', token =>
-                token.value.forEach(docId => {
-                  // console.log(token)
+              .on('data', token => {
+                return token.value.forEach(docId => {
                   return rs.set(docId, [
                     ...(rs.get(docId) || []),
                     JSON.stringify({
@@ -193,7 +188,7 @@ module.exports = ops => {
                     })
                   ])
                 })
-              )
+              })
               .on('end', resolve)
           )
         })
@@ -206,6 +201,7 @@ module.exports = ops => {
         )
       )
     })
+  }
 
   const AVAILABLE_FIELDS = () =>
     new Promise(resolve => {
@@ -225,18 +221,33 @@ module.exports = ops => {
 
   // takes an array of ids and determines if the corresponding
   // documents exist in the index.
+  // const EXIST = (...ids) =>
+  //   new Promise(resolve => {
+  //     const existingIds = []
+  //     console.log(ids)
+  //     // TODO: this is totally wrong- the index should only check the
+  //     // docs that are specified
+  //     ops._db
+  //       .createReadStream({
+  //         gte: [ops.docExistsSpace, charwise.LO],
+  //         lte: [ops.docExistsSpace, charwise.HI],
+  //         values: false
+  //       })
+  //       .on('data', d => existingIds.push(d[1]))
+  //       .on('end', () => resolve(ids.filter(id => existingIds.includes(id))))
+  //   })
+
+  // takes an array of ids and determines if the corresponding
+  // documents exist in the index.
   const EXIST = (...ids) =>
-    new Promise(resolve => {
-      const existingIds = []
-      ops._db
-        .createReadStream({
-          gte: [ops.docExistsSpace, charwise.LO],
-          lte: [ops.docExistsSpace, charwise.HI],
-          values: false
-        })
-        .on('data', d => existingIds.push(d[1]))
-        .on('end', () => resolve(ids.filter(id => existingIds.includes(id))))
-    })
+    Promise.all(
+      ids.map(id => ops._db.get([ops.docExistsSpace, id]).catch(e => null))
+    ).then(result =>
+      result.reduce((acc, cur, i) => {
+        if (cur != null) acc.push(ids[i])
+        return acc
+      }, [])
+    )
 
   // Given the results of an aggregation and the results of a query,
   // return the filtered aggregation
@@ -331,12 +342,31 @@ module.exports = ops => {
   // TODO remove if DISTINCT is no longer used
   const DIST = token =>
     parseToken(token)
-      .then(token =>
-        Promise.all(
-          token.FIELD.map(field =>
-            getRange({
-              gte: formatKey(field, token.VALUE.GTE),
-              lte: formatKey(field, token.VALUE.LTE, true),
+      .then(token => {
+        return Promise.all(
+          token.FIELD.map(field => {
+            let lte = token.VALUE.LTE
+            if (
+              typeof token.VALUE.LTE !== 'undefined' &&
+              typeof token.VALUE.LTE !== 'number'
+            ) {
+              lte = lte + '￮'
+            }
+
+            let gte = token.VALUE.GTE
+            if (token.VALUE.GTE && typeof token.VALUE.GTE !== 'number') {
+              gte = gte + ' '
+            }
+
+            return getRange({
+              // gte: formatKey(field, token.VALUE.GTE),
+              // lte: formatKey(field, lte, true),
+
+              // gte: ['IDX', field, [null]],
+              // lte: ['IDX', field, [undefined]],
+
+              gte: formatKey(field, gte),
+              lte: formatKey(field, lte, true),
               keys: true,
               values: false
             }).then(items =>
@@ -345,9 +375,9 @@ module.exports = ops => {
                 VALUE: item[2][0]
               }))
             )
-          )
+          })
         )
-      )
+      })
       .then(result => result.flat())
 
   const FACETS = (...tokens) =>
@@ -389,9 +419,15 @@ module.exports = ops => {
   const SORT = results =>
     new Promise(resolve =>
       resolve(
-        results
-          .sort((a, b) => a._id.localeCompare(b._id))
-          .sort((a, b) => b._match.length - a._match.length)
+        results.sort((a, b) =>
+          // This should sort an array of strings and
+          // numbers in an intuitive way (numbers numerically, strings
+          // alphabetically)
+          (a + '').localeCompare(b + '', undefined, {
+            numeric: true,
+            sensitivity: 'base'
+          })
+        )
       )
     )
 
@@ -418,7 +454,7 @@ module.exports = ops => {
     MAX: MAX,
     MIN: BOUNDING_VALUE,
     OBJECT: OBJECT,
-    SET_SUBTRACTION: SET_SUBTRACTION,
+    SET_SUBTRACTION: SET_SUBTRACTION, // NOT
     SORT: SORT,
     UNION: UNION, // OR,
     parseToken: parseToken

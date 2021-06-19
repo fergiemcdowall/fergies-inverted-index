@@ -7,9 +7,9 @@ const importingIndexName = sandbox + 'IMPORT'
 
 const exportedIndexIdeal = [
   {
-    key: ['DOC', '0'],
+    key: ['DOC', 0],
     value: {
-      _id: '0',
+      _id: 0,
       make: 'BMW',
       colour: 'Blue',
       year: 2011,
@@ -19,9 +19,9 @@ const exportedIndexIdeal = [
     }
   },
   {
-    key: ['DOC', '1'],
+    key: ['DOC', 1],
     value: {
-      _id: '1',
+      _id: 1,
       make: 'Volvo',
       colour: 'Black',
       year: 2016,
@@ -36,18 +36,18 @@ const exportedIndexIdeal = [
   { key: ['FIELD', 'model'], value: 'model' },
   { key: ['FIELD', 'price'], value: 'price' },
   { key: ['FIELD', 'year'], value: 'year' },
-  { key: ['IDX', 'colour', ['Black']], value: ['1'] },
-  { key: ['IDX', 'colour', ['Blue']], value: ['0'] },
-  { key: ['IDX', 'drivetrain', ['Hybrid']], value: ['0'] },
-  { key: ['IDX', 'drivetrain', ['Petrol']], value: ['1'] },
-  { key: ['IDX', 'make', ['BMW']], value: ['0'] },
-  { key: ['IDX', 'make', ['Volvo']], value: ['1'] },
-  { key: ['IDX', 'model', ['3-series']], value: ['0'] },
-  { key: ['IDX', 'model', ['XC90']], value: ['1'] },
-  { key: ['IDX', 'price', [44274]], value: ['1'] },
-  { key: ['IDX', 'price', [83988]], value: ['0'] },
-  { key: ['IDX', 'year', [2011]], value: ['0'] },
-  { key: ['IDX', 'year', [2016]], value: ['1'] }
+  { key: ['IDX', 'colour', ['Black']], value: [1] },
+  { key: ['IDX', 'colour', ['Blue']], value: [0] },
+  { key: ['IDX', 'drivetrain', ['Hybrid']], value: [0] },
+  { key: ['IDX', 'drivetrain', ['Petrol']], value: [1] },
+  { key: ['IDX', 'make', ['BMW']], value: [0] },
+  { key: ['IDX', 'make', ['Volvo']], value: [1] },
+  { key: ['IDX', 'model', ['3-series']], value: [0] },
+  { key: ['IDX', 'model', ['XC90']], value: [1] },
+  { key: ['IDX', 'price', [44274]], value: [1] },
+  { key: ['IDX', 'price', [83988]], value: [0] },
+  { key: ['IDX', 'year', [2011]], value: [0] },
+  { key: ['IDX', 'year', [2016]], value: [1] }
 ]
 
 let exportedIndex = null

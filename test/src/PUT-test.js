@@ -38,20 +38,20 @@ test('create index', t => {
 
 test('can add some data', t => {
   t.plan(1)
-  global[indexName]
-    .PUT(data)
-    .then(res => t.deepEquals(res, [
-      { _id: '0', status: 'CREATED', operation: 'PUT' },
-      { _id: '1', status: 'CREATED', operation: 'PUT' },
-      { _id: '2', status: 'CREATED', operation: 'PUT' }
-    ]))
+  global[indexName].PUT(data).then(res =>
+    t.deepEquals(res, [
+      { _id: 0, status: 'CREATED', operation: 'PUT' },
+      { _id: 1, status: 'CREATED', operation: 'PUT' },
+      { _id: 2, status: 'CREATED', operation: 'PUT' }
+    ])
+  )
 })
 
 test('adds a duplicate doc', t => {
   t.plan(1)
   global[indexName]
     .PUT([data[1]])
-    .then(res => t.deepEquals(res, [
-      { _id: '1', status: 'UPDATED', operation: 'PUT' }
-    ]))
+    .then(res =>
+      t.deepEquals(res, [{ _id: 1, status: 'UPDATED', operation: 'PUT' }])
+    )
 })

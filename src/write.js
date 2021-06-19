@@ -129,9 +129,9 @@ module.exports = ops => {
   const sanitizeID = id => {
     if (id === undefined) return ++incrementalId
     if (typeof id === 'string') return id
-    if (typeof id === 'number') return id + ''
+    if (typeof id === 'number') return id
     // else
-    return ++incrementalId
+    //    return ++incrementalId
   }
 
   const availableFields = reverseIndex =>
@@ -158,15 +158,17 @@ module.exports = ops => {
       })
       putOptions = Object.assign(ops, putOptions)
 
+      // console.log(JSON.stringify(docs, null, 2))
+
       reader(ops)
         .EXIST(...docs.map(d => d._id))
-        .then(existingDocs => {
+        .then(existingDocs =>
           createMergedReverseIndex(
             createDeltaReverseIndex(docs, putOptions),
             _db,
             mode
-          ).then(mergedReverseIndex =>
-            _db.batch(
+          ).then(mergedReverseIndex => {
+            return _db.batch(
               mergedReverseIndex
                 .concat(putOptions.storeVectors ? objectIndex(docs, mode) : [])
                 .concat(availableFields(mergedReverseIndex)),
@@ -195,8 +197,8 @@ module.exports = ops => {
                   })
                 )
             )
-          )
-        })
+          })
+        )
     })
 
   // docs needs to be an array of ids (strings)

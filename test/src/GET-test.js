@@ -114,10 +114,10 @@ test('simple GET', t => {
   t.plan(1)
   global[indexName].GET('make:Volvo').then(result =>
     t.deepEqual(result, [
-      { _id: '1', _match: [{ FIELD: 'make', VALUE: 'Volvo' }] },
-      { _id: '2', _match: [{ FIELD: 'make', VALUE: 'Volvo' }] },
-      { _id: '3', _match: [{ FIELD: 'make', VALUE: 'Volvo' }] },
-      { _id: '9', _match: [{ FIELD: 'make', VALUE: 'Volvo' }] }
+      { _id: 1, _match: [{ FIELD: 'make', VALUE: 'Volvo' }] },
+      { _id: 2, _match: [{ FIELD: 'make', VALUE: 'Volvo' }] },
+      { _id: 3, _match: [{ FIELD: 'make', VALUE: 'Volvo' }] },
+      { _id: 9, _match: [{ FIELD: 'make', VALUE: 'Volvo' }] }
     ])
   )
 })
@@ -126,9 +126,9 @@ test('simple GET with SCORE', t => {
   t.plan(1)
   global[indexName].GET('colour:Black').then(result =>
     t.deepEqual(result, [
-      { _id: '1', _match: [{ FIELD: 'colour', VALUE: 'Black' }] },
-      { _id: '7', _match: [{ FIELD: 'colour', VALUE: 'Black' }] },
-      { _id: '4', _match: [{ FIELD: 'colour', VALUE: 'Black', SCORE: 999 }] }
+      { _id: 1, _match: [{ FIELD: 'colour', VALUE: 'Black' }] },
+      { _id: 7, _match: [{ FIELD: 'colour', VALUE: 'Black' }] },
+      { _id: 4, _match: [{ FIELD: 'colour', VALUE: 'Black', SCORE: 999 }] }
     ])
   )
 })
