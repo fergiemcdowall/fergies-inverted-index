@@ -113,9 +113,9 @@ test('can do some AND searches', t => {
         {
           _id: '52b213b38594d8a2be17c781',
           _match: [
+            { FIELD: 'board_approval_month', VALUE: 'November' },
             { FIELD: 'sectorcode', VALUE: 'BS' },
-            { FIELD: 'sectorcode', VALUE: 'BZ' },
-            { FIELD: 'board_approval_month', VALUE: 'November' }
+            { FIELD: 'sectorcode', VALUE: 'BZ' }
           ]
         }
       ])
@@ -131,16 +131,16 @@ test('can do some OR searches', t => {
         {
           _id: '52b213b38594d8a2be17c780',
           _match: [
-            { FIELD: 'sectorcode', VALUE: 'BS' },
-            { FIELD: 'board_approval_month', VALUE: 'November' }
+            { FIELD: 'board_approval_month', VALUE: 'November' },
+            { FIELD: 'sectorcode', VALUE: 'BS' }
           ]
         },
         {
           _id: '52b213b38594d8a2be17c781',
           _match: [
+            { FIELD: 'board_approval_month', VALUE: 'November' },
             { FIELD: 'sectorcode', VALUE: 'BS' },
-            { FIELD: 'sectorcode', VALUE: 'BZ' },
-            { FIELD: 'board_approval_month', VALUE: 'November' }
+            { FIELD: 'sectorcode', VALUE: 'BZ' }
           ]
         },
         {
@@ -249,8 +249,8 @@ test('can do AND with embedded AND', t => {
               FIELD: 'board_approval_month',
               VALUE: 'October'
             },
-            { FIELD: 'sectorcode', VALUE: 'BZ' },
-            { FIELD: 'sectorcode', VALUE: 'BC' }
+            { FIELD: 'sectorcode', VALUE: 'BC' },
+            { FIELD: 'sectorcode', VALUE: 'BZ' }
           ]
         }
       ])

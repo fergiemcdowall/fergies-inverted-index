@@ -117,8 +117,8 @@ test('get simple AND', t => {
       {
         _id: 4,
         _match: [
-          { FIELD: 'drivetrain', VALUE: 'Diesel' },
-          { FIELD: 'colour', VALUE: 'Black' }
+          { FIELD: 'colour', VALUE: 'Black' },
+          { FIELD: 'drivetrain', VALUE: 'Diesel' }
         ]
       }
     ])

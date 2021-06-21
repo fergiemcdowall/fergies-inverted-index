@@ -13,6 +13,15 @@ const flattenMatchArrayInResults = results => {
     result._match = result._match
       .flat(Infinity)
       .map(m => (typeof m === 'string' ? JSON.parse(m) : m))
+      .sort((a, b) => {
+        if (a.FIELD < b.FIELD) return -1
+        if (a.FIELD > b.FIELD) return 1
+        if (a.VALUE < b.VALUE) return -1
+        if (a.VALUE > b.VALUE) return 1
+        if (a.SCORE < b.SCORE) return -1
+        if (a.SCORE > b.SCORE) return 1
+        return 0
+      })
     return result
   })
 }

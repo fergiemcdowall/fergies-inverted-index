@@ -50,6 +50,15 @@ module.exports = ops => {
         )
       }
 
+      if (typeof token === 'number') {
+        token = {
+          VALUE: {
+            GTE: token,
+            LTE: token
+          }
+        }
+      }
+
       // else not string so assume Object
       // {
       //   FIELD: [ fields ],
@@ -153,6 +162,8 @@ module.exports = ops => {
   // and RANGE. Also- RANGE should probably accept an array of TOKENS
   // in order to handle stuff like synonyms
   const RANGE = token => {
+    // console.log(token)
+
     return new Promise(resolve => {
       // TODO: move this to some sort of query processing pipeline
       // If this token is a stopword then return 'undefined'
@@ -194,10 +205,12 @@ module.exports = ops => {
         })
       ).then(() =>
         resolve(
-          Array.from(rs.keys()).map(id => ({
-            _id: id,
-            _match: rs.get(id).sort()
-          }))
+          Array.from(rs.keys()).map(id => {
+            return {
+              _id: id,
+              _match: rs.get(id)
+            }
+          })
         )
       )
     })
@@ -420,6 +433,8 @@ module.exports = ops => {
     new Promise(resolve =>
       resolve(
         results.sort((a, b) =>
+        // TODO: declare outside of loop as per https://stackoverflow.com/questions/14677060/400x-sorting-speedup-by-switching-a-localecompareb-to-ab-1ab10
+
           // This should sort an array of strings and
           // numbers in an intuitive way (numbers numerically, strings
           // alphabetically)
