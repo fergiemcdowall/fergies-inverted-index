@@ -234,24 +234,6 @@ module.exports = ops => {
 
   // takes an array of ids and determines if the corresponding
   // documents exist in the index.
-  // const EXIST = (...ids) =>
-  //   new Promise(resolve => {
-  //     const existingIds = []
-  //     console.log(ids)
-  //     // TODO: this is totally wrong- the index should only check the
-  //     // docs that are specified
-  //     ops._db
-  //       .createReadStream({
-  //         gte: [ops.docExistsSpace, charwise.LO],
-  //         lte: [ops.docExistsSpace, charwise.HI],
-  //         values: false
-  //       })
-  //       .on('data', d => existingIds.push(d[1]))
-  //       .on('end', () => resolve(ids.filter(id => existingIds.includes(id))))
-  //   })
-
-  // takes an array of ids and determines if the corresponding
-  // documents exist in the index.
   const EXIST = (...ids) =>
     Promise.all(
       ids.map(id => ops._db.get([ops.docExistsSpace, id]).catch(e => null))
@@ -372,12 +354,6 @@ module.exports = ops => {
             }
 
             return getRange({
-              // gte: formatKey(field, token.VALUE.GTE),
-              // lte: formatKey(field, lte, true),
-
-              // gte: ['IDX', field, [null]],
-              // lte: ['IDX', field, [undefined]],
-
               gte: formatKey(field, gte),
               lte: formatKey(field, lte, true),
               keys: true,
@@ -433,7 +409,7 @@ module.exports = ops => {
     new Promise(resolve =>
       resolve(
         results.sort((a, b) =>
-        // TODO: declare outside of loop as per https://stackoverflow.com/questions/14677060/400x-sorting-speedup-by-switching-a-localecompareb-to-ab-1ab10
+          // TODO: declare outside of loop as per https://stackoverflow.com/questions/14677060/400x-sorting-speedup-by-switching-a-localecompareb-to-ab-1ab10
 
           // This should sort an array of strings and
           // numbers in an intuitive way (numbers numerically, strings
