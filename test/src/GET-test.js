@@ -1,5 +1,6 @@
 const fii = require('../../')
 const test = require('tape')
+const sw = require('stopword')
 
 const sandbox = 'test/sandbox/'
 const indexName = sandbox + 'GET'
@@ -79,11 +80,11 @@ const data = [
   },
   {
     _id: 8,
-    make: 'BMW',
+    make: 'Opel',
     colour: 'Silver',
     year: 2015,
     price: 81177,
-    model: '3-series',
+    model: 'Astra',
     drivetrain: 'Petrol'
   },
   {
@@ -97,38 +98,124 @@ const data = [
   }
 ]
 
-test('create index', t => {
-  t.plan(1)
-  fii({ name: indexName }).then(db => {
-    global[indexName] = db
-    t.ok(db, !undefined)
+test('some simple GETs', async function (t) {
+  const { GET, PUT } = await fii({ name: indexName })
+  t.pass('db initialized')
+
+  await PUT(data)
+  t.pass('data indexed')
+
+  t.deepEqual(await GET('make:Volvo'), [
+    { _id: 1, _match: [{ FIELD: 'make', VALUE: 'Volvo' }] },
+    { _id: 2, _match: [{ FIELD: 'make', VALUE: 'Volvo' }] },
+    { _id: 3, _match: [{ FIELD: 'make', VALUE: 'Volvo' }] },
+    { _id: 9, _match: [{ FIELD: 'make', VALUE: 'Volvo' }] }
+  ])
+
+  t.deepEqual(await GET('colour:Black'), [
+    { _id: 1, _match: [{ FIELD: 'colour', VALUE: 'Black' }] },
+    { _id: 7, _match: [{ FIELD: 'colour', VALUE: 'Black' }] },
+    { _id: 4, _match: [{ FIELD: 'colour', VALUE: 'Black', SCORE: 999 }] }
+  ])
+})
+
+test('testing single query replacement', async function (t) {
+  const { GET, PUT } = await fii({
+    name: indexName + '_1',
+    queryReplace: {
+      swedemachine: ['Volvo']
+    }
   })
+  t.pass('db initialized')
+
+  await PUT(data)
+  t.pass('data indexed')
+
+  t.deepEqual(await GET('make:Volvo'), [
+    { _id: 1, _match: [{ FIELD: 'make', VALUE: 'Volvo' }] },
+    { _id: 2, _match: [{ FIELD: 'make', VALUE: 'Volvo' }] },
+    { _id: 3, _match: [{ FIELD: 'make', VALUE: 'Volvo' }] },
+    { _id: 9, _match: [{ FIELD: 'make', VALUE: 'Volvo' }] }
+  ])
+
+  t.deepEqual(await GET('make:swedemachine'), [
+    { _id: 1, _match: [{ FIELD: 'make', VALUE: 'Volvo' }] },
+    { _id: 2, _match: [{ FIELD: 'make', VALUE: 'Volvo' }] },
+    { _id: 3, _match: [{ FIELD: 'make', VALUE: 'Volvo' }] },
+    { _id: 9, _match: [{ FIELD: 'make', VALUE: 'Volvo' }] }
+  ])
 })
 
-test('can add some data', t => {
-  t.plan(1)
-  global[indexName].PUT(data).then(t.pass)
+test('testing query with multiple replacements', async function (t) {
+  const { GET, PUT, OR } = await fii({
+    name: indexName + '_2',
+    queryReplace: {
+      eurocars: ['Volvo', 'BMW', 'Opel']
+    }
+  })
+  t.pass('db initialized')
+
+  await PUT(data)
+  t.pass('data indexed')
+
+  t.deepEqual(await OR('make:Volvo', 'make:BMW', 'make:Opel'), [
+    { _id: 1, _match: [{ FIELD: 'make', VALUE: 'Volvo' }] },
+    { _id: 2, _match: [{ FIELD: 'make', VALUE: 'Volvo' }] },
+    { _id: 3, _match: [{ FIELD: 'make', VALUE: 'Volvo' }] },
+    { _id: 9, _match: [{ FIELD: 'make', VALUE: 'Volvo' }] },
+    { _id: 0, _match: [{ FIELD: 'make', VALUE: 'BMW' }] },
+    { _id: 4, _match: [{ FIELD: 'make', VALUE: 'BMW' }] },
+    { _id: 7, _match: [{ FIELD: 'make', VALUE: 'BMW' }] },
+    { _id: 8, _match: [{ FIELD: 'make', VALUE: 'Opel' }] }
+  ])
+
+  t.deepEqual(await GET('make:eurocars'), [
+    { _id: 1, _match: [{ FIELD: 'make', VALUE: 'Volvo' }] },
+    { _id: 2, _match: [{ FIELD: 'make', VALUE: 'Volvo' }] },
+    { _id: 3, _match: [{ FIELD: 'make', VALUE: 'Volvo' }] },
+    { _id: 9, _match: [{ FIELD: 'make', VALUE: 'Volvo' }] },
+    { _id: 0, _match: [{ FIELD: 'make', VALUE: 'BMW' }] },
+    { _id: 4, _match: [{ FIELD: 'make', VALUE: 'BMW' }] },
+    { _id: 7, _match: [{ FIELD: 'make', VALUE: 'BMW' }] },
+    { _id: 8, _match: [{ FIELD: 'make', VALUE: 'Opel' }] }
+  ])
 })
 
-test('simple GET', t => {
-  t.plan(1)
-  global[indexName].GET('make:Volvo').then(result =>
-    t.deepEqual(result, [
-      { _id: 1, _match: [{ FIELD: 'make', VALUE: 'Volvo' }] },
-      { _id: 2, _match: [{ FIELD: 'make', VALUE: 'Volvo' }] },
-      { _id: 3, _match: [{ FIELD: 'make', VALUE: 'Volvo' }] },
-      { _id: 9, _match: [{ FIELD: 'make', VALUE: 'Volvo' }] }
-    ])
-  )
+test('testing case sensitivity', async function (t) {
+  const { GET, PUT } = await fii({
+    name: indexName + '_3',
+    caseSensitive: true
+  })
+  t.pass('db initialized')
+
+  await PUT(data)
+  t.pass('data indexed')
+
+  t.deepEqual(await GET('make:volvo'), [])
+  t.deepEqual(await GET('make:Volvo'), [
+    { _id: 1, _match: [{ FIELD: 'make', VALUE: 'Volvo' }] },
+    { _id: 2, _match: [{ FIELD: 'make', VALUE: 'Volvo' }] },
+    { _id: 3, _match: [{ FIELD: 'make', VALUE: 'Volvo' }] },
+    { _id: 9, _match: [{ FIELD: 'make', VALUE: 'Volvo' }] }
+  ])
 })
 
-test('simple GET with SCORE', t => {
-  t.plan(1)
-  global[indexName].GET('colour:Black').then(result =>
-    t.deepEqual(result, [
-      { _id: 1, _match: [{ FIELD: 'colour', VALUE: 'Black' }] },
-      { _id: 7, _match: [{ FIELD: 'colour', VALUE: 'Black' }] },
-      { _id: 4, _match: [{ FIELD: 'colour', VALUE: 'Black', SCORE: 999 }] }
-    ])
-  )
+test('testing stopwords, empty and non-existant tokens', async function (t) {
+  const { GET, PUT } = await fii({
+    name: indexName + '_4',
+    stopwords: sw.en
+  })
+  t.pass('db initialized')
+
+  await PUT(data)
+  t.pass('data indexed')
+
+  t.deepEqual(await GET(), undefined)
+  t.deepEqual(await GET('thisDoesNotExist'), [])
+  t.deepEqual(await GET('this'), undefined)
+  try {
+    await GET(['this'])
+  } catch (e) {
+    t.equals(e.toString(), 'Error: token cannot be Array')
+  }
 })

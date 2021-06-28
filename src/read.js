@@ -20,14 +20,14 @@ module.exports = ops => {
       // case: <FIELD>:<VALUE>
       // case: undefined
 
-      // TODO: this should be moved into a query processing pipeline
-      const setCase = str =>
-        ops.caseSensitive || typeof str !== 'string' ? str : str.toLowerCase()
+      if (Array.isArray(token)) {
+        return reject(new Error('token cannot be Array'))
+      }
 
       if (typeof token === 'undefined') token = {}
 
       if (typeof token === 'string') {
-        const fieldValue = setCase(token).split(':')
+        const fieldValue = token.split(':')
         const value = fieldValue.pop()
         const field = fieldValue.pop()
         if (field) {
@@ -71,8 +71,8 @@ module.exports = ops => {
       // parse object string VALUE
       if (typeof token.VALUE === 'string' || typeof token.VALUE === 'number') {
         token.VALUE = {
-          GTE: setCase(token.VALUE),
-          LTE: setCase(token.VALUE)
+          GTE: token.VALUE,
+          LTE: token.VALUE
         }
       }
 
@@ -90,8 +90,8 @@ module.exports = ops => {
       if (typeof token.VALUE.LTE === 'undefined') token.VALUE.LTE = charwise.HI
 
       token.VALUE = Object.assign(token.VALUE, {
-        GTE: setCase(token.VALUE.GTE),
-        LTE: setCase(token.VALUE.LTE)
+        GTE: token.VALUE.GTE,
+        LTE: token.VALUE.LTE
       })
 
       // parse object FIELD
@@ -110,8 +110,56 @@ module.exports = ops => {
       return resolve(token)
     })
 
-  const GET = token =>
-    token instanceof Promise ? token : parseToken(token).then(RANGE)
+  // const GET = token =>
+  //   token instanceof Promise ? token : parseToken(token).then(RANGE)
+
+  const queryReplace = parsedToken => {
+    // REPLACEMENT
+    if (
+      // only consider tokens for single values, not ranges (lte == gte)
+      parsedToken.VALUE.GTE === parsedToken.VALUE.LTE &&
+      ops.queryReplace && // user specified queryReplace parameter
+      ops.queryReplace[parsedToken.VALUE.GTE] // is there a replacement?
+    ) {
+      return UNION(
+        ...ops.queryReplace[parsedToken.VALUE.GTE].map(replacementToken => ({
+          FIELD: parsedToken.FIELD,
+          VALUE: {
+            GTE: replacementToken,
+            LTE: replacementToken
+          }
+        }))
+      ).then(res => res.union)
+    }
+    return RANGE(parsedToken)
+  }
+
+  const queryCaseSensitive = token => {
+    const setCase = str =>
+      ops.caseSensitive || typeof str !== 'string' ? str : str.toLowerCase()
+    return {
+      FIELD: token.FIELD.map(setCase),
+      VALUE: {
+        GTE: setCase(token.VALUE.GTE),
+        LTE: setCase(token.VALUE.LTE)
+      }
+    }
+  }
+
+  const queryStopwords = token => {
+    return token
+  }
+
+  const GET = token => {
+    if (typeof token === 'undefined') return Promise.resolve(undefined)
+    if (token instanceof Promise) return token
+    // TODO: empty GET should return undefined
+    // TODO: stopwords, caseSensitive
+    return parseToken(token)
+      .then(queryCaseSensitive)
+      .then(queryStopwords)
+      .then(queryReplace)
+  }
 
   // OR
   const UNION = (...keys) => {
@@ -162,8 +210,6 @@ module.exports = ops => {
   // and RANGE. Also- RANGE should probably accept an array of TOKENS
   // in order to handle stuff like synonyms
   const RANGE = token => {
-    // console.log(token)
-
     return new Promise(resolve => {
       // TODO: move this to some sort of query processing pipeline
       // If this token is a stopword then return 'undefined'
@@ -405,21 +451,15 @@ module.exports = ops => {
       )
       .then(result => result.flat())
 
+  // declare outside of loop as per https://stackoverflow.com/questions/14677060/400x-sorting-speedup-by-switching-a-localecompareb-to-ab-1ab10
+  const collator = new Intl.Collator('en', {
+    numeric: true,
+    sensitivity: 'base'
+  })
+
   const SORT = results =>
     new Promise(resolve =>
-      resolve(
-        results.sort((a, b) =>
-          // TODO: declare outside of loop as per https://stackoverflow.com/questions/14677060/400x-sorting-speedup-by-switching-a-localecompareb-to-ab-1ab10
-
-          // This should sort an array of strings and
-          // numbers in an intuitive way (numbers numerically, strings
-          // alphabetically)
-          (a + '').localeCompare(b + '', undefined, {
-            numeric: true,
-            sensitivity: 'base'
-          })
-        )
-      )
+      resolve(results.sort((a, b) => collator.compare(a._id, b._id)))
     )
 
   return {

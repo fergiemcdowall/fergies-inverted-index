@@ -17,6 +17,7 @@
     "path-browserify": "^1.0.1",
     "process": "^0.11.10",
     "standard": "^16.0.3",
+    "stopword": "^1.0.7",
     "stream-browserify": "^3.0.0",
     "tape": "^5.2.2",
     "tape-run": "^9.0.0",

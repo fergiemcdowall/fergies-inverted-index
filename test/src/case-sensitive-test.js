@@ -145,38 +145,41 @@ test('Match case and return results -> Make:volvo', t => {
 })
 
 test('Match even with weird case', t => {
+  const { GET, SORT } = global[caseInsensitiveIdx]
   t.plan(1)
   console.log('TODO -> possible race condition here')
-  global[caseInsensitiveIdx].GET('teSLA').then(result => {
-    t.deepEqual(result, [
-      {
-        _id: 7,
-        _match: [
-          { FIELD: 'brand', VALUE: 'tesla' },
-          { FIELD: 'manufacturer', VALUE: 'tesla' }
-        ]
-      },
-      { _id: 8, _match: [{ FIELD: 'brand', VALUE: 'tesla' }] },
-      { _id: 0, _match: [{ FIELD: 'make', VALUE: 'tesla' }] },
-      {
-        _id: 2,
-        _match: [
-          { FIELD: 'make', VALUE: 'tesla' },
-          { FIELD: 'manufacturer', VALUE: 'tesla' }
-        ]
-      },
-      { _id: 3, _match: [{ FIELD: 'make', VALUE: 'tesla' }] },
-      {
-        _id: 6,
-        _match: [
-          { FIELD: 'make', VALUE: 'tesla' },
-          { FIELD: 'manufacturer', VALUE: 'tesla' }
-        ]
-      },
-      { _id: 5, _match: [{ FIELD: 'manufacturer', VALUE: 'tesla' }] },
-      { _id: 9, _match: [{ FIELD: 'manufacturer', VALUE: 'tesla' }] }
-    ])
-  })
+  GET('teSLA')
+    .then(SORT)
+    .then(result => {
+      t.deepEqual(result, [
+        { _id: 0, _match: [{ FIELD: 'make', VALUE: 'tesla' }] },
+        {
+          _id: 2,
+          _match: [
+            { FIELD: 'make', VALUE: 'tesla' },
+            { FIELD: 'manufacturer', VALUE: 'tesla' }
+          ]
+        },
+        { _id: 3, _match: [{ FIELD: 'make', VALUE: 'tesla' }] },
+        { _id: 5, _match: [{ FIELD: 'manufacturer', VALUE: 'tesla' }] },
+        {
+          _id: 6,
+          _match: [
+            { FIELD: 'make', VALUE: 'tesla' },
+            { FIELD: 'manufacturer', VALUE: 'tesla' }
+          ]
+        },
+        {
+          _id: 7,
+          _match: [
+            { FIELD: 'brand', VALUE: 'tesla' },
+            { FIELD: 'manufacturer', VALUE: 'tesla' }
+          ]
+        },
+        { _id: 8, _match: [{ FIELD: 'brand', VALUE: 'tesla' }] },
+        { _id: 9, _match: [{ FIELD: 'manufacturer', VALUE: 'tesla' }] }
+      ])
+    })
 })
 
 test('Match case and return results -> make:Tesla', t => {
@@ -214,7 +217,7 @@ test('Match case and return results -> make:volvo', t => {
   })
 })
 
-test('Match case and return results -> Make:volvo', t => {
+test('Match case and return results -> MAKE:VOLVO', t => {
   t.plan(1)
   global[caseInsensitiveIdx].GET('MAKE:VOLVO').then(result => {
     t.deepEqual(result, [

@@ -8,7 +8,7 @@ const write = require('./write.js')
 // _match is nested by default so that AND and OR work correctly under
 // the bonnet. Flatten array before presenting to consumer
 const flattenMatchArrayInResults = results => {
-  //  console.log(results)
+  if (typeof results === 'undefined') return undefined
   return results.map(result => {
     result._match = result._match
       .flat(Infinity)

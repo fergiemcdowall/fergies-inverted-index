@@ -112,14 +112,6 @@ test('can GET with string without specifying field (GET from all fields)', t => 
     .then(SORT)
     .then(result => {
       t.deepEqual(result, [
-        {
-          _id: 7,
-          _match: [
-            { FIELD: 'brand', VALUE: 'Tesla' },
-            { FIELD: 'manufacturer', VALUE: 'Tesla' }
-          ]
-        },
-        { _id: 8, _match: [{ FIELD: 'brand', VALUE: 'Tesla' }] },
         { _id: 0, _match: [{ FIELD: 'make', VALUE: 'Tesla' }] },
         {
           _id: 2,
@@ -129,6 +121,7 @@ test('can GET with string without specifying field (GET from all fields)', t => 
           ]
         },
         { _id: 3, _match: [{ FIELD: 'make', VALUE: 'Tesla' }] },
+        { _id: 5, _match: [{ FIELD: 'manufacturer', VALUE: 'Tesla' }] },
         {
           _id: 6,
           _match: [
@@ -136,7 +129,14 @@ test('can GET with string without specifying field (GET from all fields)', t => 
             { FIELD: 'manufacturer', VALUE: 'Tesla' }
           ]
         },
-        { _id: 5, _match: [{ FIELD: 'manufacturer', VALUE: 'Tesla' }] },
+        {
+          _id: 7,
+          _match: [
+            { FIELD: 'brand', VALUE: 'Tesla' },
+            { FIELD: 'manufacturer', VALUE: 'Tesla' }
+          ]
+        },
+        { _id: 8, _match: [{ FIELD: 'brand', VALUE: 'Tesla' }] },
         { _id: 9, _match: [{ FIELD: 'manufacturer', VALUE: 'Tesla' }] }
       ])
     })
@@ -154,14 +154,6 @@ test('can GET without specifying field (GET from all fields)', t => {
     .then(SORT)
     .then(result => {
       t.deepEqual(result, [
-        {
-          _id: 7,
-          _match: [
-            { FIELD: 'brand', VALUE: 'Tesla' },
-            { FIELD: 'manufacturer', VALUE: 'Tesla' }
-          ]
-        },
-        { _id: 8, _match: [{ FIELD: 'brand', VALUE: 'Tesla' }] },
         { _id: 0, _match: [{ FIELD: 'make', VALUE: 'Tesla' }] },
         {
           _id: 2,
@@ -171,6 +163,7 @@ test('can GET without specifying field (GET from all fields)', t => {
           ]
         },
         { _id: 3, _match: [{ FIELD: 'make', VALUE: 'Tesla' }] },
+        { _id: 5, _match: [{ FIELD: 'manufacturer', VALUE: 'Tesla' }] },
         {
           _id: 6,
           _match: [
@@ -178,7 +171,14 @@ test('can GET without specifying field (GET from all fields)', t => {
             { FIELD: 'manufacturer', VALUE: 'Tesla' }
           ]
         },
-        { _id: 5, _match: [{ FIELD: 'manufacturer', VALUE: 'Tesla' }] },
+        {
+          _id: 7,
+          _match: [
+            { FIELD: 'brand', VALUE: 'Tesla' },
+            { FIELD: 'manufacturer', VALUE: 'Tesla' }
+          ]
+        },
+        { _id: 8, _match: [{ FIELD: 'brand', VALUE: 'Tesla' }] },
         { _id: 9, _match: [{ FIELD: 'manufacturer', VALUE: 'Tesla' }] }
       ])
     })
@@ -197,6 +197,9 @@ test('can GET specifying 2 fields (GET from all fields)', t => {
     .then(SORT)
     .then(result => {
       t.deepEqual(result, [
+        { _id: 2, _match: [{ FIELD: 'manufacturer', VALUE: 'Tesla' }] },
+        { _id: 5, _match: [{ FIELD: 'manufacturer', VALUE: 'Tesla' }] },
+        { _id: 6, _match: [{ FIELD: 'manufacturer', VALUE: 'Tesla' }] },
         {
           _id: 7,
           _match: [
@@ -205,9 +208,6 @@ test('can GET specifying 2 fields (GET from all fields)', t => {
           ]
         },
         { _id: 8, _match: [{ FIELD: 'brand', VALUE: 'Tesla' }] },
-        { _id: 2, _match: [{ FIELD: 'manufacturer', VALUE: 'Tesla' }] },
-        { _id: 5, _match: [{ FIELD: 'manufacturer', VALUE: 'Tesla' }] },
-        { _id: 6, _match: [{ FIELD: 'manufacturer', VALUE: 'Tesla' }] },
         { _id: 9, _match: [{ FIELD: 'manufacturer', VALUE: 'Tesla' }] }
       ])
     })
