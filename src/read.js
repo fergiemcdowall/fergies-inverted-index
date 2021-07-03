@@ -110,20 +110,19 @@ module.exports = ops => {
       return resolve(token)
     })
 
-  // const GET = token =>
-  //   token instanceof Promise ? token : parseToken(token).then(RANGE)
-
-  const queryReplace = parsedToken => {
+  const queryReplace = ({ token, ops }) => {
+    // for example stopwords create undefined token
+    if (typeof token === 'undefined') return RANGE(undefined)
     // REPLACEMENT
     if (
       // only consider tokens for single values, not ranges (lte == gte)
-      parsedToken.VALUE.GTE === parsedToken.VALUE.LTE &&
+      token.VALUE.GTE === token.VALUE.LTE &&
       ops.queryReplace && // user specified queryReplace parameter
-      ops.queryReplace[parsedToken.VALUE.GTE] // is there a replacement?
+      ops.queryReplace[token.VALUE.GTE] // is there a replacement?
     ) {
       return UNION(
-        ...ops.queryReplace[parsedToken.VALUE.GTE].map(replacementToken => ({
-          FIELD: parsedToken.FIELD,
+        ...ops.queryReplace[token.VALUE.GTE].map(replacementToken => ({
+          FIELD: token.FIELD,
           VALUE: {
             GTE: replacementToken,
             LTE: replacementToken
@@ -131,33 +130,20 @@ module.exports = ops => {
         }))
       ).then(res => res.union)
     }
-    return RANGE(parsedToken)
-  }
-
-  const queryCaseSensitive = token => {
-    const setCase = str =>
-      ops.caseSensitive || typeof str !== 'string' ? str : str.toLowerCase()
-    return {
-      FIELD: token.FIELD.map(setCase),
-      VALUE: {
-        GTE: setCase(token.VALUE.GTE),
-        LTE: setCase(token.VALUE.LTE)
-      }
-    }
-  }
-
-  const queryStopwords = token => {
-    return token
+    return RANGE(token)
   }
 
   const GET = token => {
     if (typeof token === 'undefined') return Promise.resolve(undefined)
     if (token instanceof Promise) return token
     // TODO: empty GET should return undefined
-    // TODO: stopwords, caseSensitive
-    return parseToken(token)
-      .then(queryCaseSensitive)
-      .then(queryStopwords)
+    return ops.queryPipeline
+      .reduce(
+        (acc, cur) => acc.then(cur),
+        parseToken(token).then(token =>
+          Promise.resolve({ token: token, ops: ops })
+        )
+      )
       .then(queryReplace)
   }
 
@@ -211,14 +197,8 @@ module.exports = ops => {
   // in order to handle stuff like synonyms
   const RANGE = token => {
     return new Promise(resolve => {
-      // TODO: move this to some sort of query processing pipeline
-      // If this token is a stopword then return 'undefined'
-      if (
-        token.VALUE.GTE === token.VALUE.LTE &&
-        ops.stopwords.includes(token.VALUE.GTE)
-      ) {
-        return resolve(undefined)
-      }
+      // If this token is undefined (stopword) then resolve 'undefined'
+      if (typeof token === 'undefined') return resolve(undefined)
 
       // TODO: rs should be a Map to preserve key order
       const rs = new Map() // resultset

@@ -4,6 +4,7 @@ const level = require('level')
 const levelup = require('levelup')
 const read = require('./read.js')
 const write = require('./write.js')
+const qp = require('./queryPipeline.js')
 
 // _match is nested by default so that AND and OR work correctly under
 // the bonnet. Flatten array before presenting to consumer
@@ -31,6 +32,7 @@ const initStore = (ops = {}) =>
     ops = Object.assign(
       {
         name: 'fii',
+        // TODO: is tokenAppens still needed?
         // tokenAppend can be used to create 'comment' spaces in
         // tokens. For example using '#' allows tokens like boom#1.00 to
         // be retrieved by using "boom". If tokenAppend wasnt used, then
@@ -38,6 +40,9 @@ const initStore = (ops = {}) =>
         // boomness#1.00 etc
         tokenAppend: '',
         caseSensitive: true,
+
+        queryPipeline: [qp.queryCaseSensitive, qp.queryStopwords],
+
         stopwords: [],
         doNotIndexField: [],
         storeVectors: true,
@@ -98,7 +103,7 @@ const makeAFii = ops => {
         .then(result => result.union)
         .then(flattenMatchArrayInResults),
     PUT: w.PUT,
-    //    SET_SUBTRACTION: r.SET_SUBTRACTION,
+    QUERY_PIPELINE_STAGES: qp,
     SORT: r.SORT,
     STORE: ops._db,
     TIMESTAMP_LAST_UPDATED: w.TIMESTAMP_LAST_UPDATED,
