@@ -1,4 +1,6 @@
+const tokenParser = require('./parseToken.js')
 const charwise = require('charwise')
+
 // polyfill- HI and LO coming in next version of charwise
 charwise.LO = null
 charwise.HI = undefined
@@ -10,105 +12,7 @@ module.exports = ops => {
   // parseToken should probably be moved to search-index and fii
   // should only deal with nicely formatted query tokens (JSON
   // objects)
-
-  // key might be object or string like this
-  // <fieldname>:<value>. Turn key into json object that is of the
-  // format {FIELD: ..., VALUE: {GTE: ..., LTE ...}}
-  const parseToken = token =>
-    new Promise((resolve, reject) => {
-      // case: <value>
-      // case: <FIELD>:<VALUE>
-      // case: undefined
-
-      if (Array.isArray(token)) {
-        return reject(new Error('token cannot be Array'))
-      }
-
-      if (typeof token === 'undefined') token = {}
-
-      if (typeof token === 'string') {
-        const fieldValue = token.split(':')
-        const value = fieldValue.pop()
-        const field = fieldValue.pop()
-        if (field) {
-          return resolve({
-            FIELD: [field],
-            VALUE: {
-              GTE: value,
-              LTE: value
-            }
-          })
-        }
-        return AVAILABLE_FIELDS().then(fields =>
-          resolve({
-            FIELD: fields,
-            VALUE: {
-              GTE: value,
-              LTE: value
-            }
-          })
-        )
-      }
-
-      if (typeof token === 'number') {
-        token = {
-          VALUE: {
-            GTE: token,
-            LTE: token
-          }
-        }
-      }
-
-      // else not string so assume Object
-      // {
-      //   FIELD: [ fields ],
-      //   VALUE: {
-      //     GTE: gte,
-      //     LTE: lte
-      //   }
-      // }
-
-      // parse object string VALUE
-      if (typeof token.VALUE === 'string' || typeof token.VALUE === 'number') {
-        token.VALUE = {
-          GTE: token.VALUE,
-          LTE: token.VALUE
-        }
-      }
-
-      if (
-        typeof token.VALUE === 'undefined' || // VALUE is not present
-        !Object.keys(token.VALUE).length // VALUE is an empty object- {}
-      ) {
-        token.VALUE = {
-          GTE: charwise.LO,
-          LTE: charwise.HI
-        }
-      }
-
-      if (typeof token.VALUE.GTE === 'undefined') token.VALUE.GTE = charwise.LO
-      if (typeof token.VALUE.LTE === 'undefined') token.VALUE.LTE = charwise.HI
-
-      token.VALUE = Object.assign(token.VALUE, {
-        GTE: token.VALUE.GTE,
-        LTE: token.VALUE.LTE
-      })
-
-      // parse object FIELD
-      if (typeof token.FIELD === 'undefined') {
-        return AVAILABLE_FIELDS().then(fields =>
-          resolve(
-            Object.assign(token, {
-              FIELD: fields
-            })
-          )
-        )
-      }
-      // Allow FIELD to be an array or a string
-      token.FIELD = [token.FIELD].flat()
-
-      return resolve(token)
-    })
+  const parseToken = async token => tokenParser(token, await AVAILABLE_FIELDS())
 
   const queryReplace = ({ token, ops }) => {
     // for example stopwords create undefined token
@@ -136,7 +40,6 @@ module.exports = ops => {
   const GET = token => {
     if (typeof token === 'undefined') return Promise.resolve(undefined)
     if (token instanceof Promise) return token
-    // TODO: empty GET should return undefined
     return ops.queryPipeline
       .reduce(
         (acc, cur) => acc.then(cur),
@@ -151,7 +54,6 @@ module.exports = ops => {
   const UNION = (...keys) => {
     return Promise.all(keys.map(GET)).then(sets => {
       const setObject = sets.flat(Infinity).reduce((acc, cur) => {
-        // TODO: handle stopwords in query pipeline
         // cur will be undefined if stopword
         if (cur) acc.set(cur._id, [...(acc.get(cur._id) || []), cur._match])
         return acc
@@ -192,15 +94,11 @@ module.exports = ops => {
     return ['IDX', field, valueAndScore]
   }
 
-  // TODO: there should be a query processing pipeline between GET
-  // and RANGE. Also- RANGE should probably accept an array of TOKENS
-  // in order to handle stuff like synonyms
   const RANGE = token => {
     return new Promise(resolve => {
       // If this token is undefined (stopword) then resolve 'undefined'
       if (typeof token === 'undefined') return resolve(undefined)
 
-      // TODO: rs should be a Map to preserve key order
       const rs = new Map() // resultset
       return Promise.all(
         token.FIELD.map(fieldName => {
@@ -295,7 +193,7 @@ module.exports = ops => {
 
   // return a bucket of IDs. Key is an object like this:
   // {gte:..., lte:...} (gte/lte == greater/less than or equal)
-  const BUCKET = token =>
+  const BUCKET = async token =>
     parseToken(
       token // TODO: is parseToken needed her? Already called in GET
     ).then(token =>

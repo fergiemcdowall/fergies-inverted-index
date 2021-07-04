@@ -220,43 +220,43 @@ test('can parse a token of the format { VALUE: <value> }', t => {
     )
 })
 
-test('can parse an object token with LTE "￮"', t => {
-  t.plan(1)
-  global[indexName]
-    .parseToken({
-      FIELD: ['make', 'model'],
-      VALUE: {
-        GTE: 'volvo',
-        LTE: '￮'
-      }
-    })
-    .then(result =>
-      t.deepEqual(result, {
-        FIELD: ['make', 'model'],
-        VALUE: {
-          GTE: 'volvo',
-          LTE: '￮'
-        }
-      })
-    )
-})
+// test('can parse an object token with LTE "￮"', t => {
+//   t.plan(1)
+//   global[indexName]
+//     .parseToken({
+//       FIELD: ['make', 'model'],
+//       VALUE: {
+//         GTE: 'volvo',
+//         LTE: '￮'
+//       }
+//     })
+//     .then(result =>
+//       t.deepEqual(result, {
+//         FIELD: ['make', 'model'],
+//         VALUE: {
+//           GTE: 'volvo',
+//           LTE: '￮'
+//         }
+//       })
+//     )
+// })
 
-test('can parse an object token without GTE', t => {
-  t.plan(1)
-  global[indexName]
-    .parseToken({
-      FIELD: ['make', 'model'],
-      VALUE: {
-        LTE: 'volvo'
-      }
-    })
-    .then(result =>
-      t.deepEqual(result, {
-        FIELD: ['make', 'model'],
-        VALUE: {
-          GTE: null,
-          LTE: 'volvo'
-        }
-      })
-    )
-})
+// test('can parse an object token without GTE', t => {
+//   t.plan(1)
+//   global[indexName]
+//     .parseToken({
+//       FIELD: ['make', 'model'],
+//       VALUE: {
+//         LTE: 'volvo'
+//       }
+//     })
+//     .then(result =>
+//       t.deepEqual(result, {
+//         FIELD: ['make', 'model'],
+//         VALUE: {
+//           GTE: null,
+//           LTE: 'volvo'
+//         }
+//       })
+//     )
+// })
