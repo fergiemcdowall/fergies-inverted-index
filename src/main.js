@@ -79,7 +79,8 @@ const makeAFii = ops => {
   return w.TIMESTAMP_CREATED().then(() => ({
     AGGREGATE: r.AGGREGATE,
     AGGREGATION_FILTER: r.AGGREGATION_FILTER,
-    AND: (...keys) => r.INTERSECTION(...keys).then(flattenMatchArrayInResults),
+    AND: (tokens, pipeline) =>
+      r.INTERSECTION(tokens, pipeline).then(flattenMatchArrayInResults),
     BUCKET: r.BUCKET,
     BUCKETS: r.BUCKETS,
     CREATED: r.CREATED,
@@ -89,7 +90,8 @@ const makeAFii = ops => {
     EXPORT: r.EXPORT,
     FACETS: r.FACETS,
     FIELDS: r.FIELDS,
-    GET: key => r.GET(key).then(flattenMatchArrayInResults),
+    GET: (tokens, pipeline) =>
+      r.GET(tokens, pipeline).then(flattenMatchArrayInResults),
     IMPORT: w.IMPORT,
     LAST_UPDATED: r.LAST_UPDATED,
     MAX: r.MAX,
@@ -97,9 +99,9 @@ const makeAFii = ops => {
     NOT: (...keys) =>
       r.SET_SUBTRACTION(...keys).then(flattenMatchArrayInResults),
     OBJECT: r.OBJECT,
-    OR: (...keys) =>
+    OR: (tokens, pipeline) =>
       r
-        .UNION(...keys)
+        .UNION(tokens, pipeline)
         .then(result => result.union)
         .then(flattenMatchArrayInResults),
     PUT: w.PUT,

@@ -1,5 +1,6 @@
 const tokenParser = require('./parseToken.js')
 const charwise = require('charwise')
+const qp = require('./queryPipeline.js')
 
 // polyfill- HI and LO coming in next version of charwise
 charwise.LO = null
@@ -14,7 +15,7 @@ module.exports = ops => {
   // objects)
   const parseToken = async token => tokenParser(token, await AVAILABLE_FIELDS())
 
-  const queryReplace = ({ token, ops }) => {
+  const queryReplace = token => {
     // for example stopwords create undefined token
     if (typeof token === 'undefined') return RANGE(undefined)
     // REPLACEMENT
@@ -25,7 +26,7 @@ module.exports = ops => {
       ops.queryReplace[token.VALUE.GTE] // is there a replacement?
     ) {
       return UNION(
-        ...ops.queryReplace[token.VALUE.GTE].map(replacementToken => ({
+        ops.queryReplace[token.VALUE.GTE].map(replacementToken => ({
           FIELD: token.FIELD,
           VALUE: {
             GTE: replacementToken,
@@ -34,25 +35,62 @@ module.exports = ops => {
         }))
       ).then(res => res.union)
     }
+
+    // return RANGE(token)
+    return token
+  }
+
+  // const GET = async (
+  //   token,
+  //   pipeline = token => new Promise(resolve => resolve(token))
+  // ) => {
+  //   // Do built in token processing (case, stopwords, etc.)
+  //   if (typeof token === 'undefined') return Promise.resolve(undefined)
+  //   if (token instanceof Promise) return Promise.resolve(token)
+
+  //   token = await parseToken(token)
+  //   token = qp.setCaseSensitivity(token, ops.caseSensitive)
+  //   token = qp.removeStopwords(token, ops.stopwords)
+
+  //   token = await queryReplace(token)
+  //   if (typeof token === 'undefined') return Promise.resolve(undefined)
+  //   if (token instanceof Promise) return Promise.resolve(token)
+
+  //   token = await pipeline(token)
+  //   if (typeof token === 'undefined') return Promise.resolve(undefined)
+  //   if (token instanceof Promise) return Promise.resolve(token)
+  //   if (Array.isArray(token)) return Promise.resolve(token)
+
+  //   return Promise.resolve(RANGE(token))
+  // }
+
+  const GET = async (
+    token,
+    pipeline = token => new Promise(resolve => resolve(token))
+  ) => {
+    // Do built in token processing (case, stopwords, etc.)
+    if (typeof token === 'undefined') return Promise.resolve(undefined)
+    if (token instanceof Promise) return token
+
+    token = await parseToken(token)
+    token = qp.setCaseSensitivity(token, ops.caseSensitive)
+    token = qp.removeStopwords(token, ops.stopwords)
+
+    token = await queryReplace(token)
+    if (typeof token === 'undefined') return Promise.resolve(undefined)
+    if (token instanceof Promise) return token
+
+    token = await pipeline(token)
+    if (typeof token === 'undefined') return Promise.resolve(undefined)
+    if (token instanceof Promise) return token
+    if (Array.isArray(token)) return token
+
     return RANGE(token)
   }
 
-  const GET = token => {
-    if (typeof token === 'undefined') return Promise.resolve(undefined)
-    if (token instanceof Promise) return token
-    return ops.queryPipeline
-      .reduce(
-        (acc, cur) => acc.then(cur),
-        parseToken(token).then(token =>
-          Promise.resolve({ token: token, ops: ops })
-        )
-      )
-      .then(queryReplace)
-  }
-
   // OR
-  const UNION = (...keys) => {
-    return Promise.all(keys.map(GET)).then(sets => {
+  const UNION = (tokens, pipeline) => {
+    return Promise.all(tokens.map(token => GET(token, pipeline))).then(sets => {
       const setObject = sets.flat(Infinity).reduce((acc, cur) => {
         // cur will be undefined if stopword
         if (cur) acc.set(cur._id, [...(acc.get(cur._id) || []), cur._match])

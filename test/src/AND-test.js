@@ -112,7 +112,7 @@ test('can add some data', t => {
 
 test('get simple AND', t => {
   t.plan(1)
-  global[indexName].AND('drivetrain:Diesel', 'colour:Black').then(result =>
+  global[indexName].AND(['drivetrain:Diesel', 'colour:Black']).then(result =>
     t.deepEqual(result, [
       {
         _id: 4,
@@ -128,9 +128,11 @@ test('get simple AND', t => {
 test('get simple AND for NUMERIC values, no VALUE specified', t => {
   t.plan(1)
   global[indexName]
-    .AND({
-      FIELD: 'price'
-    })
+    .AND([
+      {
+        FIELD: 'price'
+      }
+    ])
     .then(result =>
       t.deepEqual(result, [
         { _id: 3, _match: [{ FIELD: 'price', VALUE: 0 }] },
@@ -150,9 +152,11 @@ test('get simple AND for NUMERIC values, no VALUE specified', t => {
 test('get simple AND for ALPHABETICAL values, no VALUE specified', t => {
   t.plan(1)
   global[indexName]
-    .AND({
-      FIELD: 'make'
-    })
+    .AND([
+      {
+        FIELD: 'make'
+      }
+    ])
     .then(result =>
       t.deepEqual(result, [
         { _id: 0, _match: [{ FIELD: 'make', VALUE: 'BMW' }] },
@@ -172,13 +176,15 @@ test('get simple AND for ALPHABETICAL values, no VALUE specified', t => {
 test('get simple AND for NUMERIC values', t => {
   t.plan(1)
   global[indexName]
-    .AND({
-      FIELD: 'price',
-      VALUE: {
-        GTE: 100,
-        LTE: 60000
+    .AND([
+      {
+        FIELD: 'price',
+        VALUE: {
+          GTE: 100,
+          LTE: 60000
+        }
       }
-    })
+    ])
     .then(result =>
       t.deepEqual(result, [
         { _id: 9, _match: [{ FIELD: 'price', VALUE: 3751 }] },
@@ -192,13 +198,15 @@ test('get simple AND for NUMERIC values', t => {
 test('get simple AND for NUMERIC values', t => {
   t.plan(1)
   global[indexName]
-    .AND({
-      FIELD: 'price',
-      VALUE: {
-        GTE: 0,
-        LTE: 100
+    .AND([
+      {
+        FIELD: 'price',
+        VALUE: {
+          GTE: 0,
+          LTE: 100
+        }
       }
-    })
+    ])
     .then(result =>
       t.deepEqual(result, [
         { _id: 3, _match: [{ FIELD: 'price', VALUE: 0 }] },

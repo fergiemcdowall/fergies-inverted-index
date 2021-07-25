@@ -53,7 +53,7 @@ test('can verify store', t => {
 test('can read data ignoring stopwords', t => {
   t.plan(1)
   global[indexName]
-    .AND('this', 'is', 'a', 'sentence', 'bananas')
+    .AND(['this', 'is', 'a', 'sentence', 'bananas'])
     .then(result => {
       t.deepEqual(result, [
         { _id: 0, _match: [{ FIELD: 'text', VALUE: 'sentence' }] },

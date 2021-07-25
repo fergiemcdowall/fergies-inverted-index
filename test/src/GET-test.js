@@ -158,7 +158,7 @@ test('testing query with multiple replacements', async function (t) {
   await PUT(data)
   t.pass('data indexed')
 
-  t.deepEqual(await OR('make:Volvo', 'make:BMW', 'make:Opel'), [
+  t.deepEqual(await OR(['make:Volvo', 'make:BMW', 'make:Opel']), [
     { _id: 1, _match: [{ FIELD: 'make', VALUE: 'Volvo' }] },
     { _id: 2, _match: [{ FIELD: 'make', VALUE: 'Volvo' }] },
     { _id: 3, _match: [{ FIELD: 'make', VALUE: 'Volvo' }] },

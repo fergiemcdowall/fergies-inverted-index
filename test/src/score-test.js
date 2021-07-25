@@ -118,10 +118,12 @@ test('can add some data', t => {
 test('search in specified field', t => {
   const { AND } = global[indexName]
   t.plan(1)
-  AND({
-    FIELD: 'year',
-    VALUE: 2000
-  }).then(result =>
+  AND([
+    {
+      FIELD: 'year',
+      VALUE: 2000
+    }
+  ]).then(result =>
     t.deepEquals(result, [
       { _id: 4, _match: [{ FIELD: 'year', VALUE: 2000, SCORE: 'comment' }] }
     ])
@@ -131,13 +133,15 @@ test('search in specified field', t => {
 test('search in specified field', t => {
   const { AND } = global[indexName]
   t.plan(1)
-  AND({
-    FIELD: 'year',
-    VALUE: {
-      GTE: 2004,
-      LTE: 2015
+  AND([
+    {
+      FIELD: 'year',
+      VALUE: {
+        GTE: 2004,
+        LTE: 2015
+      }
     }
-  }).then(result =>
+  ]).then(result =>
     t.deepEquals(result, [
       { _id: 9, _match: [{ FIELD: 'year', VALUE: 2004, SCORE: 'ÅØÆ' }] },
       {
@@ -155,9 +159,11 @@ test('search in specified field', t => {
 test('search in all fields', t => {
   const { AND } = global[indexName]
   t.plan(1)
-  AND({
-    VALUE: 2000
-  }).then(result =>
+  AND([
+    {
+      VALUE: 2000
+    }
+  ]).then(result =>
     t.deepEquals(result, [
       { _id: 4, _match: [{ FIELD: 'year', VALUE: 2000, SCORE: 'comment' }] }
     ])

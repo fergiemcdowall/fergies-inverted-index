@@ -117,7 +117,7 @@ test('use AGGREGATION_FILTER with FACETS', t => {
     FACETS({
       FIELD: ['drivetrain', 'model']
     }),
-    AND('colour:Black')
+    AND(['colour:Black'])
   ]).then(([facetResult, queryResult]) => {
     t.deepEqual(
       AGGREGATION_FILTER(facetResult, queryResult).filter(
@@ -152,7 +152,7 @@ test('use AGGREGATION_FILTER with BUCKETS', t => {
         }
       }
     ),
-    AND('colour:Black')
+    AND(['colour:Black'])
   ]).then(([facetResult, queryResult]) => {
     t.deepEqual(AGGREGATION_FILTER(facetResult, queryResult), [
       {

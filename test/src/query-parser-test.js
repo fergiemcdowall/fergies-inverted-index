@@ -107,7 +107,7 @@ test('can GET with object', t => {
 test('can do some AND searches', t => {
   t.plan(1)
   global[indexName]
-    .AND('sectorcode:BS', 'sectorcode:BZ', 'board_approval_month:November')
+    .AND(['sectorcode:BS', 'sectorcode:BZ', 'board_approval_month:November'])
     .then(result => {
       t.deepEqual(result, [
         {
@@ -125,7 +125,7 @@ test('can do some AND searches', t => {
 test('can do some OR searches', t => {
   t.plan(1)
   global[indexName]
-    .OR('sectorcode:BS', 'sectorcode:BZ', 'board_approval_month:November')
+    .OR(['sectorcode:BS', 'sectorcode:BZ', 'board_approval_month:November'])
     .then(result => {
       t.deepEqual(result, [
         {
@@ -157,7 +157,7 @@ test('can do some OR searches', t => {
 
 test('can do some OR searches', t => {
   t.plan(1)
-  global[indexName].OR('sectorcode:BZ', 'sectorcode:TI').then(result => {
+  global[indexName].OR(['sectorcode:BZ', 'sectorcode:TI']).then(result => {
     t.deepEqual(result, [
       {
         _id: '52b213b38594d8a2be17c781',
@@ -186,10 +186,10 @@ test('can do some OR searches', t => {
 test('can do AND with nested OR', t => {
   t.plan(1)
   global[indexName]
-    .AND(
+    .AND([
       'board_approval_month:November',
-      global[indexName].OR('sectorcode:BZ', 'sectorcode:TI')
-    )
+      global[indexName].OR(['sectorcode:BZ', 'sectorcode:TI'])
+    ])
     .then(result => {
       t.deepEqual(result, [
         {
@@ -213,13 +213,13 @@ test('can do AND with nested OR', t => {
 test('can do AND with embedded AND', t => {
   t.plan(1)
   global[indexName]
-    .AND(
+    .AND([
       'board_approval_month:October',
-      global[indexName].OR(
-        global[indexName].AND('sectorcode:BZ', 'sectorcode:BC'),
+      global[indexName].OR([
+        global[indexName].AND(['sectorcode:BZ', 'sectorcode:BC']),
         'sectorcode:TI'
-      )
-    )
+      ])
+    ])
     .then(result => {
       t.deepEqual(result, [
         {
@@ -260,10 +260,10 @@ test('can do AND with embedded AND', t => {
 test('can do AND', t => {
   t.plan(1)
   global[indexName]
-    .AND(
+    .AND([
       'board_approval_month:November',
-      global[indexName].OR('sectorcode:BZ', 'sectorcode:TI')
-    )
+      global[indexName].OR(['sectorcode:BZ', 'sectorcode:TI'])
+    ])
     .then(global[indexName].OBJECT)
     .then(result => {
       t.deepEqual(result, [
@@ -350,13 +350,13 @@ test('can do AND', t => {
 test('can do AND with embedded OR search', t => {
   t.plan(1)
   global[indexName]
-    .AND(
+    .AND([
       'board_approval_month:October',
-      global[indexName].OR(
+      global[indexName].OR([
         'sectorcode:LR',
-        global[indexName].AND('sectorcode:BC', 'sectorcode:BM')
-      )
-    )
+        global[indexName].AND(['sectorcode:BC', 'sectorcode:BM'])
+      ])
+    ])
     .then(global[indexName].OBJECT)
     .then(result => {
       t.deepEqual(result, [
@@ -752,7 +752,7 @@ test('can get documents with properties in a range and the NOT some out', t => {
 test('can do OR with GTE/LTE', t => {
   t.plan(1)
   global[indexName]
-    .OR(
+    .OR([
       {
         FIELD: 'sectorcode',
         VALUE: {
@@ -767,7 +767,7 @@ test('can do OR with GTE/LTE', t => {
           LTE: 'M'
         }
       }
-    )
+    ])
     .then(result => {
       t.deepEqual(result, [
         {
@@ -800,7 +800,7 @@ test('can do OR with GTE/LTE', t => {
 test('can do AND with GTE/LTE', t => {
   t.plan(1)
   global[indexName]
-    .AND(
+    .AND([
       {
         FIELD: 'sectorcode',
         VALUE: {
@@ -815,7 +815,7 @@ test('can do AND with GTE/LTE', t => {
           LTE: 'Z'
         }
       }
-    )
+    ])
     .then(result => {
       t.deepEqual(result, [
         {

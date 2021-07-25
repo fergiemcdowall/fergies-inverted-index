@@ -1,24 +1,17 @@
-module.exports.queryCaseSensitive = ({ token, ops }) => {
+module.exports.setCaseSensitivity = (token, caseSensitive) => {
   const setCase = str =>
-    ops.caseSensitive || typeof str !== 'string' ? str : str.toLowerCase()
+    caseSensitive || typeof str !== 'string' ? str : str.toLowerCase()
   return {
-    token: {
-      FIELD: token.FIELD.map(setCase),
-      VALUE: {
-        GTE: setCase(token.VALUE.GTE),
-        LTE: setCase(token.VALUE.LTE)
-      }
-    },
-    ops: ops
+    FIELD: token.FIELD.map(setCase),
+    VALUE: {
+      GTE: setCase(token.VALUE.GTE),
+      LTE: setCase(token.VALUE.LTE)
+    }
   }
 }
 
 // If this token is a stopword then return 'undefined'
-module.exports.queryStopwords = ({ token, ops }) => ({
-  token:
-    token.VALUE.GTE === token.VALUE.LTE &&
-    ops.stopwords.includes(token.VALUE.GTE)
-      ? undefined
-      : token,
-  ops
-})
+module.exports.removeStopwords = (token, stopwords) =>
+  token.VALUE.GTE === token.VALUE.LTE && stopwords.includes(token.VALUE.GTE)
+    ? undefined
+    : token
