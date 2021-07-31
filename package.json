@@ -6,6 +6,7 @@
   "dependencies": {
     "buffer": "^6.0.2",
     "charwise": "^3.0.1",
+    "diacritic": "^0.0.2",
     "level": "^7.0.0",
     "traverse": "^0.6.6",
     "webpack": "^5.38.1"

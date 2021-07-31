@@ -1,6 +1,5 @@
 const tokenParser = require('./parseToken.js')
 const charwise = require('charwise')
-const qp = require('./queryPipeline.js')
 
 // polyfill- HI and LO coming in next version of charwise
 charwise.LO = null
@@ -40,53 +39,58 @@ module.exports = ops => {
     return token
   }
 
-  // const GET = async (
-  //   token,
-  //   pipeline = token => new Promise(resolve => resolve(token))
-  // ) => {
-  //   // Do built in token processing (case, stopwords, etc.)
-  //   if (typeof token === 'undefined') return Promise.resolve(undefined)
-  //   if (token instanceof Promise) return Promise.resolve(token)
+  const setCaseSensitivity = token => {
+    const setCase = str =>
+      ops.caseSensitive || typeof str !== 'string' ? str : str.toLowerCase()
+    return {
+      FIELD: token.FIELD.map(setCase),
+      VALUE: {
+        GTE: setCase(token.VALUE.GTE),
+        LTE: setCase(token.VALUE.LTE)
+      }
+    }
+  }
 
-  //   token = await parseToken(token)
-  //   token = qp.setCaseSensitivity(token, ops.caseSensitive)
-  //   token = qp.removeStopwords(token, ops.stopwords)
-
-  //   token = await queryReplace(token)
-  //   if (typeof token === 'undefined') return Promise.resolve(undefined)
-  //   if (token instanceof Promise) return Promise.resolve(token)
-
-  //   token = await pipeline(token)
-  //   if (typeof token === 'undefined') return Promise.resolve(undefined)
-  //   if (token instanceof Promise) return Promise.resolve(token)
-  //   if (Array.isArray(token)) return Promise.resolve(token)
-
-  //   return Promise.resolve(RANGE(token))
-  // }
+  // If this token is a stopword then return 'undefined'
+  const removeStopwords = token =>
+    token.VALUE.GTE === token.VALUE.LTE &&
+    ops.stopwords.includes(token.VALUE.GTE)
+      ? undefined
+      : token
 
   const GET = async (
     token,
     pipeline = token => new Promise(resolve => resolve(token))
-  ) => {
-    // Do built in token processing (case, stopwords, etc.)
-    if (typeof token === 'undefined') return Promise.resolve(undefined)
-    if (token instanceof Promise) return token
+  ) =>
+    // eslint-disable-next-line
+    new Promise(async (resolve, reject) => {
+      // If token turns into a Promise or undefined, then it is
+      // assumed to have been processed completely
+      const testForBreak = token => {
+        if (typeof token === 'undefined') return resolve(undefined)
+        if (token instanceof Promise) return resolve(token)
+      }
 
-    token = await parseToken(token)
-    token = qp.setCaseSensitivity(token, ops.caseSensitive)
-    token = qp.removeStopwords(token, ops.stopwords)
-
-    token = await queryReplace(token)
-    if (typeof token === 'undefined') return Promise.resolve(undefined)
-    if (token instanceof Promise) return token
-
-    token = await pipeline(token)
-    if (typeof token === 'undefined') return Promise.resolve(undefined)
-    if (token instanceof Promise) return token
-    if (Array.isArray(token)) return token
-
-    return RANGE(token)
-  }
+      try {
+        testForBreak(token)
+        token = await parseToken(token)
+        testForBreak(token) // ?
+        token = await setCaseSensitivity(token)
+        testForBreak(token) // ?
+        token = await removeStopwords(token)
+        testForBreak(token) // ?
+        token = await queryReplace(token) // TODO: rename to replaceToken?
+        testForBreak(token)
+        token = await pipeline(token)
+        testForBreak(token)
+      } catch (e) {
+        return reject(e)
+      }
+      // If array, assume that this is an array of promises and run again
+      if (Array.isArray(token)) return resolve(token)
+      // else return the RANGE for the token
+      return resolve(RANGE(token))
+    })
 
   // OR
   const UNION = (tokens, pipeline) => {

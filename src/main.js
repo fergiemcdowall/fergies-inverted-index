@@ -4,7 +4,6 @@ const level = require('level')
 const levelup = require('levelup')
 const read = require('./read.js')
 const write = require('./write.js')
-const qp = require('./queryPipeline.js')
 
 // _match is nested by default so that AND and OR work correctly under
 // the bonnet. Flatten array before presenting to consumer
@@ -40,9 +39,6 @@ const initStore = (ops = {}) =>
         // boomness#1.00 etc
         tokenAppend: '',
         caseSensitive: true,
-
-        queryPipeline: [qp.queryCaseSensitive, qp.queryStopwords],
-
         stopwords: [],
         doNotIndexField: [],
         storeVectors: true,
@@ -105,7 +101,6 @@ const makeAFii = ops => {
         .then(result => result.union)
         .then(flattenMatchArrayInResults),
     PUT: w.PUT,
-    QUERY_PIPELINE_STAGES: qp,
     SORT: r.SORT,
     STORE: ops._db,
     TIMESTAMP_LAST_UPDATED: w.TIMESTAMP_LAST_UPDATED,
