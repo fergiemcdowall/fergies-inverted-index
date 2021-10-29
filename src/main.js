@@ -75,8 +75,9 @@ const makeAFii = ops => {
   return w.TIMESTAMP_CREATED().then(() => ({
     AGGREGATE: r.AGGREGATE,
     AGGREGATION_FILTER: r.AGGREGATION_FILTER,
-    AND: (tokens, pipeline) =>
-      r.INTERSECTION(tokens, pipeline).then(flattenMatchArrayInResults),
+    AND: (tokens, pipeline) => {
+      return r.INTERSECTION(tokens, pipeline).then(flattenMatchArrayInResults)
+    },
     BUCKET: r.BUCKET,
     BUCKETS: r.BUCKETS,
     CREATED: r.CREATED,

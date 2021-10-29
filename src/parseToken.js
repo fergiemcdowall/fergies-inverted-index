@@ -57,6 +57,14 @@ module.exports = (token, availableFields) =>
     //   }
     // }
 
+    // parse VALUE is null
+    if (token.VALUE === null) {
+      token.VALUE = {
+        GTE: null,
+        LTE: null
+      }
+    }
+
     // parse object string VALUE
     if (typeof token.VALUE === 'string' || typeof token.VALUE === 'number') {
       token.VALUE = {

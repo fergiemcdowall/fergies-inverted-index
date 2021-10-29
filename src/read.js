@@ -61,9 +61,9 @@ module.exports = ops => {
   const GET = async (
     token,
     pipeline = token => new Promise(resolve => resolve(token))
-  ) =>
+  ) => {
     // eslint-disable-next-line
-    new Promise(async (resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
       // If token turns into a Promise or undefined, then it is
       // assumed to have been processed completely
       const testForBreak = token => {
@@ -73,14 +73,16 @@ module.exports = ops => {
 
       try {
         testForBreak(token)
+
         token = await parseToken(token)
-        testForBreak(token) // ?
+        // testForBreak(token) // ?
         token = await setCaseSensitivity(token)
-        testForBreak(token) // ?
+        // testForBreak(token) // ?
         token = await removeStopwords(token)
-        testForBreak(token) // ?
+        // testForBreak(token) // ?
         token = await queryReplace(token) // TODO: rename to replaceToken?
         testForBreak(token)
+
         token = await pipeline(token)
         testForBreak(token)
       } catch (e) {
@@ -91,9 +93,10 @@ module.exports = ops => {
       // else return the RANGE for the token
       return resolve(RANGE(token))
     })
+  }
 
   // OR
-  const UNION = (tokens, pipeline) => {
+  const UNION = async (tokens, pipeline) => {
     return Promise.all(tokens.map(token => GET(token, pipeline))).then(sets => {
       const setObject = sets.flat(Infinity).reduce((acc, cur) => {
         // cur will be undefined if stopword
@@ -111,8 +114,8 @@ module.exports = ops => {
   }
 
   // AND
-  const INTERSECTION = (...tokens) => {
-    return UNION(...tokens).then(result => {
+  const INTERSECTION = (tokens, pipeline) => {
+    return UNION(tokens, pipeline).then(result => {
       return result.union.filter(
         item => item._match.length === result.sumTokensMinusStopwords
       )
@@ -144,8 +147,6 @@ module.exports = ops => {
       const rs = new Map() // resultset
       return Promise.all(
         token.FIELD.map(fieldName => {
-          // console.log(formatKey(fieldName, token.VALUE.GTE))
-          // console.log(formatKey(fieldName, token.VALUE.LTE))
           return new Promise(resolve =>
             ops._db
               .createReadStream({

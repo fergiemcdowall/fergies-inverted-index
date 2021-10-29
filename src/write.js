@@ -34,12 +34,12 @@ module.exports = ops => {
       // TODO: deal with "comments" using objects
 
       // deal with stopwords
-      if (
-        this.isLeaf &&
-        ops.stopwords.includes((this.node + '').split('#')[0])
-      ) {
-        searchable = false
-      }
+      // if (
+      //   this.isLeaf &&
+      //   ops.stopwords.includes((this.node + '').split('#')[0])
+      // ) {
+      //   searchable = false
+      // }
 
       if (searchable && this.isLeaf) {
         let key
@@ -158,8 +158,6 @@ module.exports = ops => {
       })
       putOptions = Object.assign(ops, putOptions)
 
-      // console.log(JSON.stringify(docs, null, 2))
-
       reader(ops)
         .EXIST(...docs.map(d => d._id))
         .then(existingDocs =>
@@ -219,8 +217,8 @@ module.exports = ops => {
         ops._db.batch(index.map(entry => Object.assign(entry, { type: 'put' })))
       )
 
-  const PUT = (docs, putOptions = {}) =>
-    writer(
+  const PUT = (docs, putOptions = {}) => {
+    return writer(
       docs.map(doc => ({
         _id: doc._id,
         _object: doc
@@ -230,6 +228,7 @@ module.exports = ops => {
       'PUT',
       putOptions
     ).then(TIMESTAMP_LAST_UPDATED)
+  }
 
   const TIMESTAMP_LAST_UPDATED = passThrough =>
     ops._db.put(['~LAST_UPDATED'], Date.now()).then(() => passThrough)
