@@ -34,12 +34,12 @@ module.exports = ops => {
       // TODO: deal with "comments" using objects
 
       // deal with stopwords
-      // if (
-      //   this.isLeaf &&
-      //   ops.stopwords.includes((this.node + '').split('#')[0])
-      // ) {
-      //   searchable = false
-      // }
+      if (
+        this.isLeaf &&
+        ops.stopwords.includes((this.node + '').split('#')[0])
+      ) {
+        searchable = false
+      }
 
       if (searchable && this.isLeaf) {
         let key
