@@ -1,6 +1,6 @@
 {
   "name": "fergies-inverted-index",
-  "version": "9.3.1",
+  "version": "10.0.0",
   "description": "An inverted index that allows javascript objects to be easily serialised and retrieved using promises and map-reduce",
   "main": "src/main.js",
   "dependencies": {
