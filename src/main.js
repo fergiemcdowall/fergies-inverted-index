@@ -73,7 +73,7 @@ const makeAFii = ops => {
   const w = write(ops)
 
   return w.TIMESTAMP_CREATED().then(() => ({
-    AGGREGATE: r.AGGREGATE,
+    AGGREGATE: r.AGGREGATE, // TODO: deprecated
     AGGREGATION_FILTER: r.AGGREGATION_FILTER,
     AND: (tokens, pipeline) => {
       return r.INTERSECTION(tokens, pipeline).then(flattenMatchArrayInResults)
