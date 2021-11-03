@@ -251,7 +251,7 @@ db.FACETS(
 
 <a name="FIELDS"></a>
 
-### `db.FIELDS(options).then(result)`
+### `db.FIELDS().then(result)`
 
 `db.FIELDS` returns all available fields
 
@@ -262,7 +262,7 @@ db.FIELDS().then(result) // 'result' is an array containing all available fields
 
 <a name="GET"></a>
 
-### `db.GET(options).then(result)`
+### `db.GET(token).then(result)`
 
 `db.GET` returns all object ids for objects that contain the given
 property, aggregated by object id.
@@ -409,7 +409,7 @@ db.AND([ 'land:scotland', 'year:1975', 'color:blue' ]).then(result)
 
 <a name="PUT"></a>
 
-### `db.PUT([ documents ]).then(result)`
+### `db.PUT([ ...documents ]).then(result)`
 
 Add documents to index
 
