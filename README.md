@@ -1,6 +1,6 @@
 # Fergie's Inverted Index
 
-![tests](https://github.com/fergiemcdowall/fergies-inverted-index/actions/workflows/test.yml/badge.svg)
+![tests](https://github.com/fergiemcdowall/fergies-inverted-index/actions/workflows/tests.yml/badge.svg)
 
 #### This is an inverted index library. There are many like it, but this one is Fergie's.
 
