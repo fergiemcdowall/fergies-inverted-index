@@ -457,3 +457,6 @@ db.GET('blue').then(db.SORT)
 ### `db.STORE`
 
 Property that points to the underlying [level](https://github.com/Level/level) store
+
+
+test
