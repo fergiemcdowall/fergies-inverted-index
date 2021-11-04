@@ -4,7 +4,7 @@ const test = require('tape')
 const sandbox = 'test/sandbox/'
 const indexName = sandbox + 'LAST_UPDATED'
 
-var timestamp
+let timestamp
 
 test('create index', t => {
   t.plan(1)
@@ -16,7 +16,7 @@ test('create index', t => {
 
 test('LAST_UPDATED timestamp was created', t => {
   t.plan(1)
-  global[indexName].STORE.get('￮￮LAST_UPDATED')
+  global[indexName].STORE.get(['~LAST_UPDATED'])
     .then(created => {
       timestamp = created
       return t.pass('LAST_UPDATED timestamp created ' + timestamp)

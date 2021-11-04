@@ -67,44 +67,45 @@ test('create index', t => {
 
 test('can add some data', t => {
   t.plan(1)
-  global[indexName].PUT(data.slice(0, 6)).then(res => t.deepEquals(res, [
-    { _id: '0', status: 'CREATED', operation: 'PUT' },
-    { _id: '1', status: 'CREATED', operation: 'PUT' },
-    { _id: '2', status: 'CREATED', operation: 'PUT' },
-    { _id: '3', status: 'CREATED', operation: 'PUT' },
-    { _id: '4', status: 'CREATED', operation: 'PUT' },
-    { _id: '5', status: 'CREATED', operation: 'PUT' }
-  ]))
+  global[indexName].PUT(data.slice(0, 6)).then(res =>
+    t.deepEquals(res, [
+      { _id: 0, status: 'CREATED', operation: 'PUT' },
+      { _id: 1, status: 'CREATED', operation: 'PUT' },
+      { _id: 2, status: 'CREATED', operation: 'PUT' },
+      { _id: 3, status: 'CREATED', operation: 'PUT' },
+      { _id: 4, status: 'CREATED', operation: 'PUT' },
+      { _id: 5, status: 'CREATED', operation: 'PUT' }
+    ])
+  )
 })
 
 test('see if docs EXIST', t => {
   t.plan(1)
-  global[indexName].EXIST('1', '2', '3').then(
-    result => t.deepEqual(result, [
-      '1', '2', '3'
-    ]))
+  global[indexName]
+    .EXIST(1, 2, 3)
+    .then(result => t.deepEqual(result, [1, 2, 3]))
 })
 
 test('see if docs EXIST', t => {
   t.plan(1)
-  global[indexName].EXIST('7', '8', '9').then(
-    result => t.deepEqual(result, []))
+  global[indexName].EXIST(7, 8, 9).then(result => t.deepEqual(result, []))
 })
 
 test('see if docs EXIST', t => {
   t.plan(1)
-  global[indexName].EXIST('4', '1', '7').then(
-    result => t.deepEqual(result, ['4', '1']))
+  global[indexName].EXIST(4, 1, 7).then(result => t.deepEqual(result, [4, 1]))
 })
 
 test('can add some more data', t => {
   t.plan(1)
-  global[indexName].PUT(data.slice(-6)).then(res => t.deepEquals(res, [
-    { _id: '4', status: 'UPDATED', operation: 'PUT' },
-    { _id: '5', status: 'UPDATED', operation: 'PUT' },
-    { _id: '6', status: 'CREATED', operation: 'PUT' },
-    { _id: '7', status: 'CREATED', operation: 'PUT' },
-    { _id: '8', status: 'CREATED', operation: 'PUT' },
-    { _id: '9', status: 'CREATED', operation: 'PUT' }
-  ]))
+  global[indexName].PUT(data.slice(-6)).then(res =>
+    t.deepEquals(res, [
+      { _id: 4, status: 'UPDATED', operation: 'PUT' },
+      { _id: 5, status: 'UPDATED', operation: 'PUT' },
+      { _id: 6, status: 'CREATED', operation: 'PUT' },
+      { _id: 7, status: 'CREATED', operation: 'PUT' },
+      { _id: 8, status: 'CREATED', operation: 'PUT' },
+      { _id: 9, status: 'CREATED', operation: 'PUT' }
+    ])
+  )
 })

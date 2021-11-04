@@ -117,17 +117,18 @@ test('use AGGREGATION_FILTER with FACETS', t => {
     FACETS({
       FIELD: ['drivetrain', 'model']
     }),
-    AND('colour:Black')
+    AND(['colour:Black'])
   ]).then(([facetResult, queryResult]) => {
     t.deepEqual(
-      AGGREGATION_FILTER(facetResult, queryResult)
-        .filter(item => item._id.length),
+      AGGREGATION_FILTER(facetResult, queryResult).filter(
+        item => item._id.length
+      ),
       [
-        { FIELD: 'drivetrain', VALUE: 'Diesel', _id: ['4'] },
-        { FIELD: 'drivetrain', VALUE: 'Petrol', _id: ['1', '7'] },
-        { FIELD: 'model', VALUE: '3-series', _id: ['7'] },
-        { FIELD: 'model', VALUE: '5-series', _id: ['4'] },
-        { FIELD: 'model', VALUE: 'XC90', _id: ['1'] }
+        { FIELD: 'drivetrain', VALUE: 'Diesel', _id: [4] },
+        { FIELD: 'drivetrain', VALUE: 'Petrol', _id: [1, 7] },
+        { FIELD: 'model', VALUE: '3-series', _id: [7] },
+        { FIELD: 'model', VALUE: '5-series', _id: [4] },
+        { FIELD: 'model', VALUE: 'XC90', _id: [1] }
       ]
     )
   })
@@ -137,33 +138,33 @@ test('use AGGREGATION_FILTER with BUCKETS', t => {
   t.plan(1)
   const { BUCKETS, AGGREGATION_FILTER, AND } = global[indexName]
   Promise.all([
-    BUCKETS({
-      FIELD: ['year'],
-      VALUE: {
-        LTE: '2010'
-      }
-    }, {
-      FIELD: ['year'],
-      VALUE: {
-        GTE: '2010'
-      }
-    }),
-    AND('colour:Black')
-  ]).then(([facetResult, queryResult]) => {
-    t.deepEqual(
-      AGGREGATION_FILTER(facetResult, queryResult),
-      [
-        {
-          FIELD: ['year'],
-          VALUE: { GTE: '!', LTE: '2010' },
-          _id: ['4']
-        },
-        {
-          FIELD: ['year'],
-          VALUE: { GTE: '2010', LTE: '' },
-          _id: ['1', '7']
+    BUCKETS(
+      {
+        FIELD: ['year'],
+        VALUE: {
+          LTE: 2010
         }
-      ]
-    )
+      },
+      {
+        FIELD: ['year'],
+        VALUE: {
+          GTE: 2010
+        }
+      }
+    ),
+    AND(['colour:Black'])
+  ]).then(([facetResult, queryResult]) => {
+    t.deepEqual(AGGREGATION_FILTER(facetResult, queryResult), [
+      {
+        FIELD: ['year'],
+        VALUE: { GTE: null, LTE: 2010 },
+        _id: [4]
+      },
+      {
+        FIELD: ['year'],
+        VALUE: { GTE: 2010, LTE: undefined },
+        _id: [1, 7]
+      }
+    ])
   })
 })

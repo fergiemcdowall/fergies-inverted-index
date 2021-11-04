@@ -4,7 +4,7 @@ const test = require('tape')
 const sandbox = 'test/sandbox/'
 const indexName = sandbox + 'CREATED'
 
-var timestamp
+let timestamp
 
 test('create index', t => {
   t.plan(1)
@@ -16,11 +16,11 @@ test('create index', t => {
 
 test('timestamp was created', t => {
   t.plan(1)
-  global[indexName].STORE.get('￮￮CREATED')
+  global[indexName].STORE.get(['~CREATED'])
     .then(created => {
       timestamp = created
       return t.pass('timestamp created')
-    })
+    }).catch(t.error)
 })
 
 test('can read CREATED timestamp with API', t => {

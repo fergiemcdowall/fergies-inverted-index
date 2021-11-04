@@ -1,317 +1,391 @@
+const tokenParser = require('./parseToken.js')
+const charwise = require('charwise')
+
+// polyfill- HI and LO coming in next version of charwise
+charwise.LO = null
+charwise.HI = undefined
+
 module.exports = ops => {
-  const isString = s => (typeof s === 'string')
+  const isString = s => typeof s === 'string'
 
-  // key might be object or string like this
-  // <fieldname>:<value>. Turn key into json object that is of the
-  // format {FIELD: ..., VALUE: {GTE: ..., LTE ...}}
-  const parseToken = token => new Promise((resolve, reject) => {
-    // case: <value>
-    // case: <FIELD>:<VALUE>
-    // case: undefined
+  // TODO: in order to account for query processing pipelines,
+  // parseToken should probably be moved to search-index and fii
+  // should only deal with nicely formatted query tokens (JSON
+  // objects)
+  const parseToken = async token => tokenParser(token, await AVAILABLE_FIELDS())
 
-    const setCase = str => ops.caseSensitive ? str : str.toLowerCase()
-
-    if (typeof token === 'undefined') token = {}
-
-    if (typeof token === 'string') {
-      const fieldValue = setCase(token).split(':')
-      const value = fieldValue.pop()
-      const field = fieldValue.pop()
-      if (field) {
-        return resolve({
-          FIELD: [field],
+  const queryReplace = token => {
+    // for example stopwords create undefined token
+    if (typeof token === 'undefined') return RANGE(undefined)
+    // REPLACEMENT
+    if (
+      // only consider tokens for single values, not ranges (lte == gte)
+      token.VALUE.GTE === token.VALUE.LTE &&
+      ops.queryReplace && // user specified queryReplace parameter
+      ops.queryReplace[token.VALUE.GTE] // is there a replacement?
+    ) {
+      return UNION(
+        ops.queryReplace[token.VALUE.GTE].map(replacementToken => ({
+          FIELD: token.FIELD,
           VALUE: {
-            GTE: value,
-            LTE: value
+            GTE: replacementToken,
+            LTE: replacementToken
           }
-        })
-      }
-      return AVAILABLE_FIELDS().then(fields => resolve({
-        FIELD: fields,
-        VALUE: {
-          GTE: value,
-          LTE: value
-        }
-      }))
+        }))
+      ).then(res => res.union)
     }
 
-    // else not string so assume Object
-    // {
-    //   FIELD: [ fields ],
-    //   VALUE: {
-    //     GTE: gte,
-    //     LTE: lte
-    //   }
-    // }
+    // return RANGE(token)
+    return token
+  }
 
-    // parse object VALUE
-    if (typeof token.VALUE === 'string') {
-      token.VALUE = {
-        GTE: setCase(token.VALUE),
-        LTE: setCase(token.VALUE)
+  const setCaseSensitivity = token => {
+    const setCase = str =>
+      ops.caseSensitive || typeof str !== 'string' ? str : str.toLowerCase()
+    return {
+      FIELD: token.FIELD.map(setCase),
+      VALUE: {
+        GTE: setCase(token.VALUE.GTE),
+        LTE: setCase(token.VALUE.LTE)
       }
     }
+  }
 
-    if (typeof token.VALUE === 'undefined') {
-      token.VALUE = {
-        GTE: '!',
-        LTE: '￮'
+  // If this token is a stopword then return 'undefined'
+  const removeStopwords = token =>
+    token.VALUE.GTE === token.VALUE.LTE &&
+    ops.stopwords.includes(token.VALUE.GTE)
+      ? undefined
+      : token
+
+  const GET = async (
+    token,
+    pipeline = token => new Promise(resolve => resolve(token))
+  ) => {
+    // eslint-disable-next-line
+    return new Promise(async (resolve, reject) => {
+      // If token turns into a Promise or undefined, then it is
+      // assumed to have been processed completely
+      const testForBreak = token => {
+        if (typeof token === 'undefined') return resolve(undefined)
+        if (token instanceof Promise) return resolve(token)
       }
-    }
 
-    token.VALUE = Object.assign(token.VALUE, {
-      GTE: setCase(token.VALUE.GTE || '!'),
-      LTE: setCase(token.VALUE.LTE || '￮')
+      try {
+        testForBreak(token)
+
+        token = await parseToken(token)
+        // testForBreak(token) // ?
+        token = await setCaseSensitivity(token)
+        // testForBreak(token) // ?
+        token = await removeStopwords(token)
+        // testForBreak(token) // ?
+        token = await queryReplace(token) // TODO: rename to replaceToken?
+        testForBreak(token)
+
+        token = await pipeline(token)
+        testForBreak(token)
+      } catch (e) {
+        return reject(e)
+      }
+      // If array, assume that this is an array of promises and run again
+      if (Array.isArray(token)) return resolve(token)
+      // else return the RANGE for the token
+      return resolve(RANGE(token))
     })
-
-    // parse object FIELD
-    if (typeof token.FIELD === 'undefined') {
-      return AVAILABLE_FIELDS().then(fields => resolve(
-        Object.assign(token, {
-          FIELD: fields
-        })
-      ))
-    }
-
-    // Allow FIELD to be an array or a string
-    token.FIELD = [token.FIELD].flat()
-
-    return resolve(token)
-  })
-
-  const GET = token => (token instanceof Promise)
-    ? token
-    : parseToken(token).then(RANGE)
+  }
 
   // OR
-  const UNION = (...keys) => Promise.all(
-    keys.map(GET)
-  ).then(sets => {
-    const setObject = sets.flat(Infinity).reduce(
-      (acc, cur) => {
+  const UNION = async (tokens, pipeline) => {
+    return Promise.all(tokens.map(token => GET(token, pipeline))).then(sets => {
+      const setObject = sets.flat(Infinity).reduce((acc, cur) => {
         // cur will be undefined if stopword
-        if (cur) { acc[cur._id] = [...(acc[cur._id] || []), cur._match] }
+        if (cur) acc.set(cur._id, [...(acc.get(cur._id) || []), cur._match])
         return acc
-      },
-      {}
-    )
-    return {
-      sumTokensMinusStopwords: sets.filter(s => s).length,
-      union: Object.keys(setObject).map(id => ({
-        _id: id,
-        _match: setObject[id]
-      }))
-    }
-  })
+      }, new Map())
+      return {
+        sumTokensMinusStopwords: sets.filter(s => s).length,
+        union: Array.from(setObject.keys()).map(id => ({
+          _id: id,
+          _match: setObject.get(id)
+        }))
+      }
+    })
+  }
 
   // AND
-  const INTERSECTION = (...tokens) => UNION(...tokens).then(
-    result => result.union.filter(
-      item => (item._match.length === result.sumTokensMinusStopwords)
-    ))
+  const INTERSECTION = (tokens, pipeline) => {
+    return UNION(tokens, pipeline).then(result => {
+      return result.union.filter(
+        item => item._match.length === result.sumTokensMinusStopwords
+      )
+    })
+  }
 
   // NOT (set a minus set b)
-  const SET_SUBTRACTION = (a, b) => Promise.all([
-    isString(a) ? GET(a) : a,
-    isString(b) ? GET(b) : b
-  ]).then(([a, b]) => a.filter(
-    aItem => b.map(bItem => bItem._id).indexOf(aItem._id) === -1)
-  )
+  const SET_SUBTRACTION = (a, b) =>
+    Promise.all([isString(a) ? GET(a) : a, isString(b) ? GET(b) : b]).then(
+      ([a, b]) =>
+        a.filter(aItem => b.map(bItem => bItem._id).indexOf(aItem._id) === -1)
+    )
 
-  const RANGE = token => new Promise(resolve => {
-    // If this token is a stopword then return 'undefined'
-    if ((token.VALUE.GTE === token.VALUE.LTE) &&
-        ops.stopwords.includes(token.VALUE.GTE)) { return resolve(undefined) }
+  const formatKey = (field, value, lte) => {
+    const valueAndScore = []
+    if (value !== undefined || typeof value === 'number') {
+      valueAndScore.push(value)
+    }
+    if (lte) valueAndScore.push(charwise.HI)
 
-    const rs = {} // resultset
-    return Promise.all(
-      token.FIELD.map(
-        fieldName => new Promise(resolve => ops._db.createReadStream({
-          gte: fieldName + ':' + token.VALUE.GTE + ops.tokenAppend,
-          lte: fieldName + ':' + token.VALUE.LTE + ops.tokenAppend + '￮',
-          limit: token.LIMIT,
-          reverse: token.REVERSE
-        }).on('data', token => token.value.forEach(docId => {
-          rs[docId] = [...(rs[docId] || []), token.key]
-        })).on('end', resolve)
+    return ['IDX', field, valueAndScore]
+  }
+
+  const RANGE = token => {
+    return new Promise(resolve => {
+      // If this token is undefined (stopword) then resolve 'undefined'
+      if (typeof token === 'undefined') return resolve(undefined)
+
+      const rs = new Map() // resultset
+      return Promise.all(
+        token.FIELD.map(fieldName => {
+          return new Promise(resolve =>
+            ops._db
+              .createReadStream({
+                gte: formatKey(fieldName, token.VALUE.GTE),
+                lte: formatKey(fieldName, token.VALUE.LTE, true),
+                limit: token.LIMIT,
+                reverse: token.REVERSE
+              })
+              .on('data', token => {
+                return token.value.forEach(docId => {
+                  return rs.set(docId, [
+                    ...(rs.get(docId) || []),
+                    JSON.stringify({
+                      FIELD: token.key[1],
+                      VALUE: token.key[2][0],
+                      SCORE: token.key[2][1]
+                    })
+                  ])
+                })
+              })
+              .on('end', resolve)
+          )
+        })
+      ).then(() =>
+        resolve(
+          Array.from(rs.keys()).map(id => {
+            return {
+              _id: id,
+              _match: rs.get(id)
+            }
+          })
         )
       )
-    ).then(() => resolve(
-      // convert map into array
-      Object.keys(rs).map(id => ({
-        _id: id,
-        _match: rs[id].sort()
-      }))
-    ))
-  })
-
-  const AVAILABLE_FIELDS = () => new Promise(resolve => {
-    const fieldNames = []
-    ops._db.createReadStream({
-      gte: '￮FIELD￮',
-      lte: '￮FIELD￮￮'
     })
-      .on('data', d => fieldNames.push(d.value))
-      .on('end', () => resolve(fieldNames))
-  })
+  }
 
-  const CREATED = () => ops._db.get('￮￮CREATED')
+  const AVAILABLE_FIELDS = () =>
+    new Promise(resolve => {
+      const fieldNames = []
+      ops._db
+        .createReadStream({
+          gte: ['FIELD', charwise.LO],
+          lte: ['FIELD', charwise.HI]
+        })
+        .on('data', d => fieldNames.push(d.value))
+        .on('end', () => resolve(fieldNames))
+    })
 
-  const LAST_UPDATED = () => ops._db.get('￮￮LAST_UPDATED')
+  const CREATED = () => ops._db.get(['~CREATED'])
+
+  const LAST_UPDATED = () => ops._db.get(['~LAST_UPDATED'])
 
   // takes an array of ids and determines if the corresponding
   // documents exist in the index.
-  const EXIST = (...ids) => new Promise(resolve => {
-    const existingIds = []
-    ops._db.createReadStream({
-      gte: '￮' + ops.docExistsSpace + '￮',
-      lte: '￮' + ops.docExistsSpace + '￮￮',
-      values: false
-    })
-      .on('data', d => existingIds.push(d))
-      .on('end', () => resolve(ids.filter(
-        id => existingIds.includes('￮' + ops.docExistsSpace + '￮' + id + '￮')
-      )))
-  })
+  const EXIST = (...ids) =>
+    Promise.all(
+      ids.map(id => ops._db.get([ops.docExistsSpace, id]).catch(e => null))
+    ).then(result =>
+      result.reduce((acc, cur, i) => {
+        if (cur != null) acc.push(ids[i])
+        return acc
+      }, [])
+    )
 
   // Given the results of an aggregation and the results of a query,
   // return the filtered aggregation
   const AGGREGATION_FILTER = (aggregation, filterSet) => {
     if (!filterSet || filterSet.length === 0) return aggregation
     filterSet = new Set(filterSet.map(item => item._id))
-    return aggregation.map(bucket => Object.assign(bucket, {
-      _id: [...new Set([...bucket._id].filter(
-        x => filterSet.has(x)
-      ))]
-    }))
+    return aggregation.map(bucket =>
+      Object.assign(bucket, {
+        _id: [...new Set([...bucket._id].filter(x => filterSet.has(x)))]
+      })
+    )
   }
 
-  const AGGREGATE = ({ BUCKETS, FACETS, QUERY }) => Promise.all(
-    [BUCKETS, FACETS, QUERY]
-  ).then(([
-    bucketsResult = [],
-    facetsResult = [],
-    queryResult = []
-  ]) => ({
-    BUCKETS: AGGREGATION_FILTER(bucketsResult.flat(), queryResult),
-    FACETS: AGGREGATION_FILTER(facetsResult.flat(), queryResult),
-    RESULT: queryResult
-  }))
+  const AGGREGATE = ({ BUCKETS, FACETS, QUERY }) =>
+    Promise.all([BUCKETS, FACETS, QUERY]).then(
+      ([bucketsResult = [], facetsResult = [], queryResult = []]) => ({
+        BUCKETS: AGGREGATION_FILTER(bucketsResult.flat(), queryResult),
+        FACETS: AGGREGATION_FILTER(facetsResult.flat(), queryResult),
+        RESULT: queryResult
+      })
+    )
 
-  const BUCKETS = (...buckets) => Promise.all(
-    buckets.map(BUCKET)
-  )
+  const BUCKETS = (...buckets) => Promise.all(buckets.map(BUCKET))
 
   // return a bucket of IDs. Key is an object like this:
   // {gte:..., lte:...} (gte/lte == greater/less than or equal)
-  const BUCKET = token => parseToken(
-    token // TODO: is parseToken needed her? Already called in GET
-  ).then(token => GET(
-    token
-  ).then(
-    result => {
-      const re = new RegExp('[￮' + ops.tokenAppend + ']', 'g')
-      return Object.assign(token, {
-        _id: [...result.reduce((acc, cur) => acc.add(cur._id), new Set())].sort(),
-        VALUE: {
-          GTE: token.VALUE.GTE.split(':').pop().replace(re, ''),
-          LTE: token.VALUE.LTE.split(':').pop().replace(re, '')
-        }
-      })
-    })
-  )
-
-  const OBJECT = _ids => Promise.all(
-    _ids.map(
-      id => ops._db.get('￮DOC￮' + id._id + '￮').catch(reason => null)
+  const BUCKET = async token =>
+    parseToken(
+      token // TODO: is parseToken needed her? Already called in GET
+    ).then(token =>
+      GET(token).then(result =>
+        Object.assign(token, {
+          _id: [
+            ...result.reduce((acc, cur) => acc.add(cur._id), new Set())
+          ].sort(),
+          VALUE: token.VALUE
+        })
+      )
     )
-  ).then(_objects => _ids.map((_id, i) => {
-    _id._object = _objects[i]
-    return _id
-  }))
+
+  const OBJECT = _ids =>
+    Promise.all(
+      _ids.map(id => ops._db.get(['DOC', id._id]).catch(reason => null))
+    ).then(_objects =>
+      _ids.map((_id, i) => {
+        _id._object = _objects[i]
+        return _id
+      })
+    )
 
   // TODO: can this be replaced by RANGE?
-  const getRange = rangeOps => new Promise((resolve, reject) => {
-    const keys = []
-    ops._db.createReadStream(rangeOps)
-      .on('data', data => { keys.push(data) })
-      .on('end', () => resolve(keys))
-  })
+  const getRange = rangeOps =>
+    new Promise((resolve, reject) => {
+      const keys = []
+      ops._db
+        .createReadStream(rangeOps)
+        .on('data', data => {
+          keys.push(data)
+        })
+        .on('end', () => resolve(keys))
+    })
 
   const MAX = fieldName => BOUNDING_VALUE(fieldName, true)
 
-  const BOUNDING_VALUE = (token, reverse) => parseToken(
-    token
-  ).then(
-    token => RANGE(Object.assign(token, {
-      LIMIT: 1,
-      REVERSE: reverse
-    }))
-  ).then(
-    max => max.pop()
-      ._match.pop()
-      .split(':').pop()
-    // TODO: should '#' be handled here or downstream?
-      .split('#').shift()
-  )
+  const BOUNDING_VALUE = (token, reverse) =>
+    parseToken(token)
+      .then(token =>
+        RANGE(
+          Object.assign(token, {
+            LIMIT: 1,
+            REVERSE: reverse
+          })
+        )
+      )
+      .then(max =>
+        max.length ? JSON.parse(max.pop()._match.pop()).VALUE : null
+      )
 
   // TODO remove if DISTINCT is no longer used
-  const DISTINCT = (...tokens) => Promise.all(
-    // if no tokens specified then get everything ('{}')
-    tokens.length ? tokens.map(DIST) : [DIST({})]
-  ).then(
-    dist => [
-      ...dist.flat().reduce(
-        (acc, cur) => acc.add(JSON.stringify(cur)),
-        new Set())
-    ].map(JSON.parse)
-  )
+  const DISTINCT = (...tokens) =>
+    Promise.all(
+      // if no tokens specified then get everything ('{}')
+      tokens.length ? tokens.map(DIST) : [DIST({})]
+    ).then(dist =>
+      [
+        ...dist
+          .flat()
+          .reduce((acc, cur) => acc.add(JSON.stringify(cur)), new Set())
+      ].map(JSON.parse)
+    )
 
   // TODO remove if DISTINCT is no longer used
-  const DIST = token => parseToken(
-    token
-  ).then(token => Promise.all(
-    token.FIELD.map(field => getRange({
-      gte: field + ':' + token.VALUE.GTE,
-      lte: field + ':' + token.VALUE.LTE + '￮',
-      keys: true,
-      values: false
-    }).then(items => items.map(item => ({
-      FIELD: item.split(/:(.+)/)[0],
-      VALUE: item.split(/:(.+)/)[1]
-    }))))
-  )).then(result => result.flat())
+  const DIST = token =>
+    parseToken(token)
+      .then(token => {
+        return Promise.all(
+          token.FIELD.map(field => {
+            let lte = token.VALUE.LTE
+            if (
+              typeof token.VALUE.LTE !== 'undefined' &&
+              typeof token.VALUE.LTE !== 'number'
+            ) {
+              lte = lte + '￮'
+            }
 
-  const FACETS = (...tokens) => Promise.all(
-    // if no tokens specified then get everything ('{}')
-    tokens.length ? tokens.map(FACET) : [FACET({})]
-  ).then(
-    // TODO: Does this need to be a SET, or can there be duplicates?
-    // TODO: Is dedupe actually needed here?
-    // dedupe
-    facets => [
-      ...facets.flat().reduce(
-        (acc, cur) => acc.add(JSON.stringify(cur)),
-        new Set())
-    ].map(JSON.parse)
-  )
+            let gte = token.VALUE.GTE
+            if (token.VALUE.GTE && typeof token.VALUE.GTE !== 'number') {
+              gte = gte + ' '
+            }
 
-  const FACET = token => parseToken(
-    token
-  ).then(token => Promise.all(
-    token.FIELD.map(field => getRange({
-      gte: field + ':' + token.VALUE.GTE,
-      lte: field + ':' + token.VALUE.LTE + '￮'
-    }).then(items => items.map(item => ({
-      FIELD: item.key.split(/:(.+)/)[0],
-      VALUE: item.key.split(/:(.+)/)[1],
-      _id: item.value
-    }))))
-  )).then(result => result.flat())
+            return getRange({
+              gte: formatKey(field, gte),
+              lte: formatKey(field, lte, true),
+              keys: true,
+              values: false
+            }).then(items =>
+              items.map(item => ({
+                FIELD: item[1],
+                VALUE: item[2][0]
+              }))
+            )
+          })
+        )
+      })
+      .then(result => result.flat())
+
+  const FACETS = (...tokens) =>
+    Promise.all(
+      // if no tokens specified then get everything ('{}')
+      tokens.length ? tokens.map(FACET) : [FACET({})]
+    ).then(
+      // TODO: Does this need to be a SET, or can there be duplicates?
+      // TODO: Is dedupe actually needed here?
+      // dedupe
+      facets =>
+        [
+          ...facets
+            .flat()
+            .reduce((acc, cur) => acc.add(JSON.stringify(cur)), new Set())
+        ].map(JSON.parse)
+    )
+
+  const FACET = token =>
+    parseToken(token)
+      .then(token =>
+        Promise.all(
+          token.FIELD.map(field =>
+            getRange({
+              gte: formatKey(field, token.VALUE.GTE),
+              lte: formatKey(field, token.VALUE.LTE, true)
+            }).then(items =>
+              items.map(item => ({
+                FIELD: item.key[1],
+                VALUE: item.key[2][0],
+                _id: item.value
+              }))
+            )
+          )
+        )
+      )
+      .then(result => result.flat())
+
+  // declare outside of loop as per https://stackoverflow.com/questions/14677060/400x-sorting-speedup-by-switching-a-localecompareb-to-ab-1ab10
+  const collator = new Intl.Collator('en', {
+    numeric: true,
+    sensitivity: 'base'
+  })
+
+  const SORT = results =>
+    new Promise(resolve =>
+      resolve(results.sort((a, b) => collator.compare(a._id, b._id)))
+    )
 
   return {
     AGGREGATE: AGGREGATE, // TODO: remove
-    AGGREGATION_FILTER: AGGREGATION_FILTER, // TODO: remove
+    AGGREGATION_FILTER: AGGREGATION_FILTER,
     BUCKET: BUCKET, // DEPRECATED, TODO: remove
     // TODO: change so that this takes an options object containing
     // facet command, flag for returning empty facets or not, and a
@@ -332,7 +406,8 @@ module.exports = ops => {
     MAX: MAX,
     MIN: BOUNDING_VALUE,
     OBJECT: OBJECT,
-    SET_SUBTRACTION: SET_SUBTRACTION,
+    SET_SUBTRACTION: SET_SUBTRACTION, // NOT
+    SORT: SORT,
     UNION: UNION, // OR,
     parseToken: parseToken
   }

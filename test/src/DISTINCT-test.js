@@ -112,197 +112,238 @@ test('can add some data', t => {
 
 test('get DISTINCT values for one field', t => {
   t.plan(1)
-  global[indexName].DISTINCT({
-    FIELD: 'drivetrain'
-  }).then(result => t.deepEqual(result, [
-    { FIELD: 'drivetrain', VALUE: 'Diesel' },
-    { FIELD: 'drivetrain', VALUE: 'Electric' },
-    { FIELD: 'drivetrain', VALUE: 'Hybrid' },
-    { FIELD: 'drivetrain', VALUE: 'Petrol' }
-  ]))
+  global[indexName]
+    .DISTINCT({
+      FIELD: 'drivetrain'
+    })
+    .then(result =>
+      t.deepEqual(result, [
+        { FIELD: 'drivetrain', VALUE: 'Diesel' },
+        { FIELD: 'drivetrain', VALUE: 'Electric' },
+        { FIELD: 'drivetrain', VALUE: 'Hybrid' },
+        { FIELD: 'drivetrain', VALUE: 'Petrol' }
+      ])
+    )
 })
 
 test('get DISTINCT values for two fields', t => {
   t.plan(1)
-  global[indexName].DISTINCT({
-    FIELD: ['drivetrain', 'make']
-  }).then(result => t.deepEqual(result, [
-    { FIELD: 'drivetrain', VALUE: 'Diesel' },
-    { FIELD: 'drivetrain', VALUE: 'Electric' },
-    { FIELD: 'drivetrain', VALUE: 'Hybrid' },
-    { FIELD: 'drivetrain', VALUE: 'Petrol' },
-    { FIELD: 'make', VALUE: 'BMW' },
-    { FIELD: 'make', VALUE: 'Tesla' },
-    { FIELD: 'make', VALUE: 'Volvo' }
-  ]))
+  global[indexName]
+    .DISTINCT({
+      FIELD: ['drivetrain', 'make']
+    })
+    .then(result =>
+      t.deepEqual(result, [
+        { FIELD: 'drivetrain', VALUE: 'Diesel' },
+        { FIELD: 'drivetrain', VALUE: 'Electric' },
+        { FIELD: 'drivetrain', VALUE: 'Hybrid' },
+        { FIELD: 'drivetrain', VALUE: 'Petrol' },
+        { FIELD: 'make', VALUE: 'BMW' },
+        { FIELD: 'make', VALUE: 'Tesla' },
+        { FIELD: 'make', VALUE: 'Volvo' }
+      ])
+    )
 })
 
 test('get DISTINCT values for two fields with GTE', t => {
   t.plan(1)
-  global[indexName].DISTINCT({
-    FIELD: ['drivetrain', 'make'],
-    VALUE: {
-      GTE: 'F'
-    }
-  }).then(result => t.deepEqual(result, [
-    { FIELD: 'drivetrain', VALUE: 'Hybrid' },
-    { FIELD: 'drivetrain', VALUE: 'Petrol' },
-    { FIELD: 'make', VALUE: 'Tesla' },
-    { FIELD: 'make', VALUE: 'Volvo' }
-  ]))
+  global[indexName]
+    .DISTINCT({
+      FIELD: ['drivetrain', 'make'],
+      VALUE: {
+        GTE: 'F'
+      }
+    })
+    .then(result =>
+      t.deepEqual(result, [
+        { FIELD: 'drivetrain', VALUE: 'Hybrid' },
+        { FIELD: 'drivetrain', VALUE: 'Petrol' },
+        { FIELD: 'make', VALUE: 'Tesla' },
+        { FIELD: 'make', VALUE: 'Volvo' }
+      ])
+    )
 })
 
 test('get DISTINCT values with two clauses', t => {
   t.plan(1)
-  global[indexName].DISTINCT({
-    FIELD: ['drivetrain']
-  }, {
-    FIELD: ['make']
-  }).then(result => t.deepEqual(result, [
-    { FIELD: 'drivetrain', VALUE: 'Diesel' },
-    { FIELD: 'drivetrain', VALUE: 'Electric' },
-    { FIELD: 'drivetrain', VALUE: 'Hybrid' },
-    { FIELD: 'drivetrain', VALUE: 'Petrol' },
-    { FIELD: 'make', VALUE: 'BMW' },
-    { FIELD: 'make', VALUE: 'Tesla' },
-    { FIELD: 'make', VALUE: 'Volvo' }
-  ]))
+  global[indexName]
+    .DISTINCT(
+      {
+        FIELD: ['drivetrain']
+      },
+      {
+        FIELD: ['make']
+      }
+    )
+    .then(result =>
+      t.deepEqual(result, [
+        { FIELD: 'drivetrain', VALUE: 'Diesel' },
+        { FIELD: 'drivetrain', VALUE: 'Electric' },
+        { FIELD: 'drivetrain', VALUE: 'Hybrid' },
+        { FIELD: 'drivetrain', VALUE: 'Petrol' },
+        { FIELD: 'make', VALUE: 'BMW' },
+        { FIELD: 'make', VALUE: 'Tesla' },
+        { FIELD: 'make', VALUE: 'Volvo' }
+      ])
+    )
 })
 
 test('get DISTINCT values with two clauses', t => {
   t.plan(1)
-  global[indexName].DISTINCT({
-    FIELD: ['drivetrain'],
-    VALUE: { LTE: 'F' }
-  }, {
-    FIELD: ['make']
-  }).then(result => t.deepEqual(result, [
-    { FIELD: 'drivetrain', VALUE: 'Diesel' },
-    { FIELD: 'drivetrain', VALUE: 'Electric' },
-    { FIELD: 'make', VALUE: 'BMW' },
-    { FIELD: 'make', VALUE: 'Tesla' },
-    { FIELD: 'make', VALUE: 'Volvo' }
-  ]))
+  global[indexName]
+    .DISTINCT(
+      {
+        FIELD: ['drivetrain'],
+        VALUE: { LTE: 'F' }
+      },
+      {
+        FIELD: ['make']
+      }
+    )
+    .then(result =>
+      t.deepEqual(result, [
+        { FIELD: 'drivetrain', VALUE: 'Diesel' },
+        { FIELD: 'drivetrain', VALUE: 'Electric' },
+        { FIELD: 'make', VALUE: 'BMW' },
+        { FIELD: 'make', VALUE: 'Tesla' },
+        { FIELD: 'make', VALUE: 'Volvo' }
+      ])
+    )
 })
 
 test('get DISTINCT values with two identical clauses', t => {
   t.plan(1)
-  global[indexName].DISTINCT({
-    FIELD: ['drivetrain']
-  }, {
-    FIELD: ['drivetrain']
-  }).then(result => t.deepEqual(result, [
-    { FIELD: 'drivetrain', VALUE: 'Diesel' },
-    { FIELD: 'drivetrain', VALUE: 'Electric' },
-    { FIELD: 'drivetrain', VALUE: 'Hybrid' },
-    { FIELD: 'drivetrain', VALUE: 'Petrol' }
-  ]))
+  global[indexName]
+    .DISTINCT(
+      {
+        FIELD: ['drivetrain']
+      },
+      {
+        FIELD: ['drivetrain']
+      }
+    )
+    .then(result =>
+      t.deepEqual(result, [
+        { FIELD: 'drivetrain', VALUE: 'Diesel' },
+        { FIELD: 'drivetrain', VALUE: 'Electric' },
+        { FIELD: 'drivetrain', VALUE: 'Hybrid' },
+        { FIELD: 'drivetrain', VALUE: 'Petrol' }
+      ])
+    )
 })
 
 test('get DISTINCT values for three fields', t => {
   t.plan(1)
-  global[indexName].DISTINCT({
-    FIELD: ['drivetrain', 'make', 'colour']
-  }).then(result => t.deepEqual(result, [
-    { FIELD: 'drivetrain', VALUE: 'Diesel' },
-    { FIELD: 'drivetrain', VALUE: 'Electric' },
-    { FIELD: 'drivetrain', VALUE: 'Hybrid' },
-    { FIELD: 'drivetrain', VALUE: 'Petrol' },
-    { FIELD: 'make', VALUE: 'BMW' },
-    { FIELD: 'make', VALUE: 'Tesla' },
-    { FIELD: 'make', VALUE: 'Volvo' },
-    { FIELD: 'colour', VALUE: 'Black' },
-    { FIELD: 'colour', VALUE: 'Blue' },
-    { FIELD: 'colour', VALUE: 'Red' },
-    { FIELD: 'colour', VALUE: 'Silver' },
-    { FIELD: 'colour', VALUE: 'White' }
-  ]))
+  global[indexName]
+    .DISTINCT({
+      FIELD: ['drivetrain', 'make', 'colour']
+    })
+    .then(result =>
+      t.deepEqual(result, [
+        { FIELD: 'drivetrain', VALUE: 'Diesel' },
+        { FIELD: 'drivetrain', VALUE: 'Electric' },
+        { FIELD: 'drivetrain', VALUE: 'Hybrid' },
+        { FIELD: 'drivetrain', VALUE: 'Petrol' },
+        { FIELD: 'make', VALUE: 'BMW' },
+        { FIELD: 'make', VALUE: 'Tesla' },
+        { FIELD: 'make', VALUE: 'Volvo' },
+        { FIELD: 'colour', VALUE: 'Black' },
+        { FIELD: 'colour', VALUE: 'Blue' },
+        { FIELD: 'colour', VALUE: 'Red' },
+        { FIELD: 'colour', VALUE: 'Silver' },
+        { FIELD: 'colour', VALUE: 'White' }
+      ])
+    )
 })
 
 test('get DISTINCT values for ALL fields using {}', t => {
   t.plan(1)
-  global[indexName].DISTINCT({}).then(result => t.deepEqual(result, [
-    { FIELD: 'colour', VALUE: 'Black' },
-    { FIELD: 'colour', VALUE: 'Blue' },
-    { FIELD: 'colour', VALUE: 'Red' },
-    { FIELD: 'colour', VALUE: 'Silver' },
-    { FIELD: 'colour', VALUE: 'White' },
-    { FIELD: 'drivetrain', VALUE: 'Diesel' },
-    { FIELD: 'drivetrain', VALUE: 'Electric' },
-    { FIELD: 'drivetrain', VALUE: 'Hybrid' },
-    { FIELD: 'drivetrain', VALUE: 'Petrol' },
-    { FIELD: 'make', VALUE: 'BMW' },
-    { FIELD: 'make', VALUE: 'Tesla' },
-    { FIELD: 'make', VALUE: 'Volvo' },
-    { FIELD: 'model', VALUE: '3-series' },
-    { FIELD: 'model', VALUE: '5-series' },
-    { FIELD: 'model', VALUE: 'S' },
-    { FIELD: 'model', VALUE: 'X' },
-    { FIELD: 'model', VALUE: 'XC60' },
-    { FIELD: 'model', VALUE: 'XC90' },
-    { FIELD: 'price', VALUE: '33114' },
-    { FIELD: 'price', VALUE: '37512' },
-    { FIELD: 'price', VALUE: '44274' },
-    { FIELD: 'price', VALUE: '47391' },
-    { FIELD: 'price', VALUE: '57280' },
-    { FIELD: 'price', VALUE: '75397' },
-    { FIELD: 'price', VALUE: '79540' },
-    { FIELD: 'price', VALUE: '81177' },
-    { FIELD: 'price', VALUE: '83988' },
-    { FIELD: 'price', VALUE: '88652' },
-    { FIELD: 'year', VALUE: '2000' },
-    { FIELD: 'year', VALUE: '2004' },
-    { FIELD: 'year', VALUE: '2007' },
-    { FIELD: 'year', VALUE: '2008' },
-    { FIELD: 'year', VALUE: '2011' },
-    { FIELD: 'year', VALUE: '2014' },
-    { FIELD: 'year', VALUE: '2015' },
-    { FIELD: 'year', VALUE: '2016' },
-    { FIELD: 'year', VALUE: '2017' },
-    { FIELD: 'year', VALUE: '2019' }
-  ]))
+  global[indexName].DISTINCT({}).then(result =>
+    t.deepEqual(result, [
+      { FIELD: 'colour', VALUE: 'Black' },
+      { FIELD: 'colour', VALUE: 'Blue' },
+      { FIELD: 'colour', VALUE: 'Red' },
+      { FIELD: 'colour', VALUE: 'Silver' },
+      { FIELD: 'colour', VALUE: 'White' },
+      { FIELD: 'drivetrain', VALUE: 'Diesel' },
+      { FIELD: 'drivetrain', VALUE: 'Electric' },
+      { FIELD: 'drivetrain', VALUE: 'Hybrid' },
+      { FIELD: 'drivetrain', VALUE: 'Petrol' },
+      { FIELD: 'make', VALUE: 'BMW' },
+      { FIELD: 'make', VALUE: 'Tesla' },
+      { FIELD: 'make', VALUE: 'Volvo' },
+      { FIELD: 'model', VALUE: '3-series' },
+      { FIELD: 'model', VALUE: '5-series' },
+      { FIELD: 'model', VALUE: 'S' },
+      { FIELD: 'model', VALUE: 'X' },
+      { FIELD: 'model', VALUE: 'XC60' },
+      { FIELD: 'model', VALUE: 'XC90' },
+      { FIELD: 'price', VALUE: 33114 },
+      { FIELD: 'price', VALUE: 37512 },
+      { FIELD: 'price', VALUE: 44274 },
+      { FIELD: 'price', VALUE: 47391 },
+      { FIELD: 'price', VALUE: 57280 },
+      { FIELD: 'price', VALUE: 75397 },
+      { FIELD: 'price', VALUE: 79540 },
+      { FIELD: 'price', VALUE: 81177 },
+      { FIELD: 'price', VALUE: 83988 },
+      { FIELD: 'price', VALUE: 88652 },
+      { FIELD: 'year', VALUE: 2000 },
+      { FIELD: 'year', VALUE: 2004 },
+      { FIELD: 'year', VALUE: 2007 },
+      { FIELD: 'year', VALUE: 2008 },
+      { FIELD: 'year', VALUE: 2011 },
+      { FIELD: 'year', VALUE: 2014 },
+      { FIELD: 'year', VALUE: 2015 },
+      { FIELD: 'year', VALUE: 2016 },
+      { FIELD: 'year', VALUE: 2017 },
+      { FIELD: 'year', VALUE: 2019 }
+    ])
+  )
 })
 
 test('get DISTINCT values for ALL fields using no param (DISTINCT())', t => {
   t.plan(1)
-  global[indexName].DISTINCT().then(result => t.deepEqual(result, [
-    { FIELD: 'colour', VALUE: 'Black' },
-    { FIELD: 'colour', VALUE: 'Blue' },
-    { FIELD: 'colour', VALUE: 'Red' },
-    { FIELD: 'colour', VALUE: 'Silver' },
-    { FIELD: 'colour', VALUE: 'White' },
-    { FIELD: 'drivetrain', VALUE: 'Diesel' },
-    { FIELD: 'drivetrain', VALUE: 'Electric' },
-    { FIELD: 'drivetrain', VALUE: 'Hybrid' },
-    { FIELD: 'drivetrain', VALUE: 'Petrol' },
-    { FIELD: 'make', VALUE: 'BMW' },
-    { FIELD: 'make', VALUE: 'Tesla' },
-    { FIELD: 'make', VALUE: 'Volvo' },
-    { FIELD: 'model', VALUE: '3-series' },
-    { FIELD: 'model', VALUE: '5-series' },
-    { FIELD: 'model', VALUE: 'S' },
-    { FIELD: 'model', VALUE: 'X' },
-    { FIELD: 'model', VALUE: 'XC60' },
-    { FIELD: 'model', VALUE: 'XC90' },
-    { FIELD: 'price', VALUE: '33114' },
-    { FIELD: 'price', VALUE: '37512' },
-    { FIELD: 'price', VALUE: '44274' },
-    { FIELD: 'price', VALUE: '47391' },
-    { FIELD: 'price', VALUE: '57280' },
-    { FIELD: 'price', VALUE: '75397' },
-    { FIELD: 'price', VALUE: '79540' },
-    { FIELD: 'price', VALUE: '81177' },
-    { FIELD: 'price', VALUE: '83988' },
-    { FIELD: 'price', VALUE: '88652' },
-    { FIELD: 'year', VALUE: '2000' },
-    { FIELD: 'year', VALUE: '2004' },
-    { FIELD: 'year', VALUE: '2007' },
-    { FIELD: 'year', VALUE: '2008' },
-    { FIELD: 'year', VALUE: '2011' },
-    { FIELD: 'year', VALUE: '2014' },
-    { FIELD: 'year', VALUE: '2015' },
-    { FIELD: 'year', VALUE: '2016' },
-    { FIELD: 'year', VALUE: '2017' },
-    { FIELD: 'year', VALUE: '2019' }
-  ]))
+  global[indexName].DISTINCT().then(result =>
+    t.deepEqual(result, [
+      { FIELD: 'colour', VALUE: 'Black' },
+      { FIELD: 'colour', VALUE: 'Blue' },
+      { FIELD: 'colour', VALUE: 'Red' },
+      { FIELD: 'colour', VALUE: 'Silver' },
+      { FIELD: 'colour', VALUE: 'White' },
+      { FIELD: 'drivetrain', VALUE: 'Diesel' },
+      { FIELD: 'drivetrain', VALUE: 'Electric' },
+      { FIELD: 'drivetrain', VALUE: 'Hybrid' },
+      { FIELD: 'drivetrain', VALUE: 'Petrol' },
+      { FIELD: 'make', VALUE: 'BMW' },
+      { FIELD: 'make', VALUE: 'Tesla' },
+      { FIELD: 'make', VALUE: 'Volvo' },
+      { FIELD: 'model', VALUE: '3-series' },
+      { FIELD: 'model', VALUE: '5-series' },
+      { FIELD: 'model', VALUE: 'S' },
+      { FIELD: 'model', VALUE: 'X' },
+      { FIELD: 'model', VALUE: 'XC60' },
+      { FIELD: 'model', VALUE: 'XC90' },
+      { FIELD: 'price', VALUE: 33114 },
+      { FIELD: 'price', VALUE: 37512 },
+      { FIELD: 'price', VALUE: 44274 },
+      { FIELD: 'price', VALUE: 47391 },
+      { FIELD: 'price', VALUE: 57280 },
+      { FIELD: 'price', VALUE: 75397 },
+      { FIELD: 'price', VALUE: 79540 },
+      { FIELD: 'price', VALUE: 81177 },
+      { FIELD: 'price', VALUE: 83988 },
+      { FIELD: 'price', VALUE: 88652 },
+      { FIELD: 'year', VALUE: 2000 },
+      { FIELD: 'year', VALUE: 2004 },
+      { FIELD: 'year', VALUE: 2007 },
+      { FIELD: 'year', VALUE: 2008 },
+      { FIELD: 'year', VALUE: 2011 },
+      { FIELD: 'year', VALUE: 2014 },
+      { FIELD: 'year', VALUE: 2015 },
+      { FIELD: 'year', VALUE: 2016 },
+      { FIELD: 'year', VALUE: 2017 },
+      { FIELD: 'year', VALUE: 2019 }
+    ])
+  )
 })
