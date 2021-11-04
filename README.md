@@ -28,28 +28,30 @@ db.PUT([ /* my array of objects to be searched */ ]).then(doStuff)
 // (given objects that contain: { land: <land>, colour: <colour>, population: <number> ... })
 
 // get all object IDs where land=SCOTLAND and colour=GREEN
-db.AND('land:SCOTLAND', 'colour:GREEN').then(result)
+db.AND(|'land:SCOTLAND', 'colour:GREEN']).then(result)
 
 // the query strings above can alternatively be expressed using JSON objects
-db.AND({
-  FIELD: 'land'
-  VALUE: 'SCOTLAND'
-}, {
-  FIELD: 'colour',
-  VALUE: 'GREEN'
-}).then(result)
+db.AND([
+  {
+    FIELD: 'land'
+    VALUE: 'SCOTLAND'
+  }, {
+    FIELD: 'colour',
+    VALUE: 'GREEN'
+  }
+]).then(result)
 
 // as above, but return whole objects
-db.AND('land:SCOTLAND', 'colour:GREEN').then(db.OBJECT).then(result)
+db.AND(['land:SCOTLAND', 'colour:GREEN']).then(db.OBJECT).then(result)
 
 // Get all object IDs where land=SCOTLAND, and those where land=IRELAND
-db.OR('land:SCOTLAND', 'land:IRELAND').then(result)
+db.OR(['land:SCOTLAND', 'land:IRELAND']).then(result)
 
 // queries can be embedded within each other
-db.AND(
+db.AND([
   'land:SCOTLAND',
-  db.OR('colour:GREEN', 'colour:BLUE')
-).then(result)
+  db.OR(['colour:GREEN', 'colour:BLUE'])
+]).then(result)
 
 // get all object IDs where land=SCOTLAND and colour is NOT GREEN
 db.NOT(
