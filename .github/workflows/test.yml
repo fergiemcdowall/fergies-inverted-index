@@ -1,5 +1,7 @@
 name: test
-on: [push]
+on:
+  - push
+  - pull-request
 jobs:
   install-fii:
     runs-on: ubuntu-latest
