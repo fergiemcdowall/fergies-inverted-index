@@ -26,43 +26,41 @@ test('can add some data', t => {
     }
   ]
   t.plan(1)
-  global[indexName].PUT(data, {
-    storeVectors: false
-  }).then(t.pass)
+  global[indexName]
+    .PUT(data, {
+      storeVectors: false
+    })
+    .then(t.pass)
 })
 
 test('can verify store', t => {
   const entries = [
-    { key: 'text:a', value: ['0', '1'] },
-    { key: 'text:interesting', value: ['1'] },
-    { key: 'text:is', value: ['0', '1'] },
-    { key: 'text:sentence', value: ['0', '1'] },
-    { key: 'text:that', value: ['1'] },
-    { key: 'text:this', value: ['0'] },
-    { key: '￮FIELD￮text￮', value: 'text' }
+    { key: ['FIELD', 'text'], value: 'text' },
+    { key: ['IDX', 'text', ['a']], value: [0, 1] },
+    { key: ['IDX', 'text', ['interesting']], value: [1] },
+    { key: ['IDX', 'text', ['is']], value: [0, 1] },
+    { key: ['IDX', 'text', ['sentence']], value: [0, 1] },
+    { key: ['IDX', 'text', ['that']], value: [1] },
+    { key: ['IDX', 'text', ['this']], value: [0] }
   ]
   t.plan(entries.length + 1)
-  global[indexName].STORE.createReadStream({ lt: '￮￮' })
+  global[indexName].STORE.createReadStream({ lt: ['~'] })
     .on('data', d => t.deepEquals(d, entries.shift()))
     .on('end', resolve => t.pass('ended'))
 })
 
 test('can read data ignoring stopwords', t => {
   t.plan(1)
-  global[indexName].GET('interesting')
-    .then(result => {
-      t.deepEqual(result, [
-        { _id: '1', _match: ['text:interesting'] }
-      ])
-    })
+  global[indexName].GET('interesting').then(result => {
+    t.deepEqual(result, [
+      { _id: 1, _match: [{ FIELD: 'text', VALUE: 'interesting' }] }
+    ])
+  })
 })
 
 test('gracefully fails when attempting to delete', t => {
   t.plan(1)
-  global[indexName].DELETE(['1'])
-    .then(result => {
-      t.deepEqual(result, [
-        { _id: '1', status: 'FAILED', operation: 'DELETE' }
-      ])
-    })
+  global[indexName].DELETE([1]).then(result => {
+    t.deepEqual(result, [{ _id: 1, status: 'FAILED', operation: 'DELETE' }])
+  })
 })

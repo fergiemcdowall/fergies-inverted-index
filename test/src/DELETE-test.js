@@ -14,7 +14,7 @@ test('create index', t => {
 })
 
 test('can add some worldbank data', t => {
-  var dataSize = 10
+  const dataSize = 10
   const data = wbd.slice(0, dataSize).map(item => {
     return {
       _id: item._id.$oid,
@@ -47,9 +47,9 @@ test('can GET with string', t => {
   })
     .then(result => {
       t.deepEqual(result, [
-        { _id: '52b213b38594d8a2be17c780', _match: ['board_approval_month:November'] },
-        { _id: '52b213b38594d8a2be17c781', _match: ['board_approval_month:November'] },
-        { _id: '52b213b38594d8a2be17c782', _match: ['board_approval_month:November'] }
+        { _id: '52b213b38594d8a2be17c780', _match: [{ FIELD: 'board_approval_month', VALUE: 'November' }] },
+        { _id: '52b213b38594d8a2be17c781', _match: [{ FIELD: 'board_approval_month', VALUE: 'November' }] },
+        { _id: '52b213b38594d8a2be17c782', _match: [{ FIELD: 'board_approval_month', VALUE: 'November' }] }
       ])
     })
 })
@@ -100,7 +100,8 @@ test('can get with OBJECT', t => {
       {
         _id: '52b213b38594d8a2be17c780',
         _object: { _id: '52b213b38594d8a2be17c780', board_approval_month: 'November', totalamt: 130000000 }
-      }, { _id: '52b213b38594d8a2be17c781', _object: null },
+      },
+      { _id: '52b213b38594d8a2be17c781', _object: null },
       { _id: '52b213b38594d8a2be17c782', _object: null }
     ])
   })
@@ -117,7 +118,10 @@ test('can GET with object having deleted two docs', t => {
   })
     .then(result => {
       t.deepEqual(result, [
-        { _id: '52b213b38594d8a2be17c780', _match: ['board_approval_month:November'] }
+        {
+          _id: '52b213b38594d8a2be17c780',
+          _match: [{ FIELD: 'board_approval_month', VALUE: 'November' }]
+        }
       ])
     })
 })

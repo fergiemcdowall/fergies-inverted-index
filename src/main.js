@@ -1,3 +1,4 @@
+const charwise = require('charwise')
 const encode = require('encoding-down')
 const level = require('level')
 const levelup = require('levelup')
@@ -6,51 +7,75 @@ const write = require('./write.js')
 
 // _match is nested by default so that AND and OR work correctly under
 // the bonnet. Flatten array before presenting to consumer
-const flattenMatchArrayInResults = results => results.map(result => {
-  result._match = result._match.flat(Infinity)
-  return result
-})
+const flattenMatchArrayInResults = results => {
+  if (typeof results === 'undefined') return undefined
+  return results.map(result => {
+    result._match = result._match
+      .flat(Infinity)
+      .map(m => (typeof m === 'string' ? JSON.parse(m) : m))
+      .sort((a, b) => {
+        if (a.FIELD < b.FIELD) return -1
+        if (a.FIELD > b.FIELD) return 1
+        if (a.VALUE < b.VALUE) return -1
+        if (a.VALUE > b.VALUE) return 1
+        if (a.SCORE < b.SCORE) return -1
+        if (a.SCORE > b.SCORE) return 1
+        return 0
+      })
+    return result
+  })
+}
 
-const initStore = (ops = {}) => new Promise((resolve, reject) => {
-  ops = Object.assign({
-    name: 'fii',
-    // tokenAppend can be used to create 'comment' spaces in
-    // tokens. For example using '#' allows tokens like boom#1.00 to
-    // be retrieved by using "boom". If tokenAppend wasnt used, then
-    // {gte: 'boom', lte: 'boom'} would also return stuff like
-    // boomness#1.00 etc
-    tokenAppend: '',
-    caseSensitive: true,
-    stopwords: [],
-    doNotIndexField: [],
-    storeVectors: true,
-    docExistsSpace: 'DOC' // field used to verify that doc exists
-  }, ops)
-  if (ops.db) {
-    return levelup(encode(ops.db, {
-      valueEncoding: 'json'
-    }), (err, db) => err ? reject(err) : resolve(
-      Object.assign(ops, { _db: db })
-    ))
-  }
-  // else
-  return level(
-    ops.name, { valueEncoding: 'json' }, (err, db) => err
-      ? reject(err)
-      : resolve(Object.assign(ops, { _db: db }))
-  )
-})
+const initStore = (ops = {}) =>
+  new Promise((resolve, reject) => {
+    ops = Object.assign(
+      {
+        name: 'fii',
+        // TODO: is tokenAppens still needed?
+        // tokenAppend can be used to create 'comment' spaces in
+        // tokens. For example using '#' allows tokens like boom#1.00 to
+        // be retrieved by using "boom". If tokenAppend wasnt used, then
+        // {gte: 'boom', lte: 'boom'} would also return stuff like
+        // boomness#1.00 etc
+        tokenAppend: '',
+        caseSensitive: true,
+        stopwords: [],
+        doNotIndexField: [],
+        storeVectors: true,
+        docExistsSpace: 'DOC' // field used to verify that doc exists
+      },
+      ops
+    )
+    if (ops.db) {
+      return levelup(
+        encode(ops.db, {
+          keyEncoding: charwise,
+          valueEncoding: 'json'
+        }),
+        (err, db) =>
+          err ? reject(err) : resolve(Object.assign(ops, { _db: db }))
+      )
+    }
+    // else
+    return level(
+      ops.name,
+      {
+        keyEncoding: charwise,
+        valueEncoding: 'json'
+      },
+      (err, db) =>
+        err ? reject(err) : resolve(Object.assign(ops, { _db: db }))
+    )
+  })
 
 const makeAFii = ops => {
   const r = read(ops)
   const w = write(ops)
 
   return w.TIMESTAMP_CREATED().then(() => ({
-    AGGREGATE: r.AGGREGATE,
     AGGREGATION_FILTER: r.AGGREGATION_FILTER,
-    AND: (...keys) => r.INTERSECTION(...keys).then(
-      flattenMatchArrayInResults
-    ),
+    AND: (tokens, pipeline) =>
+      r.INTERSECTION(tokens, pipeline).then(flattenMatchArrayInResults),
     BUCKET: r.BUCKET,
     BUCKETS: r.BUCKETS,
     CREATED: r.CREATED,
@@ -60,20 +85,22 @@ const makeAFii = ops => {
     EXPORT: r.EXPORT,
     FACETS: r.FACETS,
     FIELDS: r.FIELDS,
-    GET: r.GET,
+    GET: (tokens, pipeline) =>
+      r.GET(tokens, pipeline).then(flattenMatchArrayInResults),
     IMPORT: w.IMPORT,
     LAST_UPDATED: r.LAST_UPDATED,
     MAX: r.MAX,
     MIN: r.MIN,
-    NOT: (...keys) => r.SET_SUBTRACTION(...keys).then(
-      flattenMatchArrayInResults
-    ),
+    NOT: (...keys) =>
+      r.SET_SUBTRACTION(...keys).then(flattenMatchArrayInResults),
     OBJECT: r.OBJECT,
-    OR: (...keys) => r.UNION(...keys)
-      .then(result => result.union)
-      .then(flattenMatchArrayInResults),
+    OR: (tokens, pipeline) =>
+      r
+        .UNION(tokens, pipeline)
+        .then(result => result.union)
+        .then(flattenMatchArrayInResults),
     PUT: w.PUT,
-    SET_SUBTRACTION: r.SET_SUBTRACTION,
+    SORT: r.SORT,
     STORE: ops._db,
     TIMESTAMP_LAST_UPDATED: w.TIMESTAMP_LAST_UPDATED,
     parseToken: r.parseToken
