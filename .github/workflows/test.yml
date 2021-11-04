@@ -9,7 +9,6 @@ jobs:
         with:
           node-version: '14'
       - run: npm install
-      - run: npm run test-node
-      - run: npm run build
-      - run: cat test/sandbox/browser-tests.js | ./node_modules/.bin/tape-run
+      - run: sudo apt-get install xvfb
+      - run: xvfb-run --auto-servernum npm test
         
