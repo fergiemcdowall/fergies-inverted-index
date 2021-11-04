@@ -11,4 +11,5 @@ jobs:
       - run: npm install
       - run: npm run test-node
       - run: npm run build
+      - run: cat test/sandbox/browser-tests.js
         
