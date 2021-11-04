@@ -1,9 +1,9 @@
-name: test
+name: tests
 on:
   - push
   - pull_request
 jobs:
-  install-fii:
+  run-tests:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
