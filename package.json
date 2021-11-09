@@ -9,6 +9,7 @@
     "traverse": "^0.6.6"
   },
   "devDependencies": {
+    "assert": "^2.0.0",
     "buffer": "^6.0.3",
     "diacritic": "^0.0.2",
     "level-out": "^1.0.1",

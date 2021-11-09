@@ -165,8 +165,8 @@ module.exports = ops => {
             createDeltaReverseIndex(docs, putOptions),
             _db,
             mode
-          ).then(mergedReverseIndex => {
-            return _db.batch(
+          ).then(mergedReverseIndex =>
+            _db.batch(
               mergedReverseIndex
                 .concat(putOptions.storeVectors ? objectIndex(docs, mode) : [])
                 .concat(availableFields(mergedReverseIndex)),
@@ -195,7 +195,7 @@ module.exports = ops => {
                   })
                 )
             )
-          })
+          )
         )
     })
 
@@ -217,8 +217,8 @@ module.exports = ops => {
         ops._db.batch(index.map(entry => Object.assign(entry, { type: 'put' })))
       )
 
-  const PUT = (docs, putOptions = {}) => {
-    return writer(
+  const PUT = (docs, putOptions = {}) =>
+    writer(
       docs.map(doc => ({
         _id: doc._id,
         _object: doc
@@ -228,7 +228,6 @@ module.exports = ops => {
       'PUT',
       putOptions
     ).then(TIMESTAMP_LAST_UPDATED)
-  }
 
   const TIMESTAMP_LAST_UPDATED = passThrough =>
     ops._db.put(['~LAST_UPDATED'], Date.now()).then(() => passThrough)

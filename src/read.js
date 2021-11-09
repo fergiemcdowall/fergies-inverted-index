@@ -96,8 +96,8 @@ module.exports = ops => {
   }
 
   // OR
-  const UNION = async (tokens, pipeline) => {
-    return Promise.all(tokens.map(token => GET(token, pipeline))).then(sets => {
+  const UNION = async (tokens, pipeline) =>
+    Promise.all(tokens.map(token => GET(token, pipeline))).then(sets => {
       const setObject = sets.flat(Infinity).reduce((acc, cur) => {
         // cur will be undefined if stopword
         if (cur) acc.set(cur._id, [...(acc.get(cur._id) || []), cur._match])
@@ -111,16 +111,14 @@ module.exports = ops => {
         }))
       }
     })
-  }
 
   // AND
-  const INTERSECTION = (tokens, pipeline) => {
-    return UNION(tokens, pipeline).then(result => {
-      return result.union.filter(
+  const INTERSECTION = (tokens, pipeline) =>
+    UNION(tokens, pipeline).then(result =>
+      result.union.filter(
         item => item._match.length === result.sumTokensMinusStopwords
       )
-    })
-  }
+    )
 
   // NOT (set a minus set b)
   const SET_SUBTRACTION = (a, b) =>
@@ -139,8 +137,8 @@ module.exports = ops => {
     return ['IDX', field, valueAndScore]
   }
 
-  const RANGE = token => {
-    return new Promise(resolve => {
+  const RANGE = token =>
+    new Promise(resolve => {
       // If this token is undefined (stopword) then resolve 'undefined'
       if (typeof token === 'undefined') return resolve(undefined)
 
@@ -181,7 +179,6 @@ module.exports = ops => {
         )
       )
     })
-  }
 
   const AVAILABLE_FIELDS = () =>
     new Promise(resolve => {
@@ -304,8 +301,8 @@ module.exports = ops => {
   // TODO remove if DISTINCT is no longer used
   const DIST = token =>
     parseToken(token)
-      .then(token => {
-        return Promise.all(
+      .then(token =>
+        Promise.all(
           token.FIELD.map(field => {
             let lte = token.VALUE.LTE
             if (
@@ -333,7 +330,7 @@ module.exports = ops => {
             )
           })
         )
-      })
+      )
       .then(result => result.flat())
 
   const FACETS = (...tokens) =>
