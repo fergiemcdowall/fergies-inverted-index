@@ -7,24 +7,25 @@ const write = require('./write.js')
 
 // _match is nested by default so that AND and OR work correctly under
 // the bonnet. Flatten array before presenting to consumer
-const flattenMatchArrayInResults = results => {
-  if (typeof results === 'undefined') return undefined
-  return results.map(result => {
-    result._match = result._match
-      .flat(Infinity)
-      .map(m => (typeof m === 'string' ? JSON.parse(m) : m))
-      .sort((a, b) => {
-        if (a.FIELD < b.FIELD) return -1
-        if (a.FIELD > b.FIELD) return 1
-        if (a.VALUE < b.VALUE) return -1
-        if (a.VALUE > b.VALUE) return 1
-        if (a.SCORE < b.SCORE) return -1
-        if (a.SCORE > b.SCORE) return 1
-        return 0
+const flattenMatchArrayInResults = results =>
+  typeof results === 'undefined'
+    ? undefined
+    : results.map(result => {
+        // Sort _match consistently (FIELD -> VALUE -> SCORE)
+        result._match = result._match
+          .flat(Infinity)
+          .map(m => (typeof m === 'string' ? JSON.parse(m) : m))
+          .sort((a, b) => {
+            if (a.FIELD < b.FIELD) return -1
+            if (a.FIELD > b.FIELD) return 1
+            if (a.VALUE < b.VALUE) return -1
+            if (a.VALUE > b.VALUE) return 1
+            if (a.SCORE < b.SCORE) return -1
+            if (a.SCORE > b.SCORE) return 1
+            return 0
+          })
+        return result
       })
-    return result
-  })
-}
 
 const initStore = (ops = {}) =>
   new Promise((resolve, reject) => {
