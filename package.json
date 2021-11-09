@@ -1,29 +1,28 @@
 {
   "name": "fergies-inverted-index",
-  "version": "10.0.0",
+  "version": "10.0.1",
   "description": "An inverted index that allows javascript objects to be easily serialised and retrieved using promises and map-reduce",
   "main": "src/main.js",
   "dependencies": {
-    "buffer": "^6.0.2",
     "charwise": "^3.0.1",
-    "diacritic": "^0.0.2",
-    "level": "^7.0.0",
-    "traverse": "^0.6.6",
-    "webpack": "^5.38.1"
+    "level": "^7.0.1",
+    "traverse": "^0.6.6"
   },
   "devDependencies": {
-    "assert": "^2.0.0",
+    "buffer": "^6.0.3",
+    "diacritic": "^0.0.2",
     "level-out": "^1.0.1",
-    "memdown": "^6.0.0",
+    "memdown": "^6.1.1",
     "path-browserify": "^1.0.1",
     "process": "^0.11.10",
-    "standard": "^16.0.3",
+    "standard": "^16.0.4",
     "stemmer": "^2.0.0",
     "stopword": "^1.0.7",
     "stream-browserify": "^3.0.0",
-    "tape": "^5.2.2",
+    "tape": "^5.3.1",
     "tape-run": "^9.0.0",
-    "webpack-cli": "^4.7.0",
+    "webpack": "^5.62.2",
+    "webpack-cli": "^4.9.1",
     "world-bank-dataset": "^1.0.0"
   },
   "scripts": {
