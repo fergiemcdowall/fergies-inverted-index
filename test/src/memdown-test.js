@@ -22,16 +22,19 @@ const data = wbd.slice(0, 10).map(item => {
 test('create a fii with memdown', t => {
   t.plan(2)
   fii({
-    db: memdown(indexName)
+    db: memdown,
+    name: indexName
   }).then(db =>
-    db.PUT(data).then(() => {
-      t.pass('ok')
-    }).then(() => {
-      db.GET({
-        FIELD: 'board_approval_month',
-        VALUE: 'November'
+    db
+      .PUT(data)
+      .then(() => {
+        t.pass('ok')
       })
-        .then(result => {
+      .then(() => {
+        db.GET({
+          FIELD: 'board_approval_month',
+          VALUE: 'November'
+        }).then(result => {
           t.deepEqual(result, [
             {
               _id: '52b213b38594d8a2be17c780',
@@ -47,6 +50,6 @@ test('create a fii with memdown', t => {
             }
           ])
         })
-    })
+      })
   )
 })
