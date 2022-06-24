@@ -136,6 +136,19 @@ test('can parse a token of the format "<FIELD>:<VALUE>"', t => {
   )
 })
 
+test('can parse a token of the format "<FIELD>:<VALUE> where <VALUE> has a :"', t => {
+  t.plan(1)
+  global[indexName].parseToken('make:vol:vo').then(result =>
+    t.deepEqual(result, {
+      FIELD: ['make'],
+      VALUE: {
+        GTE: 'vol:vo',
+        LTE: 'vol:vo'
+      }
+    })
+  )
+})
+
 test('can parse a token of the format { FIELD: <field name> }', t => {
   t.plan(1)
   global[indexName].parseToken({ FIELD: 'make' }).then(result =>
