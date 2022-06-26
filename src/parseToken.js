@@ -18,9 +18,19 @@ module.exports = (token, availableFields) =>
     if (typeof token === 'undefined') token = {}
 
     if (typeof token === 'string') {
-      const fieldValue = token.split(':')
-      const value = fieldValue.pop()
-      const field = fieldValue.pop()
+      // Find the first occurrence of ':'. Anything thereafter should be considered
+      // a part of the value. This accounts for occasions where the value itself
+      // has a ':'.
+      const delimiterIdx = token.indexOf(':')
+      let value, field
+
+      if (delimiterIdx !== -1) {
+        field = token.slice(0, delimiterIdx)
+        value = token.slice(delimiterIdx + 1)
+      } else {
+        value = token
+      }
+
       if (field) {
         return resolve({
           FIELD: [field],
