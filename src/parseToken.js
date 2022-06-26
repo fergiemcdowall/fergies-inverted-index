@@ -21,30 +21,22 @@ module.exports = (token, availableFields) =>
       // Find the first occurrence of ':'. Anything thereafter should be considered
       // a part of the value. This accounts for occasions where the value itself
       // has a ':'.
-      const delimiterIdx = token.indexOf(':')
-      let value, field
-
-      if (delimiterIdx !== -1) {
-        field = token.slice(0, delimiterIdx)
-        value = token.slice(delimiterIdx + 1)
-      } else {
-        value = token
-      }
-
-      if (field) {
+      if (token.indexOf(':') === -1) {
         return resolve({
-          FIELD: [field],
+          FIELD: availableFields,
           VALUE: {
-            GTE: value,
-            LTE: value
+            GTE: token,
+            LTE: token
           }
         })
       }
+
+      const [field, ...value] = token.split(':')
       return resolve({
-        FIELD: availableFields,
+        FIELD: [field],
         VALUE: {
-          GTE: value,
-          LTE: value
+          GTE: value.join(':'),
+          LTE: value.join(':')
         }
       })
     }
