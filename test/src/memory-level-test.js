@@ -1,5 +1,5 @@
-const fii = require('../../')
-const memdown = require('memdown')
+const fii = require('../../src/node')
+const { MemoryLevel } = require('memory-level')
 const test = require('tape')
 const wbd = require('world-bank-dataset')
 
@@ -19,10 +19,10 @@ const data = wbd.slice(0, 10).map(item => {
   }
 })
 
-test('create a fii with memdown', t => {
+test('create a fii with memory-level', t => {
   t.plan(2)
   fii({
-    db: memdown,
+    db: MemoryLevel,
     name: indexName
   }).then(db =>
     db

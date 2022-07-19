@@ -1,7 +1,5 @@
 const charwise = require('charwise')
-const encode = require('encoding-down')
 // const level = require('level')
-const levelup = require('levelup')
 const read = require('./read.js')
 const write = require('./write.js')
 
@@ -48,13 +46,12 @@ const initStore = (ops = {}) =>
       ops
     )
 
-    return levelup(
-      encode(ops.db(ops.name), {
-        keyEncoding: charwise,
-        valueEncoding: 'json'
-      }),
-      (err, db) =>
-        err ? reject(err) : resolve(Object.assign(ops, { _db: db }))
+    const db = new ops.db(ops.name, {
+      keyEncoding: charwise,
+      valueEncoding: 'json'
+    })
+    db.open(err =>
+      err ? reject(err) : resolve(Object.assign(ops, { _db: db }))
     )
   })
 

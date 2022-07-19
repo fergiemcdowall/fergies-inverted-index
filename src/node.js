@@ -1,11 +1,11 @@
 const fii = require('./main.js')
-const leveldown = require('leveldown')
+const { ClassicLevel } = require('classic-level')
 
 module.exports = ops =>
   fii(
     Object.assign(
       {
-        db: leveldown
+        db: ClassicLevel
       },
       ops
     )

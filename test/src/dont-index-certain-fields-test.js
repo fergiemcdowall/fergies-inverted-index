@@ -1,5 +1,6 @@
 const fii = require('../../')
 const test = require('tape')
+const { EntryStream } = require('level-read-stream')
 
 const sandbox = 'test/sandbox/'
 
@@ -89,7 +90,7 @@ test('analyse index', t => {
     { key: ['IDX', 'make', ['Tesla']], value: ['0', '2'] }
   ]
   t.plan(storeState.length)
-  const r = global[indexName].STORE.createReadStream({ lt: ['~'] })
+  const r = new EntryStream(global[indexName].STORE, { lt: ['~'] })
   r.on('data', d => t.deepEqual(d, storeState.shift()))
 })
 
@@ -177,6 +178,6 @@ test('analyse index', t => {
     { key: ['IDX', 'make', ['Tesla']], value: ['0', '2'] }
   ]
   t.plan(storeState.length)
-  const r = global[indexName2].STORE.createReadStream({ lt: ['~'] })
+  const r = new EntryStream(global[indexName2].STORE, { lt: ['~'] })
   r.on('data', d => t.deepEqual(d, storeState.shift()))
 })
