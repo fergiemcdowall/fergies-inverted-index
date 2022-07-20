@@ -46,7 +46,8 @@ const initStore = (ops = {}) =>
       ops
     )
 
-    const db = new ops.db(ops.name, {
+    const DB = ops.db
+    const db = new DB(ops.name, {
       keyEncoding: charwise,
       valueEncoding: 'json'
     })
