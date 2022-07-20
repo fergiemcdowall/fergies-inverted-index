@@ -9,13 +9,13 @@
     "charwise": "^3.0.1",
     "classic-level": "^1.2.0",
     "level-read-stream": "^1.1.0",
-    "memory-level": "^1.0.0",
     "traverse": "^0.6.6"
   },
   "devDependencies": {
     "assert": "^2.0.0",
     "buffer": "^6.0.3",
     "diacritic": "^0.0.2",
+    "memory-level": "^1.0.0",
     "os-browserify": "^0.3.0",
     "path-browserify": "^1.0.1",
     "process": "^0.11.10",
