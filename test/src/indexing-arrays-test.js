@@ -1,5 +1,6 @@
 const fii = require('../../')
 const test = require('tape')
+const { EntryStream } = require('level-read-stream')
 
 const sandbox = 'test/sandbox/'
 const indexName = sandbox + 'indexing-arrays-test'
@@ -81,7 +82,7 @@ test('fields are indexed correctly when there are nested arrays involved', t => 
     { key: ['FIELD', 'price'], value: 'price' }
   ]
   t.plan(expected.length)
-  global[indexName].STORE.createReadStream({
+  new EntryStream(global[indexName].STORE, {
     gte: ['FIELD', ''],
     lte: ['FIELD', '￮']
   }).on('data', d => t.deepEqual(d, expected.shift()))
@@ -119,7 +120,7 @@ test('tokens are indexed correctly when there are nested arrays involved', t => 
     { key: ['IDX', 'price', [83988]], value: [0] }
   ]
   t.plan(expected.length)
-  global[indexName].STORE.createReadStream({
+  new EntryStream(global[indexName].STORE, {
     gte: ['IDX'],
     lte: ['IDX', '￮']
   }).on('data', d => t.deepEqual(d, expected.shift()))

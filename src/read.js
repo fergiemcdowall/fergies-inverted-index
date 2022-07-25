@@ -1,5 +1,6 @@
 const tokenParser = require('./parseToken.js')
 const charwise = require('charwise')
+const { EntryStream } = require('level-read-stream')
 
 // polyfill- HI and LO coming in next version of charwise
 charwise.LO = null
@@ -146,13 +147,12 @@ module.exports = ops => {
       return Promise.all(
         token.FIELD.map(fieldName => {
           return new Promise(resolve =>
-            ops._db
-              .createReadStream({
-                gte: formatKey(fieldName, token.VALUE.GTE),
-                lte: formatKey(fieldName, token.VALUE.LTE, true),
-                limit: token.LIMIT,
-                reverse: token.REVERSE
-              })
+            new EntryStream(ops._db, {
+              gte: formatKey(fieldName, token.VALUE.GTE),
+              lte: formatKey(fieldName, token.VALUE.LTE, true),
+              limit: token.LIMIT,
+              reverse: token.REVERSE
+            })
               .on('data', token => {
                 return token.value.forEach(docId => {
                   return rs.set(docId, [
@@ -183,11 +183,10 @@ module.exports = ops => {
   const AVAILABLE_FIELDS = () =>
     new Promise(resolve => {
       const fieldNames = []
-      ops._db
-        .createReadStream({
-          gte: ['FIELD', charwise.LO],
-          lte: ['FIELD', charwise.HI]
-        })
+      new EntryStream(ops._db, {
+        gte: ['FIELD', charwise.LO],
+        lte: ['FIELD', charwise.HI]
+      })
         .on('data', d => fieldNames.push(d.value))
         .on('end', () => resolve(fieldNames))
     })
@@ -261,8 +260,7 @@ module.exports = ops => {
   const getRange = rangeOps =>
     new Promise((resolve, reject) => {
       const keys = []
-      ops._db
-        .createReadStream(rangeOps)
+      new EntryStream(ops._db, rangeOps)
         .on('data', data => {
           keys.push(data)
         })
@@ -323,9 +321,9 @@ module.exports = ops => {
               keys: true,
               values: false
             }).then(items =>
-              items.map(item => ({
-                FIELD: item[1],
-                VALUE: item[2][0]
+              items.map(({ key }) => ({
+                FIELD: key[1],
+                VALUE: key[2][0]
               }))
             )
           })

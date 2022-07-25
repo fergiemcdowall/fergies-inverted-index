@@ -1,5 +1,6 @@
 const fii = require('../../')
 const test = require('tape')
+const { EntryStream } = require('level-read-stream')
 
 const sandbox = 'test/sandbox/'
 const indexName = sandbox + 'indexing-without-ids-test'
@@ -44,7 +45,7 @@ test('can GET with string', t => {
     { key: ['IDX', 'land', ['SCOTLAND']], value: [1] }
   ]
   t.plan(result.length)
-  global[indexName].STORE.createReadStream({ lt: ['~'] }).on('data', d =>
+  new EntryStream(global[indexName].STORE, { lt: ['~'] }).on('data', d =>
     t.deepEqual(d, result.shift())
   )
 })
