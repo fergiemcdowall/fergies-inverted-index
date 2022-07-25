@@ -1,5 +1,6 @@
 const trav = require('traverse')
 const reader = require('./read.js')
+const levelOptions = require('./options.js')
 
 module.exports = ops => {
   // TODO: set reset this to the max value every time the DB is restarted
@@ -71,7 +72,7 @@ module.exports = ops => {
     const gracefullGet = key =>
       new Promise((resolve, reject) =>
         _db
-          .get(key)
+          .get(key, levelOptions)
           .then(resolve)
           .catch(e => resolve([]))
       )
@@ -170,6 +171,7 @@ module.exports = ops => {
               mergedReverseIndex
                 .concat(putOptions.storeVectors ? objectIndex(docs, mode) : [])
                 .concat(availableFields(mergedReverseIndex)),
+              levelOptions,
               e =>
                 resolve(
                   docs.map(doc => {
@@ -214,7 +216,7 @@ module.exports = ops => {
     ops._db
       .clear()
       .then(() =>
-        ops._db.batch(index.map(entry => Object.assign(entry, { type: 'put' })))
+        ops._db.batch(index.map(entry => Object.assign(entry, { type: 'put' })), levelOptions)
       )
 
   const PUT = (docs, putOptions = {}) =>
@@ -230,14 +232,14 @@ module.exports = ops => {
     ).then(TIMESTAMP_LAST_UPDATED)
 
   const TIMESTAMP_LAST_UPDATED = passThrough =>
-    ops._db.put(['~LAST_UPDATED'], Date.now()).then(() => passThrough)
+    ops._db.put(['~LAST_UPDATED'], Date.now(), levelOptions).then(() => passThrough)
 
   const TIMESTAMP_CREATED = () =>
     ops._db
-      .get(['~CREATED'])
+      .get(['~CREATED'], levelOptions)
       .then(/* already created- do nothing */)
       .catch(e =>
-        ops._db.put(['~CREATED'], Date.now()).then(TIMESTAMP_LAST_UPDATED)
+        ops._db.put(['~CREATED'], Date.now(), levelOptions).then(TIMESTAMP_LAST_UPDATED)
       )
 
   return {

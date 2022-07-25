@@ -1,4 +1,6 @@
 const fii = require('../../')
+const levelOptions = require('../../src/options.js')
+
 const test = require('tape')
 const { EntryStream } = require('level-read-stream')
 
@@ -90,7 +92,7 @@ test('analyse index', t => {
     { key: ['IDX', 'make', ['Tesla']], value: ['0', '2'] }
   ]
   t.plan(storeState.length)
-  const r = new EntryStream(global[indexName].STORE, { lt: ['~'] })
+  const r = new EntryStream(global[indexName].STORE, { lt: ['~'], ...levelOptions })
   r.on('data', d => t.deepEqual(d, storeState.shift()))
 })
 
@@ -178,6 +180,6 @@ test('analyse index', t => {
     { key: ['IDX', 'make', ['Tesla']], value: ['0', '2'] }
   ]
   t.plan(storeState.length)
-  const r = new EntryStream(global[indexName2].STORE, { lt: ['~'] })
+  const r = new EntryStream(global[indexName2].STORE, { lt: ['~'], ...levelOptions })
   r.on('data', d => t.deepEqual(d, storeState.shift()))
 })
