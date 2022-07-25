@@ -1,4 +1,3 @@
-const charwise = require('charwise')
 // const level = require('level')
 const read = require('./read.js')
 const write = require('./write.js')
@@ -45,12 +44,7 @@ const initStore = (ops = {}) =>
       },
       ops
     )
-
-    const DB = ops.db
-    const db = new DB(ops.name, {
-      keyEncoding: charwise,
-      valueEncoding: 'json'
-    })
+    const db = ops.db;
     db.open(err =>
       err ? reject(err) : resolve(Object.assign(ops, { _db: db }))
     )
