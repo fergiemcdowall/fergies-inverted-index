@@ -1,5 +1,4 @@
 const fii = require('../../src/main')
-const charwise = require('charwise')
 const { MemoryLevel } = require('memory-level')
 const test = require('tape')
 const wbd = require('world-bank-dataset')
@@ -23,10 +22,7 @@ const data = wbd.slice(0, 10).map(item => {
 test('create a fii with memory-level', t => {
   t.plan(2)
   fii({
-    db: new MemoryLevel(indexName, {
-      keyEncoding: charwise,
-      valueEncoding: 'json'
-    }),
+    db: new MemoryLevel(indexName)
   }).then(db =>
     db
       .PUT(data)

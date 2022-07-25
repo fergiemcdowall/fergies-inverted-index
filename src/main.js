@@ -45,7 +45,7 @@ const initStore = (ops = {}) =>
       },
       ops
     )
-    const db = ops.db;
+    const db = ops.db
     db.open(err =>
       err ? reject(err) : resolve(Object.assign(ops, { _db: db }))
     )
