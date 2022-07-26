@@ -24,8 +24,7 @@ const config = {
       "fs": false,
       "path": require.resolve("path-browserify"),
       "stream": require.resolve("stream-browserify"),
-      'util': false,
-      "os": require.resolve("os-browserify")
+      'util': false
     }
   }
 }
