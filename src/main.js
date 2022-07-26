@@ -1,5 +1,4 @@
 const charwise = require('charwise')
-// const level = require('level')
 const read = require('./read.js')
 const write = require('./write.js')
 
