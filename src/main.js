@@ -2,6 +2,19 @@ const charwise = require('charwise')
 const read = require('./read.js')
 const write = require('./write.js')
 
+/**
+ * @typedef {Object} FiiOptions Fii options
+ * @property {string} [name="fii"] Name of `abstract-level` compatible database
+ * @property {string} [tokenAppend=""] Creates 'comment' spaces in tokens.
+ * For example using `#` allows tokens like `boom#1.00` to be retrieved by using `boom`.
+ * If `tokenAppend` wasnt used, then `{gte: 'boom', lte: 'boom'}` would also return stuff like `boomness#1.00` etc
+ * @property {boolean} [caseSensitive=true] Sets case sensitivity of the index
+ * @property {string[]} [stopwords=[]] Array of stop words to be stripped using [`stopword`](https://github.com/fergiemcdowall/stopword)
+ * @property {string[]} [doNotIndexField=[]] Array of fields not to index
+ * @property {boolean} [storeVectors=true]
+ * @property {string} [docExistsSpace="DOC"] Field used to verify that doc exists
+ */
+
 // _match is nested by default so that AND and OR work correctly under
 // the bonnet. Flatten array before presenting to consumer
 const flattenMatchArrayInResults = results =>
@@ -24,23 +37,23 @@ const flattenMatchArrayInResults = results =>
       return result
     })
 
+
+/**
+ * Initializes store
+ * @param {FiiOptions} [ops={}] Options
+ * @returns Promise<Object>
+ */
 const initStore = (ops = {}) =>
   new Promise((resolve, reject) => {
     ops = Object.assign(
       {
         name: 'fii',
-        // TODO: is tokenAppens still needed?
-        // tokenAppend can be used to create 'comment' spaces in
-        // tokens. For example using '#' allows tokens like boom#1.00 to
-        // be retrieved by using "boom". If tokenAppend wasnt used, then
-        // {gte: 'boom', lte: 'boom'} would also return stuff like
-        // boomness#1.00 etc
         tokenAppend: '',
         caseSensitive: true,
         stopwords: [],
         doNotIndexField: [],
         storeVectors: true,
-        docExistsSpace: 'DOC' // field used to verify that doc exists
+        docExistsSpace: 'DOC'
       },
       ops
     )
@@ -94,4 +107,11 @@ const makeAFii = ops => {
   }))
 }
 
-module.exports = ops => initStore(ops).then(makeAFii)
+/**
+ * Creates and intializes index
+ * @param {FiiOptions} [ops] Options
+ * @returns Promise<Object>
+ */
+const main = ops => initStore(ops).then(makeAFii)
+
+module.exports = main
