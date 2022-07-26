@@ -28,7 +28,6 @@ const initStore = (ops = {}) =>
   new Promise((resolve, reject) => {
     ops = Object.assign(
       {
-        name: 'fii',
         // TODO: is tokenAppens still needed?
         // tokenAppend can be used to create 'comment' spaces in
         // tokens. For example using '#' allows tokens like boom#1.00 to
