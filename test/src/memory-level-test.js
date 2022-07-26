@@ -1,4 +1,4 @@
-const fii = require('../../src/node')
+const fii = require('../../src/main')
 const { MemoryLevel } = require('memory-level')
 const test = require('tape')
 const wbd = require('world-bank-dataset')
