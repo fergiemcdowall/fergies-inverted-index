@@ -4,7 +4,6 @@
   "description": "An inverted index that allows javascript objects to be easily serialised and retrieved using promises and map-reduce",
   "browser": "src/browser.js",
   "main": "src/node.js",
-  "types": "dist/fergies-inverted-index.d.ts",
   "dependencies": {
     "browser-level": "^1.0.1",
     "charwise": "^3.0.1",

@@ -1,9 +1,9 @@
 {
-  "include": ["src/**/*"],
+  "include": ["src/**/*.js"],
+  "exclude": ["node_modules"],
   "compilerOptions": {
     "allowJs": true,
     "declaration": true,
-    "emitDeclarationOnly": true,
-    "outFile": "dist/fergies-inverted-index.d.ts"
+    "emitDeclarationOnly": true
   }
 }
