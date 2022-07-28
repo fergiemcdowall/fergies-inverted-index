@@ -30,7 +30,8 @@
     "world-bank-dataset": "^1.0.0"
   },
   "scripts": {
-    "build": "npm run empty-sandbox && tsc && webpack",
+    "build": "npm run empty-sandbox && webpack",
+    "types": "tsc",
     "empty-sandbox": "rm -rf test/sandbox && mkdir test/sandbox",
     "lint": "standard --fix test/src/*.js src/*",
     "test": "npm run test-node && npm run test-browser && npm run lint",
