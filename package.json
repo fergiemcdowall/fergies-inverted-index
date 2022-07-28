@@ -34,7 +34,7 @@
     "build": "npm run empty-sandbox && webpack",
     "types": "tsc",
     "empty-sandbox": "rm -rf test/sandbox && mkdir test/sandbox",
-    "lint": "standard --fix test/src/*.js src/*",
+    "lint": "standard --fix test/src/*.js src/*.js",
     "test": "npm run test-node && npm run test-browser && npm run lint",
     "test-browser": "npm run build && cat test/sandbox/browser-tests.js | tape-run",
     "test-node": "npm run empty-sandbox && tape test/src/*.js",
