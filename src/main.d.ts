@@ -17,7 +17,7 @@ type FiiOptions = {
      */
     name?: string;
     /**
-     * Constructor of `class` extending [`abstract-level`](https://github.com/Level/abstract-level/)
+     * Constructor of `class` extending [`abstract-level`](https://github.com/Level/abstract-level)
      */
     db?: AbstractLevelConstructor;
     /**
@@ -44,4 +44,4 @@ type FiiOptions = {
      */
     docExistsSpace?: string;
 };
-type AbstractLevelConstructor = new <F, K, V>(name: string, options?: import("abstract-level").AbstractDatabaseOptions<K, V>) => import("abstract-level/types/abstract-level.js").AbstractLevel<F, K, V>;
+type AbstractLevelConstructor = new <K, V>(name: string, options?: import("abstract-level").AbstractDatabaseOptions<K, V>) => import("abstract-level/types/abstract-level.js").AbstractLevel<any, K, V>;
