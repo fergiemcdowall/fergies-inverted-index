@@ -6,16 +6,20 @@ export = main;
  */
 declare function main(ops?: FiiOptions): Promise<any>;
 declare namespace main {
-    export { FiiOptions };
+    export { AbstractLevelConstructor, FiiOptions };
 }
 /**
  * Fii options
  */
 type FiiOptions = {
     /**
-     * Name of `abstract-level` compatible database
+     * Name of database
      */
     name?: string;
+    /**
+     * Constructor of `class` extending [`abstract-level`](https://github.com/Level/abstract-level/)
+     */
+    db?: AbstractLevelConstructor;
     /**
      * Creates 'comment' spaces in tokens.
      * For example using `#` allows tokens like `boom#1.00` to be retrieved by using `boom`.
@@ -40,3 +44,4 @@ type FiiOptions = {
      */
     docExistsSpace?: string;
 };
+type AbstractLevelConstructor = new <F, K, V>(name: string, options?: import("abstract-level").AbstractDatabaseOptions<K, V>) => import("abstract-level/types/abstract-level.js").AbstractLevel<F, K, V>;

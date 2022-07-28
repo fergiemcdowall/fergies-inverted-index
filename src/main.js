@@ -3,8 +3,13 @@ const read = require('./read.js')
 const write = require('./write.js')
 
 /**
+ * @typedef {{new<F, K, V>(name: string, options?: import('abstract-level').AbstractDatabaseOptions<K, V>): import('abstract-level').AbstractLevel<F, K, V>}} AbstractLevelConstructor
+ */
+
+/**
  * @typedef {Object} FiiOptions Fii options
- * @property {string} [name="fii"] Name of `abstract-level` compatible database
+ * @property {string} [name="fii"] Name of database
+ * @property {AbstractLevelConstructor} [db] Constructor of `class` extending [`abstract-level`](https://github.com/Level/abstract-level/)
  * @property {string} [tokenAppend=""] Creates 'comment' spaces in tokens.
  * For example using `#` allows tokens like `boom#1.00` to be retrieved by using `boom`.
  * If `tokenAppend` wasnt used, then `{gte: 'boom', lte: 'boom'}` would also return stuff like `boomness#1.00` etc
