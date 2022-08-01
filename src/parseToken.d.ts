@@ -1,2 +1,2 @@
-declare function _exports(token: any, availableFields: any): Promise<any>;
-export = _exports;
+export = parseToken;
+declare function parseToken(token: any, availableFields: any): Promise<any>;
