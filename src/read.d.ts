@@ -10,13 +10,13 @@ declare function read(ops: any): {
         RESULT: any;
     }>;
     AGGREGATION_FILTER: (aggregation: any, filterSet: any) => any;
-    BUCKET: (token: any) => Promise<tokenParser.Parsed & {
+    BUCKET: (token: any) => Promise<tokenParser.TokenObject & {
         _id: any[];
-        VALUE: tokenParser.RangeValue;
+        VALUE: tokenParser.RangeObject;
     }>;
-    BUCKETS: (...buckets: any[]) => Promise<(tokenParser.Parsed & {
+    BUCKETS: (...buckets: any[]) => Promise<(tokenParser.TokenObject & {
         _id: any[];
-        VALUE: tokenParser.RangeValue;
+        VALUE: tokenParser.RangeObject;
     })[]>;
     CREATED: () => any;
     DISTINCT: (...tokens: any[]) => Promise<any[]>;
@@ -33,22 +33,22 @@ declare function read(ops: any): {
     SET_SUBTRACTION: (a: any, b: any) => Promise<any>;
     SORT: (results: any) => Promise<any>;
     UNION: UNION;
-    parseToken: (token: import("./parseToken").Token) => Promise<import("./parseToken").Parsed>;
+    parseToken: (token: import("./parseToken").Token) => Promise<import("./parseToken").TokenObject>;
 };
 declare namespace read {
-    export { KeyValue, RangeOptions, EXPORT, AlterToken, FieldValue, QueryValue, GET, UnionValue, UNION };
+    export { KeyValueObject, RangeOptions, EXPORT, AlterToken, MatchObject, ResultObject, GET, UnionResultObject, UNION };
 }
 import tokenParser = require("./parseToken");
 /**
  * Exports the index
  */
-type EXPORT = (rangeOps?: RangeOptions) => Promise<KeyValue[]>;
+type EXPORT = (options?: RangeOptions) => Promise<KeyValueObject[]>;
 /**
  * Returns all object ids for objects that contain the given property, aggregated by object id.
  */
-type GET = (token: import("./parseToken").Token, pipeline?: AlterToken) => Promise<QueryValue[]>;
-type UNION = (token: import("./parseToken").Token, pipeline?: AlterToken) => Promise<UnionValue[]>;
-type KeyValue = {
+type GET = (token: import("./parseToken").Token, pipeline?: AlterToken) => Promise<ResultObject[]>;
+type UNION = (token: import("./parseToken").Token, pipeline?: AlterToken) => Promise<UnionResultObject[]>;
+type KeyValueObject = {
     key: any[];
     value: any;
 };
@@ -57,16 +57,16 @@ type RangeOptions = import("level-read-stream").ReadStreamOptions & import("abst
  * Alters token
  */
 type AlterToken = (token: import("./parseToken").Token) => Promise<import("./parseToken").Token>;
-type FieldValue = {
+type MatchObject = {
     FIELD: string;
     VALUE: any;
     SCORE?: any;
 };
-type QueryValue = {
+type ResultObject = {
     _id: string;
-    _matches: FieldValue[];
+    _matches: MatchObject[];
 };
-type UnionValue = {
+type UnionResultObject = {
     sumTokensMinusStopwords: number;
-    union: QueryValue[];
+    union: ResultObject[];
 };

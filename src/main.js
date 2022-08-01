@@ -27,7 +27,7 @@ const charwise = require('charwise')
  * @callback OR
  * @param {import("./parseToken").Token} token
  * @param {import("./read").AlterToken} [pipeline]
- * @returns {Promise<import("./read").QueryValue[]>}
+ * @returns {Promise<import("./read").ResultObject[]>}
  */
 
 /**

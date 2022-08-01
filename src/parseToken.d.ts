@@ -1,18 +1,18 @@
 export = parseToken;
 /**
- * Turn key into json object that is of the format `{FIELD: ..., VALUE: {GTE: ..., LTE ...}}`
+ * Turns `key` into JSON object that is of the format `{FIELD: ..., VALUE: {GTE: ..., LTE ...}}`
  * @param {Token} token
  * @param {string[]} [availableFields]
- * @returns {Promise<Parsed>} `token` parsed into JSON object
+ * @returns {Promise<TokenObject>} `token` parsed into JSON object
  */
-declare function parseToken(token: Token, availableFields?: string[]): Promise<Parsed>;
+declare function parseToken(token: Token, availableFields?: string[]): Promise<TokenObject>;
 declare namespace parseToken {
-    export { AND, NOT, OR, SEARCH, QueryVerb, Field, RangeValue, FieldValue, Token, Parsed };
+    export { AND, NOT, OR, SEARCH, QueryVerb, Field, RangeObject, FieldValueObject, Token, TokenObject };
 }
-type Token = Field | FieldValue | QueryVerb;
-type Parsed = {
+type Token = Field | FieldValueObject | QueryVerb;
+type TokenObject = {
     FIELD: Field;
-    VALUE: RangeValue;
+    VALUE: RangeObject;
 };
 type AND = {
     AND: Token[];
@@ -29,11 +29,11 @@ type SEARCH = {
 };
 type QueryVerb = AND | NOT | OR | SEARCH;
 type Field = string | string[];
-type RangeValue = {
+type RangeObject = {
     GTE: string | number;
     LTE: string | number;
 };
-type FieldValue = {
+type FieldValueObject = {
     FIELD: Field;
-    VALUE?: string | RangeValue;
+    VALUE?: string | RangeObject;
 };

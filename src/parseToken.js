@@ -28,25 +28,25 @@
  */
 
 /**
- * @typedef RangeValue
+ * @typedef RangeObject
  * @property {string | number} GTE
  * @property {string | number} LTE
  */
 
 /**
- * @typedef FieldValue
+ * @typedef FieldValueObject
  * @property {Field} FIELD
- * @property {string | RangeValue} [VALUE]
+ * @property {string | RangeObject} [VALUE]
  */
 
 /**
- * @typedef {Field | FieldValue | QueryVerb} Token
+ * @typedef {Field | FieldValueObject | QueryVerb} Token
  */
 
 /**
- * @typedef Parsed
+ * @typedef TokenObject
  * @property {Field} FIELD
- * @property {RangeValue} VALUE
+ * @property {RangeObject} VALUE
  */
 
 // polyfill- HI and LO coming in next version of charwise
@@ -58,7 +58,7 @@ charwise.HI = undefined
  * Turns `key` into JSON object that is of the format `{FIELD: ..., VALUE: {GTE: ..., LTE ...}}`
  * @param {Token} token 
  * @param {string[]} [availableFields] 
- * @returns {Promise<Parsed>} `token` parsed into JSON object
+ * @returns {Promise<TokenObject>} `token` parsed into JSON object
  */
 const parseToken = (token, availableFields) =>
   new Promise((resolve, reject) => {

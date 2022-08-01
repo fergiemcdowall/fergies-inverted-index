@@ -2,7 +2,7 @@ const charwise = require('charwise')
 const { EntryStream } = require('level-read-stream')
 
 /**
- * @typedef KeyValue
+ * @typedef KeyValueObject
  * @property {any[]} key
  * @property {any} value
  */
@@ -14,8 +14,8 @@ const { EntryStream } = require('level-read-stream')
 /**
  * Exports the index
  * @callback EXPORT
- * @param {RangeOptions} [rangeOps]
- * @returns {Promise<KeyValue[]>}
+ * @param {RangeOptions} [options]
+ * @returns {Promise<KeyValueObject[]>}
  */
 
 /**
@@ -26,16 +26,16 @@ const { EntryStream } = require('level-read-stream')
  */
 
 /**
- * @typedef FieldValue
+ * @typedef MatchObject
  * @property {string} FIELD
  * @property {any} VALUE
  * @property {any} [SCORE]
  */
 
 /**
- * @typedef QueryValue
+ * @typedef ResultObject
  * @property {string} _id
- * @property {FieldValue[]} _matches
+ * @property {MatchObject[]} _matches
  */
 
 /**
@@ -43,20 +43,20 @@ const { EntryStream } = require('level-read-stream')
  * @callback GET
  * @param {import("./parseToken").Token} token
  * @param {AlterToken} [pipeline]
- * @returns {Promise<QueryValue[]>}
+ * @returns {Promise<ResultObject[]>}
  */
 
 /**
- * @typedef UnionValue
+ * @typedef UnionResultObject
  * @property {number} sumTokensMinusStopwords
- * @property {QueryValue[]} union
+ * @property {ResultObject[]} union
  */
 
 /**
  * @callback UNION
  * @param {import("./parseToken").Token} token
  * @param {AlterToken} [pipeline]
- * @returns {Promise<UnionValue[]>}
+ * @returns {Promise<UnionResultObject[]>}
  */
 
 const tokenParser = require('./parseToken.js')
@@ -75,7 +75,7 @@ const read = ops => {
   /**
    * Turn key into json object that is of the format {FIELD: ..., VALUE: {GTE: ..., LTE ...}}
    * @param {import("./parseToken").Token} token 
-   * @returns {Promise<import("./parseToken").Parsed>} `token` parsed into JSON object
+   * @returns {Promise<import("./parseToken").TokenObject>} `token` parsed into JSON object
    */
   const parseToken = async token => tokenParser(token, await AVAILABLE_FIELDS())
 

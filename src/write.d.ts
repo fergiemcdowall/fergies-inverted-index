@@ -10,20 +10,20 @@ declare function write(ops: import("./main").FiiOptions & import("./main").Initi
     TIMESTAMP_LAST_UPDATED: TIMESTAMP_LAST_UPDATED;
 };
 declare namespace write {
-    export { Operation, DELETE, IMPORT, PutOptions, PUT, TIMESTAMP_CREATED, TIMESTAMP_LAST_UPDATED };
+    export { OperationObject, DELETE, IMPORT, PutOptions, PUT, TIMESTAMP_CREATED, TIMESTAMP_LAST_UPDATED };
 }
 /**
  * Deletes all objects in index by `id`
  */
-type DELETE = (ids: any[]) => Promise<Operation[]>;
+type DELETE = (ids: any[]) => Promise<OperationObject[]>;
 /**
  * Imports in an exported index
  */
-type IMPORT = (index: import("./read").KeyValue[]) => Promise<void>;
+type IMPORT = (index: import("./read").KeyValueObject[]) => Promise<void>;
 /**
  * Adds documents to index
  */
-type PUT = (docs: ReadonlyArray<any>, options?: PutOptions) => Promise<Operation[]>;
+type PUT = (docs: ReadonlyArray<any>, options?: PutOptions) => Promise<OperationObject[]>;
 /**
  * Ensures `~CREATED` was set
  */
@@ -32,7 +32,7 @@ type TIMESTAMP_CREATED = () => Promise<void>;
  * Ensures `~LAST_UPDATED` was set
  */
 type TIMESTAMP_LAST_UPDATED = (passThrough?: any) => Promise<any>;
-type Operation = {
+type OperationObject = {
     /**
      * ID
      */

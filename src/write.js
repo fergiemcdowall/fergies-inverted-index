@@ -1,7 +1,7 @@
 const trav = require('traverse')
 
 /**
- * @typedef {Object} Operation
+ * @typedef {Object} OperationObject
  * @property {any} _id ID
  * @property {'PUT'|'DELETE'|string} operation
  * @property {'CREATED'|'UPDATED'|'DELETED'|string} status
@@ -11,13 +11,13 @@ const trav = require('traverse')
  * Deletes all objects in index by `id`
  * @callback DELETE
  * @param {any[]} ids IDs to delete
- * @returns {Promise<Operation[]>}
+ * @returns {Promise<OperationObject[]>}
  */
 
 /**
  * Imports in an exported index
  * @callback IMPORT
- * @param {import("./read").KeyValue[]} index Index to import
+ * @param {import("./read").KeyValueObject[]} index Index to import
  * @returns {Promise<void>}
  */
 
@@ -35,7 +35,7 @@ const trav = require('traverse')
  * @callback PUT
  * @param {ReadonlyArray<any>} docs Documents
  * @param {PutOptions} [options] Options
- * @returns {Promise<Operation[]>}
+ * @returns {Promise<OperationObject[]>}
  */
 
 /**

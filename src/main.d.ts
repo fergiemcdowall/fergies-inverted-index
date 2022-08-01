@@ -59,4 +59,4 @@ type InitializedOptions = {
 /**
  * Return ids of objects that are in one or more of the query clauses
  */
-type OR = (token: import("./parseToken").Token, pipeline?: import("./read").AlterToken) => Promise<import("./read").QueryValue[]>;
+type OR = (token: import("./parseToken").Token, pipeline?: import("./read").AlterToken) => Promise<import("./read").ResultObject[]>;
