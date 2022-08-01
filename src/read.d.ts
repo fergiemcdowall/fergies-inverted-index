@@ -13,40 +13,46 @@ declare function read(ops: import("./main.js").FiiOptions & import("./main.js").
         RESULT: any;
     }>;
     AGGREGATION_FILTER: (aggregation: any, filterSet: any) => any;
-    BUCKET: (token: any) => Promise<tokenParser.TokenObject & {
-        _id: any[];
-        VALUE: tokenParser.RangeObject;
-    }>;
-    BUCKETS: (...buckets: any[]) => Promise<(tokenParser.TokenObject & {
-        _id: any[];
-        VALUE: tokenParser.RangeObject;
-    })[]>;
-    CREATED: () => any;
+    BUCKET: BUCKET;
+    BUCKETS: BUCKETS;
+    CREATED: CREATED;
     DISTINCT: (...tokens: any[]) => Promise<any[]>;
-    EXIST: (...ids: any[]) => Promise<any>;
+    EXIST: EXIST;
     EXPORT: EXPORT;
     FACETS: (...tokens: any[]) => Promise<any[]>;
-    FIELDS: () => Promise<any>;
+    FIELDS: AVAILABLE_FIELDS;
     GET: GET;
     INTERSECTION: INTERSECTION;
-    LAST_UPDATED: () => any;
+    LAST_UPDATED: LAST_UPDATED;
     MAX: (fieldName: any) => Promise<any>;
     MIN: (token: any, reverse: any) => Promise<any>;
     OBJECT: (_ids: any) => Promise<any>;
     SET_SUBTRACTION: SET_SUBTRACTION;
     SORT: (results: any) => Promise<any>;
     UNION: UNION;
-    parseToken: (token: import("./parseToken").Token) => Promise<import("./parseToken").TokenObject>;
+    parseToken: (token: import("./parseToken.js").Token) => Promise<import("./parseToken.js").TokenObject>;
 };
 declare namespace read {
-    export { KeyValueObject, RangeOptions, EXPORT, AlterToken, MatchObject, QueryObject, GET, UnionQueryObject, UNION, INTERSECTION, SET_SUBTRACTION };
+    export { KeyValueObject, RangeOptions, EXPORT, AlterToken, MatchObject, QueryObject, GET, UnionQueryObject, UNION, INTERSECTION, SET_SUBTRACTION, AVAILABLE_FIELDS, CREATED, LAST_UPDATED, EXIST, BucketObject, BUCKET, BUCKETS };
 }
-import tokenParser = require("./parseToken");
+type BUCKET = (token: import("./parseToken.js").Token) => Promise<BucketObject>;
+type BUCKETS = (...tokens: import("./parseToken.js").Token[]) => Promise<BucketObject[]>;
+/**
+ * Returns the timestamp that indicates when the index was created
+ */
+type CREATED = () => Promise<number | undefined>;
+/**
+ * Indicates whether documents with the given ids exist in the index
+ */
+type EXIST = (...ids: any[]) => Promise<any[]>;
 /**
  * Exports the index
  */
 type EXPORT = (options?: RangeOptions) => Promise<KeyValueObject[]>;
 /**
+ * Returns array of available fields in the index
+ */
+type AVAILABLE_FIELDS = () => Promise<string[]>;
 /**
  * Returns all objects that match the query clause
  */
@@ -56,7 +62,9 @@ type GET = (token: import("./parseToken.js").Token, pipeline?: AlterToken) => Pr
  */
 type INTERSECTION = (tokens: import("./parseToken.js").Token[], pipeline?: AlterToken) => Promise<QueryObject[]>;
 /**
+ * Returns a timestamp indicating when the index was last updated
  */
+type LAST_UPDATED = () => Promise<number | undefined>;
 /**
  * Returns objects that are present in A, but not in B
  */
@@ -86,4 +94,8 @@ type QueryObject = {
 type UnionQueryObject = {
     sumTokensMinusStopwords: number;
     union: QueryObject[];
+};
+type BucketObject = {
+    _id: any[];
+    VALUE: import("./parseToken.js").RangeObject;
 };

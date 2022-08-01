@@ -34,10 +34,15 @@ const charwise = require('charwise')
 /**
  * @typedef {Object} Fii
  * @property {import("./read.js").INTERSECTION} AND
+ * @property {import("./read.js").BUCKET} BUCKET
+ * @property {import("./read.js").BUCKETS} BUCKETS
+ * @property {import("./read.js").CREATED} CREATED
  * @property {import("./write.js").DELETE} DELETE
+ * @property {import("./read.js").EXIST} EXIST
  * @property {import("./read.js").EXPORT} EXPORT
  * @property {import("./read.js").GET} GET
  * @property {import("./write.js").IMPORT} IMPORT
+ * @property {import("./read.js").LAST_UPDATED} LAST_UPDATED
  * @property {import("./read.js").SET_SUBTRACTION} NOT
  * @property {OR} OR
  * @property {import("./write.js").PUT} PUT

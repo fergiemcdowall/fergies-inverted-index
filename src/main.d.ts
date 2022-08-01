@@ -45,10 +45,15 @@ type FiiOptions = {
 };
 type Fii = {
     AND: import("./read.js").INTERSECTION;
+    BUCKET: import("./read.js").BUCKET;
+    BUCKETS: import("./read.js").BUCKETS;
+    CREATED: import("./read.js").CREATED;
     DELETE: import("./write.js").DELETE;
+    EXIST: import("./read.js").EXIST;
     EXPORT: import("./read.js").EXPORT;
     GET: import("./read.js").GET;
     IMPORT: import("./write.js").IMPORT;
+    LAST_UPDATED: import("./read.js").LAST_UPDATED;
     NOT: import("./read.js").SET_SUBTRACTION;
     OR: OR;
     PUT: import("./write.js").PUT;

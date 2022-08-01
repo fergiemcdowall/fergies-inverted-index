@@ -76,6 +76,49 @@ const { EntryStream } = require('level-read-stream')
  * @returns {Promise<QueryObject[]>}
  */
 
+/**
+ * Returns array of available fields in the index
+ * @callback AVAILABLE_FIELDS
+ * @returns {Promise<string[]>}
+ */
+
+/**
+ * Returns the timestamp that indicates when the index was created
+ * @callback CREATED
+ * @returns {Promise<number|undefined>}
+ */
+
+/**
+ * Returns a timestamp indicating when the index was last updated
+ * @callback LAST_UPDATED
+ * @returns {Promise<number|undefined>}
+ */
+
+/**
+ * Indicates whether documents with the given ids exist in the index
+ * @callback EXIST
+ * @param {...any} ids
+ * @returns {Promise<any[]>}
+ */
+
+/**
+ * @typedef {Object} BucketObject
+ * @property {any[]} _id
+ * @property {import("./parseToken.js").RangeObject} VALUE
+ */
+
+/**
+ * @callback BUCKET
+ * @param {import("./parseToken.js").Token} token 
+ * @returns {Promise<BucketObject>}
+ */
+
+/**
+ * @callback BUCKETS
+ * @param {...import("./parseToken.js").Token} tokens 
+ * @returns {Promise<BucketObject[]>}
+ */
+
 const tokenParser = require('./parseToken.js')
 
 // polyfill- HI and LO coming in next version of charwise
@@ -224,6 +267,12 @@ const read = ops => {
         a.filter(aItem => b.map(bItem => bItem._id).indexOf(aItem._id) === -1)
     )
 
+  /**
+   * @param {string} field 
+   * @param {any} value 
+   * @param {boolean} lte 
+   * @returns {['IDX', string, any[]]}
+   */
   const formatKey = (field, value, lte) => {
     const valueAndScore = []
     if (value !== undefined || typeof value === 'number') {
@@ -234,6 +283,10 @@ const read = ops => {
     return ['IDX', field, valueAndScore]
   }
 
+  /**
+   * @param {import("./parseToken.js").Token} token
+   * @returns {Promise<QueryObject[]>}
+   */
   const RANGE = token =>
     new Promise(resolve => {
       // If this token is undefined (stopword) then resolve 'undefined'
@@ -276,6 +329,9 @@ const read = ops => {
       )
     })
 
+  /**
+   * @type {AVAILABLE_FIELDS}
+   */
   const AVAILABLE_FIELDS = () =>
     new Promise(resolve => {
       const fieldNames = []
@@ -287,12 +343,21 @@ const read = ops => {
         .on('end', () => resolve(fieldNames))
     })
 
+  /**
+   * @type {CREATED}
+   */
   const CREATED = () => ops._db.get(['~CREATED'])
 
+  /**
+   * @type {LAST_UPDATED}
+   */
   const LAST_UPDATED = () => ops._db.get(['~LAST_UPDATED'])
 
   // takes an array of ids and determines if the corresponding
   // documents exist in the index.
+  /**
+   * @type {EXIST}
+   */
   const EXIST = (...ids) =>
     Promise.all(
       ids.map(id => ops._db.get([ops.docExistsSpace, id]).catch(e => null))
@@ -324,10 +389,16 @@ const read = ops => {
       })
     )
 
+  /**
+   * @type {BUCKETS}
+   */
   const BUCKETS = (...buckets) => Promise.all(buckets.map(BUCKET))
 
   // return a bucket of IDs. Key is an object like this:
   // {gte:..., lte:...} (gte/lte == greater/less than or equal)
+  /**
+   * @type {BUCKET}
+   */
   const BUCKET = async token =>
     parseToken(
       token // TODO: is parseToken needed her? Already called in GET
