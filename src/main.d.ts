@@ -5,7 +5,7 @@ export = main;
  */
 declare function main(ops?: FiiOptions): Promise<Fii>;
 declare namespace main {
-    export { AbstractLevelConstructor, FiiOptions, InitializedOptions, Fii };
+    export { AbstractLevelConstructor, FiiOptions, InitializedOptions, OR, Fii };
 }
 /**
  * Fii options
@@ -48,10 +48,15 @@ type Fii = {
     EXPORT: import("./read").EXPORT;
     GET: import("./read").GET;
     IMPORT: import("./write").IMPORT;
+    OR: OR;
     PUT: import("./write").PUT;
     TIMESTAMP_LAST_UPDATED: import("./write").TIMESTAMP_LAST_UPDATED;
 };
-type AbstractLevelConstructor = new <K, V>(name: string, options?: import("abstract-level").AbstractDatabaseOptions<K, V>) => import("abstract-level/types/abstract-level.js").AbstractLevel<any, K, V>;
+type AbstractLevelConstructor = new <K, V>(name: string, options?: import("abstract-level").AbstractDatabaseOptions<K, V>) => import("abstract-level/types/abstract-level").AbstractLevel<any, K, V>;
 type InitializedOptions = {
-    _db: import("abstract-level/types/abstract-level.js").AbstractLevel<any, string, string>;
+    _db: import("abstract-level/types/abstract-level").AbstractLevel<any, string, string>;
 };
+/**
+ * Return ids of objects that are in one or more of the query clauses
+ */
+type OR = (token: import("./parseToken").Token, pipeline?: import("./read").AlterToken) => Promise<import("./read").QueryValue[]>;

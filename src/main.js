@@ -1,6 +1,4 @@
 const charwise = require('charwise')
-const read = require('./read.js')
-const write = require('./write.js')
 
 /**
  * @typedef {{new<K, V>(name: string, options?: import('abstract-level').AbstractDatabaseOptions<K, V>): import('abstract-level').AbstractLevel<any, K, V>}} AbstractLevelConstructor
@@ -19,6 +17,32 @@ const write = require('./write.js')
  * @property {boolean} [storeVectors=true]
  * @property {string} [docExistsSpace="DOC"] Field used to verify that doc exists
  */
+
+/**
+ * @typedef {{_db: import('abstract-level').AbstractLevel}} InitializedOptions
+ */
+
+/**
+ * Return ids of objects that are in one or more of the query clauses
+ * @callback OR
+ * @param {import("./parseToken").Token} token
+ * @param {import("./read").AlterToken} [pipeline]
+ * @returns {Promise<import("./read").QueryValue[]>}
+ */
+
+/**
+ * @typedef {Object} Fii
+ * @property {import("./write").DELETE} DELETE
+ * @property {import("./read").EXPORT} EXPORT
+ * @property {import("./read").GET} GET
+ * @property {import("./write").IMPORT} IMPORT
+ * @property {OR} OR
+ * @property {import("./write").PUT} PUT
+ * @property {import("./write").TIMESTAMP_LAST_UPDATED} TIMESTAMP_LAST_UPDATED
+ */
+
+const read = require('./read.js')
+const write = require('./write.js')
 
 // _match is nested by default so that AND and OR work correctly under
 // the bonnet. Flatten array before presenting to consumer
@@ -41,10 +65,6 @@ const flattenMatchArrayInResults = results =>
         })
       return result
     })
-
-/**
- * @typedef {{_db: import('abstract-level').AbstractLevel}} InitializedOptions
- */
 
 /**
  * Initializes store
@@ -76,16 +96,6 @@ const initStore = (ops = {}) =>
       err ? reject(err) : resolve(Object.assign(ops, { _db: db }))
     )
   })
-
-/**
- * @typedef {Object} Fii
- * @property {import("./write").DELETE} DELETE
- * @property {import("./read").EXPORT} EXPORT
- * @property {import("./read").GET} GET
- * @property {import("./write").IMPORT} IMPORT
- * @property {import("./write").PUT} PUT
- * @property {import("./write").TIMESTAMP_LAST_UPDATED} TIMESTAMP_LAST_UPDATED
- */
 
 /**
  * Creates an inverted index
