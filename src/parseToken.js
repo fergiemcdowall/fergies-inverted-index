@@ -1,10 +1,65 @@
+/**
+ * @typedef AND
+ * @property {Token[]} AND
+ */
+
+/**
+ * @typedef NOT
+ * @property {Token} INCLUDE
+ * @property {Token} EXCLUDE
+ */
+
+/**
+ * @typedef OR
+ * @property {Token[]} OR
+ */
+
+/**
+ * @typedef SEARCH
+ * @property {Token[]} SEARCH
+ */
+
+/**
+ * @typedef {AND | NOT | OR | SEARCH} QueryVerb
+ */
+
+/**
+ * @typedef {string | string[]} Field
+ */
+
+/**
+ * @typedef RangeValue
+ * @property {string | number} GTE
+ * @property {string | number} LTE
+ */
+
+/**
+ * @typedef FieldValue
+ * @property {Field} FIELD
+ * @property {string | RangeValue} [VALUE]
+ */
+
+/**
+ * @typedef {Field | FieldValue | QueryVerb} Token
+ */
+
+/**
+ * @typedef Parsed
+ * @property {Field} FIELD
+ * @property {RangeValue} VALUE
+ */
+
 // polyfill- HI and LO coming in next version of charwise
 const charwise = {}
 charwise.LO = null
 charwise.HI = undefined
-// key might be object or string like this
-// <fieldname>:<value>. Turn key into json object that is of the
-// format {FIELD: ..., VALUE: {GTE: ..., LTE ...}}
+
+/**
+ * Turns `key` into JSON object that is of the format `{FIELD: ..., VALUE: {GTE: ..., LTE ...}}`
+ * @param {Token} token 
+ * @param {string[]} [availableFields] 
+ * @returns {Promise<Parsed>} `token` parsed into JSON object
+ */
 const parseToken = (token, availableFields) =>
   new Promise((resolve, reject) => {
     // case: <value>
