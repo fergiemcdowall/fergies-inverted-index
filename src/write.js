@@ -1,7 +1,62 @@
 const trav = require('traverse')
+
+/**
+ * @typedef {Object} Operation
+ * @property {any} _id ID
+ * @property {'PUT'|'DELETE'|string} operation
+ * @property {'CREATED'|'UPDATED'|'DELETED'|string} status
+ */
+
+/**
+ * Deletes all objects in index by `id`
+ * @callback DELETE
+ * @param {any[]} ids IDs to delete
+ * @returns {Promise<Operation[]>}
+ */
+
+/**
+ * Reads in an exported index
+ * @callback IMPORT
+ * @param {import("./read").KeyValueObject[]} index Index to import
+ * @returns {Promise<void>}
+ */
+
+/**
+ * PUT options
+ * @typedef {Object} PutOptions
+ * @property {string[]} [doNotIndexField=[]] Array of fields not to index
+ * @property {boolean} [caseSensitive] Sets case sensitivity
+ * @property {string[]} [stopwords] Array of stop words to be stripped using [`stopword`](https://github.com/fergiemcdowall/stopword)
+ * @property {boolean} [storeVectors]
+ */
+
+/**
+ * Adds documents to index
+ * @callback PUT
+ * @param {ReadonlyArray<any>} docs Documents
+ * @param {PutOptions} [options] Options
+ * @returns {Promise<Operation[]>}
+ */
+
+/**
+ * Ensures `~CREATED` was set
+ * @callback TIMESTAMP_CREATED
+ * @returns {Promise<void>}
+ */
+
+/**
+ * Ensures `~LAST_UPDATED` was set
+ * @callback TIMESTAMP_LAST_UPDATED
+ * @param {any} [passThrough]
+ * @returns {Promise<any>}
+ */
+
 const reader = require('./read.js')
 
-module.exports = ops => {
+/**
+ * @param {import("./main").FiiOptions & import("./main").InitializedOptions } ops
+ */
+const write = ops => {
   // TODO: set reset this to the max value every time the DB is restarted
   let incrementalId = 0
 
@@ -202,6 +257,9 @@ module.exports = ops => {
   // docs needs to be an array of ids (strings)
   // first do an 'objects' call to get all of the documents to be
   // deleted
+  /**
+   * @type {DELETE}
+   */
   const DELETE = _ids =>
     reader(ops)
       .OBJECT(_ids.map(_id => ({ _id: _id })))
@@ -210,6 +268,9 @@ module.exports = ops => {
 
   // when importing, index is first cleared. This means that "merges"
   // are not currently supported
+  /**
+   * @type {IMPORT}
+   */
   const IMPORT = index =>
     ops._db
       .clear()
@@ -217,6 +278,9 @@ module.exports = ops => {
         ops._db.batch(index.map(entry => Object.assign(entry, { type: 'put' })))
       )
 
+  /**
+   * @type {PUT}
+   */
   const PUT = (docs, putOptions = {}) =>
     writer(
       docs.map(doc => ({
@@ -229,9 +293,15 @@ module.exports = ops => {
       putOptions
     ).then(TIMESTAMP_LAST_UPDATED)
 
+  /**
+   * @type {TIMESTAMP_LAST_UPDATED}
+   */
   const TIMESTAMP_LAST_UPDATED = passThrough =>
     ops._db.put(['~LAST_UPDATED'], Date.now()).then(() => passThrough)
 
+  /**
+   * @type {TIMESTAMP_CREATED}
+   */
   const TIMESTAMP_CREATED = () =>
     ops._db
       .get(['~CREATED'])
@@ -248,3 +318,5 @@ module.exports = ops => {
     TIMESTAMP_LAST_UPDATED: TIMESTAMP_LAST_UPDATED
   }
 }
+
+module.exports = write

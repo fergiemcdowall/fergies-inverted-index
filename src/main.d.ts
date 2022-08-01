@@ -2,7 +2,6 @@ export = main;
 /**
  * Creates and intializes index
  * @param {FiiOptions} [ops] Options
- * @returns Promise<Object>
  */
 declare function main(ops?: FiiOptions): Promise<any>;
 declare namespace main {

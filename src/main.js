@@ -42,11 +42,11 @@ const flattenMatchArrayInResults = results =>
       return result
     })
 
-
 /**
  * Initializes store
- * @param {FiiOptions} [ops={}] Options
- * @returns Promise<Object>
+ * @template {FiiOptions} O FiiOptions
+ * @param {O} [ops={}] Options
+ * @returns {Promise<O & {_db: import('abstract-level').AbstractLevel}>}
  */
 const initStore = (ops = {}) =>
   new Promise((resolve, reject) => {
@@ -115,7 +115,6 @@ const makeAFii = ops => {
 /**
  * Creates and intializes index
  * @param {FiiOptions} [ops] Options
- * @returns Promise<Object>
  */
 const main = ops => initStore(ops).then(makeAFii)
 
