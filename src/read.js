@@ -33,7 +33,7 @@ const { EntryStream } = require('level-read-stream')
  */
 
 /**
- * @typedef ResultObject
+ * @typedef QueryObject
  * @property {string} _id
  * @property {MatchObject[]} _matches
  */
@@ -43,20 +43,34 @@ const { EntryStream } = require('level-read-stream')
  * @callback GET
  * @param {import("./parseToken").Token} token
  * @param {AlterToken} [pipeline]
- * @returns {Promise<ResultObject[]>}
+ * @returns {Promise<QueryObject[]>}
  */
 
 /**
- * @typedef UnionResultObject
+ * @typedef UnionQueryObject
  * @property {number} sumTokensMinusStopwords
- * @property {ResultObject[]} union
+ * @property {QueryObject[]} union
  */
 
 /**
  * @callback UNION
  * @param {import("./parseToken").Token} token
  * @param {AlterToken} [pipeline]
- * @returns {Promise<UnionResultObject[]>}
+ * @returns {Promise<UnionQueryObject>}
+ */
+
+/**
+ * @callback INTERSECTION
+ * @param {import("./parseToken").Token} token
+ * @param {AlterToken} [pipeline]
+ * @returns {Promise<QueryObject[]>}
+ */
+
+/**
+ * @callback SET_SUBTRACTION
+ * @param {import("./parseToken").Token} a
+ * @param {import("./parseToken").Token} b
+ * @returns {Promise<QueryObject[]>}
  */
 
 const tokenParser = require('./parseToken.js')
@@ -184,6 +198,9 @@ const read = ops => {
     })
 
   // AND
+  /**
+   * @type {INTERSECTION}
+   */
   const INTERSECTION = (tokens, pipeline) =>
     UNION(tokens, pipeline).then(result =>
       result.union.filter(
@@ -192,6 +209,9 @@ const read = ops => {
     )
 
   // NOT (set a minus set b)
+  /**
+   * @type {SET_SUBTRACTION}
+   */
   const SET_SUBTRACTION = (a, b) =>
     Promise.all([isString(a) ? GET(a) : a, isString(b) ? GET(b) : b]).then(
       ([a, b]) =>

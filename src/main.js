@@ -27,15 +27,17 @@ const charwise = require('charwise')
  * @callback OR
  * @param {import("./parseToken").Token} token
  * @param {import("./read").AlterToken} [pipeline]
- * @returns {Promise<import("./read").ResultObject[]>}
+ * @returns {Promise<import("./read").QueryObject[]>}
  */
 
 /**
  * @typedef {Object} Fii
+ * @property {import("./read").INTERSECTION} AND
  * @property {import("./write").DELETE} DELETE
  * @property {import("./read").EXPORT} EXPORT
  * @property {import("./read").GET} GET
  * @property {import("./write").IMPORT} IMPORT
+ * @property {import("./read").SET_SUBTRACTION} NOT
  * @property {OR} OR
  * @property {import("./write").PUT} PUT
  * @property {import("./write").TIMESTAMP_LAST_UPDATED} TIMESTAMP_LAST_UPDATED
@@ -125,8 +127,8 @@ const makeAFii = async (ops) => {
     LAST_UPDATED: r.LAST_UPDATED,
     MAX: r.MAX,
     MIN: r.MIN,
-    NOT: (...keys) =>
-      r.SET_SUBTRACTION(...keys).then(flattenMatchArrayInResults),
+    NOT: (a, b) =>
+      r.SET_SUBTRACTION(a, b).then(flattenMatchArrayInResults),
     OBJECT: r.OBJECT,
     OR: (tokens, pipeline) =>
       r

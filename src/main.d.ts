@@ -44,10 +44,12 @@ type FiiOptions = {
     docExistsSpace?: string;
 };
 type Fii = {
+    AND: import("./read").INTERSECTION;
     DELETE: import("./write").DELETE;
     EXPORT: import("./read").EXPORT;
     GET: import("./read").GET;
     IMPORT: import("./write").IMPORT;
+    NOT: import("./read").SET_SUBTRACTION;
     OR: OR;
     PUT: import("./write").PUT;
     TIMESTAMP_LAST_UPDATED: import("./write").TIMESTAMP_LAST_UPDATED;
@@ -59,4 +61,4 @@ type InitializedOptions = {
 /**
  * Return ids of objects that are in one or more of the query clauses
  */
-type OR = (token: import("./parseToken").Token, pipeline?: import("./read").AlterToken) => Promise<import("./read").ResultObject[]>;
+type OR = (token: import("./parseToken").Token, pipeline?: import("./read").AlterToken) => Promise<import("./read").QueryObject[]>;

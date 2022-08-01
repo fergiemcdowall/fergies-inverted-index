@@ -25,18 +25,18 @@ declare function read(ops: any): {
     FACETS: (...tokens: any[]) => Promise<any[]>;
     FIELDS: () => Promise<any>;
     GET: GET;
-    INTERSECTION: (tokens: any, pipeline: any) => Promise<any>;
+    INTERSECTION: INTERSECTION;
     LAST_UPDATED: () => any;
     MAX: (fieldName: any) => Promise<any>;
     MIN: (token: any, reverse: any) => Promise<any>;
     OBJECT: (_ids: any) => Promise<any>;
-    SET_SUBTRACTION: (a: any, b: any) => Promise<any>;
+    SET_SUBTRACTION: SET_SUBTRACTION;
     SORT: (results: any) => Promise<any>;
     UNION: UNION;
     parseToken: (token: import("./parseToken").Token) => Promise<import("./parseToken").TokenObject>;
 };
 declare namespace read {
-    export { KeyValueObject, RangeOptions, EXPORT, AlterToken, MatchObject, ResultObject, GET, UnionResultObject, UNION };
+    export { KeyValueObject, RangeOptions, EXPORT, AlterToken, MatchObject, QueryObject, GET, UnionQueryObject, UNION, INTERSECTION, SET_SUBTRACTION };
 }
 import tokenParser = require("./parseToken");
 /**
@@ -46,8 +46,10 @@ type EXPORT = (options?: RangeOptions) => Promise<KeyValueObject[]>;
 /**
  * Returns all object ids for objects that contain the given property, aggregated by object id.
  */
-type GET = (token: import("./parseToken").Token, pipeline?: AlterToken) => Promise<ResultObject[]>;
-type UNION = (token: import("./parseToken").Token, pipeline?: AlterToken) => Promise<UnionResultObject[]>;
+type GET = (token: import("./parseToken").Token, pipeline?: AlterToken) => Promise<QueryObject[]>;
+type INTERSECTION = (token: import("./parseToken").Token, pipeline?: AlterToken) => Promise<QueryObject[]>;
+type SET_SUBTRACTION = (a: import("./parseToken").Token, b: import("./parseToken").Token) => Promise<QueryObject[]>;
+type UNION = (token: import("./parseToken").Token, pipeline?: AlterToken) => Promise<UnionQueryObject>;
 type KeyValueObject = {
     key: any[];
     value: any;
@@ -62,11 +64,11 @@ type MatchObject = {
     VALUE: any;
     SCORE?: any;
 };
-type ResultObject = {
+type QueryObject = {
     _id: string;
     _matches: MatchObject[];
 };
-type UnionResultObject = {
+type UnionQueryObject = {
     sumTokensMinusStopwords: number;
-    union: ResultObject[];
+    union: QueryObject[];
 };
