@@ -1,18 +1,82 @@
-const tokenParser = require('./parseToken.js')
 const charwise = require('charwise')
 const { EntryStream } = require('level-read-stream')
+
+/**
+ * @typedef KeyValue
+ * @property {any[]} key
+ * @property {any} value
+ */
+
+/**
+ * @typedef {import("level-read-stream").ReadStreamOptions & import("abstract-level").AbstractIteratorOptions<any, any>} RangeOptions
+ */
+
+/**
+ * Exports the index
+ * @callback EXPORT
+ * @param {RangeOptions} [rangeOps]
+ * @returns {Promise<KeyValue[]>}
+ */
+
+/**
+ * Alters token
+ * @callback AlterToken
+ * @param {import("./parseToken").Token} token Input token
+ * @returns {Promise<import("./parseToken").Token>} Altered token
+ */
+
+/**
+ * @typedef FieldValue
+ * @property {string} FIELD
+ * @property {any} VALUE
+ * @property {any} [SCORE]
+ */
+
+/**
+ * @typedef QueryValue
+ * @property {string} _id
+ * @property {FieldValue[]} _matches
+ */
+
+/**
+ * Returns all object ids for objects that contain the given property, aggregated by object id.
+ * @callback GET
+ * @param {import("./parseToken").Token} token
+ * @param {AlterToken} [pipeline]
+ * @returns {Promise<QueryValue[]>}
+ */
+
+/**
+ * @typedef UnionValue
+ * @property {number} sumTokensMinusStopwords
+ * @property {QueryValue[]} union
+ */
+
+/**
+ * @callback UNION
+ * @param {import("./parseToken").Token} token
+ * @param {AlterToken} [pipeline]
+ * @returns {Promise<UnionValue[]>}
+ */
+
+const tokenParser = require('./parseToken.js')
 
 // polyfill- HI and LO coming in next version of charwise
 charwise.LO = null
 charwise.HI = undefined
 
-module.exports = ops => {
+const read = ops => {
   const isString = s => typeof s === 'string'
 
   // TODO: in order to account for query processing pipelines,
   // parseToken should probably be moved to search-index and fii
   // should only deal with nicely formatted query tokens (JSON
   // objects)
+  /**
+   * Turn key into json object that is of the format {FIELD: ..., VALUE: {GTE: ..., LTE ...}}
+   * @param {import("./parseToken").Token} token 
+   * @returns {Promise<import("./parseToken").Parsed>} `token` parsed into JSON object
+   */
   const parseToken = async token => tokenParser(token, await AVAILABLE_FIELDS())
 
   const queryReplace = token => {
@@ -55,10 +119,13 @@ module.exports = ops => {
   // If this token is a stopword then return 'undefined'
   const removeStopwords = token =>
     token.VALUE.GTE === token.VALUE.LTE &&
-    ops.stopwords.includes(token.VALUE.GTE)
+      ops.stopwords.includes(token.VALUE.GTE)
       ? undefined
       : token
 
+  /**
+   * @type {GET}
+   */
   const GET = async (
     token,
     pipeline = token => new Promise(resolve => resolve(token))
@@ -97,6 +164,9 @@ module.exports = ops => {
   }
 
   // OR
+  /**
+   * @type {UNION}
+   */
   const UNION = async (tokens, pipeline) =>
     Promise.all(tokens.map(token => GET(token, pipeline))).then(sets => {
       const setObject = sets.flat(Infinity).reduce((acc, cur) => {
@@ -257,6 +327,9 @@ module.exports = ops => {
     )
 
   // TODO: can this be replaced by RANGE?
+  /**
+   * @type {EXPORT}
+   */
   const getRange = rangeOps =>
     new Promise((resolve, reject) => {
       const keys = []
@@ -407,3 +480,5 @@ module.exports = ops => {
     parseToken: parseToken
   }
 }
+
+module.exports = read
