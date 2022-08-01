@@ -3,9 +3,9 @@ export = main;
  * Creates and intializes index
  * @param {FiiOptions} [ops] Options
  */
-declare function main(ops?: FiiOptions): Promise<any>;
+declare function main(ops?: FiiOptions): Promise<Fii>;
 declare namespace main {
-    export { AbstractLevelConstructor, FiiOptions };
+    export { AbstractLevelConstructor, FiiOptions, InitializedOptions, Fii };
 }
 /**
  * Fii options
@@ -43,4 +43,15 @@ type FiiOptions = {
      */
     docExistsSpace?: string;
 };
+type Fii = {
+    DELETE: import("./write").DELETE;
+    EXPORT: import("./read").EXPORT;
+    GET: import("./read").GET;
+    IMPORT: import("./write").IMPORT;
+    PUT: import("./write").PUT;
+    TIMESTAMP_LAST_UPDATED: import("./write").TIMESTAMP_LAST_UPDATED;
+};
 type AbstractLevelConstructor = new <K, V>(name: string, options?: import("abstract-level").AbstractDatabaseOptions<K, V>) => import("abstract-level/types/abstract-level.js").AbstractLevel<any, K, V>;
+type InitializedOptions = {
+    _db: import("abstract-level/types/abstract-level.js").AbstractLevel<any, string, string>;
+};

@@ -43,10 +43,14 @@ const flattenMatchArrayInResults = results =>
     })
 
 /**
+ * @typedef {{_db: import('abstract-level').AbstractLevel}} InitializedOptions
+ */
+
+/**
  * Initializes store
  * @template {FiiOptions} O FiiOptions
  * @param {O} [ops={}] Options
- * @returns {Promise<O & {_db: import('abstract-level').AbstractLevel}>}
+ * @returns {Promise<O & InitializedOptions}>
  */
 const initStore = (ops = {}) =>
   new Promise((resolve, reject) => {
@@ -73,7 +77,22 @@ const initStore = (ops = {}) =>
     )
   })
 
-const makeAFii = ops => {
+/**
+ * @typedef {Object} Fii
+ * @property {import("./write").DELETE} DELETE
+ * @property {import("./read").EXPORT} EXPORT
+ * @property {import("./read").GET} GET
+ * @property {import("./write").IMPORT} IMPORT
+ * @property {import("./write").PUT} PUT
+ * @property {import("./write").TIMESTAMP_LAST_UPDATED} TIMESTAMP_LAST_UPDATED
+ */
+
+/**
+ * Creates an inverted index
+ * @param {FiiOptions & InitializedOptions} [ops={}] Options
+ * @returns {Promise<Fii>}
+ */
+const makeAFii = async (ops) => {
   const r = read(ops)
   const w = write(ops)
 
