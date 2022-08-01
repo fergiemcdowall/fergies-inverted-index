@@ -1,7 +1,12 @@
 const fii = require('./main.js')
 const { BrowserLevel } = require('browser-level')
 
-module.exports = ops =>
+/**
+ * Browser Fii
+ * @param {import("./main").FiiOptions} [ops] Options
+ * @returns {Promise<import("./main").Fii>}
+ */
+const browser = ops =>
   fii(
     Object.assign(
       {
@@ -10,3 +15,5 @@ module.exports = ops =>
       ops
     )
   )
+
+module.exports = browser
