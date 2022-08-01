@@ -5,7 +5,8 @@ const charwise = require('charwise')
  */
 
 /**
- * @typedef {Object} FiiOptions Fii options
+ * Fii options
+ * @typedef {Object} FiiOptions
  * @property {string} [name="fii"] Name of database
  * @property {AbstractLevelConstructor} [db] Constructor of `class` extending [`abstract-level`](https://github.com/Level/abstract-level)
  * @property {string} [tokenAppend=""] Creates 'comment' spaces in tokens.
@@ -23,24 +24,24 @@ const charwise = require('charwise')
  */
 
 /**
- * Return ids of objects that are in one or more of the query clauses
+ * Returns objects that match one or more of the query clauses
  * @callback OR
- * @param {import("./parseToken").Token} token
- * @param {import("./read").AlterToken} [pipeline]
- * @returns {Promise<import("./read").QueryObject[]>}
+ * @param {import("./parseToken.js").Token[]} tokens
+ * @param {import("./read.js").AlterToken} [pipeline]
+ * @returns {Promise<import("./read.js").QueryObject[]>}
  */
 
 /**
  * @typedef {Object} Fii
- * @property {import("./read").INTERSECTION} AND
- * @property {import("./write").DELETE} DELETE
- * @property {import("./read").EXPORT} EXPORT
- * @property {import("./read").GET} GET
- * @property {import("./write").IMPORT} IMPORT
- * @property {import("./read").SET_SUBTRACTION} NOT
+ * @property {import("./read.js").INTERSECTION} AND
+ * @property {import("./write.js").DELETE} DELETE
+ * @property {import("./read.js").EXPORT} EXPORT
+ * @property {import("./read.js").GET} GET
+ * @property {import("./write.js").IMPORT} IMPORT
+ * @property {import("./read.js").SET_SUBTRACTION} NOT
  * @property {OR} OR
- * @property {import("./write").PUT} PUT
- * @property {import("./write").TIMESTAMP_LAST_UPDATED} TIMESTAMP_LAST_UPDATED
+ * @property {import("./write.js").PUT} PUT
+ * @property {import("./write.js").TIMESTAMP_LAST_UPDATED} TIMESTAMP_LAST_UPDATED
  */
 
 const read = require('./read.js')
@@ -48,6 +49,11 @@ const write = require('./write.js')
 
 // _match is nested by default so that AND and OR work correctly under
 // the bonnet. Flatten array before presenting to consumer
+/**
+ * 
+ * @param {import("./read.js").QueryObject[]} [results] 
+ * @returns {import("./read.js").QueryObject[]} Flattened and sorted results
+ */
 const flattenMatchArrayInResults = results =>
   typeof results === 'undefined'
     ? undefined
@@ -121,8 +127,8 @@ const makeAFii = async (ops) => {
     EXPORT: r.EXPORT,
     FACETS: r.FACETS,
     FIELDS: r.FIELDS,
-    GET: (tokens, pipeline) =>
-      r.GET(tokens, pipeline).then(flattenMatchArrayInResults),
+    GET: (token, pipeline) =>
+      r.GET(token, pipeline).then(flattenMatchArrayInResults),
     IMPORT: w.IMPORT,
     LAST_UPDATED: r.LAST_UPDATED,
     MAX: r.MAX,

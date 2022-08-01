@@ -44,21 +44,21 @@ type FiiOptions = {
     docExistsSpace?: string;
 };
 type Fii = {
-    AND: import("./read").INTERSECTION;
-    DELETE: import("./write").DELETE;
-    EXPORT: import("./read").EXPORT;
-    GET: import("./read").GET;
-    IMPORT: import("./write").IMPORT;
-    NOT: import("./read").SET_SUBTRACTION;
+    AND: import("./read.js").INTERSECTION;
+    DELETE: import("./write.js").DELETE;
+    EXPORT: import("./read.js").EXPORT;
+    GET: import("./read.js").GET;
+    IMPORT: import("./write.js").IMPORT;
+    NOT: import("./read.js").SET_SUBTRACTION;
     OR: OR;
-    PUT: import("./write").PUT;
-    TIMESTAMP_LAST_UPDATED: import("./write").TIMESTAMP_LAST_UPDATED;
+    PUT: import("./write.js").PUT;
+    TIMESTAMP_LAST_UPDATED: import("./write.js").TIMESTAMP_LAST_UPDATED;
 };
-type AbstractLevelConstructor = new <K, V>(name: string, options?: import("abstract-level").AbstractDatabaseOptions<K, V>) => import("abstract-level/types/abstract-level").AbstractLevel<any, K, V>;
+type AbstractLevelConstructor = new <K, V>(name: string, options?: import("abstract-level").AbstractDatabaseOptions<K, V>) => import("abstract-level/types/abstract-level.js").AbstractLevel<any, K, V>;
 type InitializedOptions = {
-    _db: import("abstract-level/types/abstract-level").AbstractLevel<any, string, string>;
+    _db: import("abstract-level/types/abstract-level.js").AbstractLevel<any, string, string>;
 };
 /**
- * Return ids of objects that are in one or more of the query clauses
+ * Returns objects that match one or more of the query clauses
  */
-type OR = (token: import("./parseToken").Token, pipeline?: import("./read").AlterToken) => Promise<import("./read").QueryObject[]>;
+type OR = (tokens: import("./parseToken.js").Token[], pipeline?: import("./read.js").AlterToken) => Promise<import("./read.js").QueryObject[]>;

@@ -1,8 +1,8 @@
 export = write;
 /**
- * @param {import("./main").FiiOptions & import("./main").InitializedOptions } ops
+ * @param {import("./main.js").FiiOptions & import("./main.js").InitializedOptions } ops
  */
-declare function write(ops: import("./main").FiiOptions & import("./main").InitializedOptions): {
+declare function write(ops: import("./main.js").FiiOptions & import("./main.js").InitializedOptions): {
     DELETE: DELETE;
     IMPORT: IMPORT;
     PUT: PUT;
@@ -19,7 +19,7 @@ type DELETE = (ids: any[]) => Promise<OperationObject[]>;
 /**
  * Imports in an exported index
  */
-type IMPORT = (index: import("./read").KeyValueObject[]) => Promise<void>;
+type IMPORT = (index: import("./read.js").KeyValueObject[]) => Promise<void>;
 /**
  * Adds documents to index
  */

@@ -2,7 +2,7 @@ const charwise = require('charwise')
 const { EntryStream } = require('level-read-stream')
 
 /**
- * @typedef KeyValueObject
+ * @typedef {Object} KeyValueObject
  * @property {any[]} key
  * @property {any} value
  */
@@ -21,55 +21,58 @@ const { EntryStream } = require('level-read-stream')
 /**
  * Alters token
  * @callback AlterToken
- * @param {import("./parseToken").Token} token Input token
- * @returns {Promise<import("./parseToken").Token>} Altered token
+ * @param {import("./parseToken.js").Token} token Input token
+ * @returns {Promise<import("./parseToken.js").Token>} Altered token
  */
 
 /**
- * @typedef MatchObject
+ * @typedef {Object} MatchObject
  * @property {string} FIELD
  * @property {any} VALUE
  * @property {any} [SCORE]
  */
 
 /**
- * @typedef QueryObject
- * @property {string} _id
- * @property {MatchObject[]} _matches
+ * @typedef {Object} QueryObject
+ * @property {any} _id
+ * @property {MatchObject[]} _match
  */
 
 /**
- * Returns all object ids for objects that contain the given property, aggregated by object id.
+ * Returns all objects that match the query clause
  * @callback GET
- * @param {import("./parseToken").Token} token
+ * @param {import("./parseToken.js").Token} token
  * @param {AlterToken} [pipeline]
  * @returns {Promise<QueryObject[]>}
  */
 
 /**
- * @typedef UnionQueryObject
+ * @typedef {Object} UnionQueryObject
  * @property {number} sumTokensMinusStopwords
  * @property {QueryObject[]} union
  */
 
 /**
+ * Returns objects that match one or more of the query clauses
  * @callback UNION
- * @param {import("./parseToken").Token} token
+ * @param {import("./parseToken.js").Token[]} tokens
  * @param {AlterToken} [pipeline]
  * @returns {Promise<UnionQueryObject>}
  */
 
 /**
+ * Returns objects that match every clause in the query
  * @callback INTERSECTION
- * @param {import("./parseToken").Token} token
+ * @param {import("./parseToken.js").Token[]} tokens
  * @param {AlterToken} [pipeline]
  * @returns {Promise<QueryObject[]>}
  */
 
 /**
+ * Returns objects that are present in A, but not in B
  * @callback SET_SUBTRACTION
- * @param {import("./parseToken").Token} a
- * @param {import("./parseToken").Token} b
+ * @param {import("./parseToken.js").Token} a
+ * @param {import("./parseToken.js").Token} b
  * @returns {Promise<QueryObject[]>}
  */
 
@@ -79,6 +82,9 @@ const tokenParser = require('./parseToken.js')
 charwise.LO = null
 charwise.HI = undefined
 
+/**
+ * @param {import("./main.js").FiiOptions & import("./main.js").InitializedOptions } ops
+ */
 const read = ops => {
   const isString = s => typeof s === 'string'
 
@@ -88,8 +94,8 @@ const read = ops => {
   // objects)
   /**
    * Turn key into json object that is of the format {FIELD: ..., VALUE: {GTE: ..., LTE ...}}
-   * @param {import("./parseToken").Token} token 
-   * @returns {Promise<import("./parseToken").TokenObject>} `token` parsed into JSON object
+   * @param {import("./parseToken.js").Token} token
+   * @returns {Promise<import("./parseToken.js").TokenObject>} `token` parsed into JSON object
    */
   const parseToken = async token => tokenParser(token, await AVAILABLE_FIELDS())
 

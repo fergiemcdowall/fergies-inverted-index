@@ -1,21 +1,21 @@
 /**
- * @typedef AND
+ * @typedef {Object} AND
  * @property {Token[]} AND
  */
 
 /**
- * @typedef NOT
+ * @typedef {Object} NOT
  * @property {Token} INCLUDE
  * @property {Token} EXCLUDE
  */
 
 /**
- * @typedef OR
+ * @typedef {Object} OR
  * @property {Token[]} OR
  */
 
 /**
- * @typedef SEARCH
+ * @typedef {Object} SEARCH
  * @property {Token[]} SEARCH
  */
 
@@ -28,13 +28,13 @@
  */
 
 /**
- * @typedef RangeObject
+ * @typedef {Object} RangeObject
  * @property {string | number} GTE
  * @property {string | number} LTE
  */
 
 /**
- * @typedef FieldValueObject
+ * @typedef {Object} FieldValueObject
  * @property {Field} FIELD
  * @property {string | RangeObject} [VALUE]
  */
@@ -44,7 +44,7 @@
  */
 
 /**
- * @typedef TokenObject
+ * @typedef {Object} TokenObject
  * @property {Field} FIELD
  * @property {RangeObject} VALUE
  */
@@ -56,8 +56,8 @@ charwise.HI = undefined
 
 /**
  * Turns `key` into JSON object that is of the format `{FIELD: ..., VALUE: {GTE: ..., LTE ...}}`
- * @param {Token} token 
- * @param {string[]} [availableFields] 
+ * @param {Token} token
+ * @param {string[]} [availableFields]
  * @returns {Promise<TokenObject>} `token` parsed into JSON object
  */
 const parseToken = (token, availableFields) =>

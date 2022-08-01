@@ -17,7 +17,7 @@ const trav = require('traverse')
 /**
  * Imports in an exported index
  * @callback IMPORT
- * @param {import("./read").KeyValueObject[]} index Index to import
+ * @param {import("./read.js").KeyValueObject[]} index Index to import
  * @returns {Promise<void>}
  */
 
@@ -54,7 +54,7 @@ const trav = require('traverse')
 const reader = require('./read.js')
 
 /**
- * @param {import("./main").FiiOptions & import("./main").InitializedOptions } ops
+ * @param {import("./main.js").FiiOptions & import("./main.js").InitializedOptions } ops
  */
 const write = ops => {
   // TODO: set reset this to the max value every time the DB is restarted

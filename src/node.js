@@ -3,7 +3,7 @@ const { ClassicLevel } = require('classic-level')
 
 /**
  * Creates an inverted index using [`ClassicLevel`](https://github.com/Level/classic-level)
- * @param {import("./main").FiiOptions} [ops] Options
+ * @param {import("./main.js").FiiOptions} [ops] Options
  * @returns {Promise<import("./main").Fii>}
  */
 const node = ops =>

@@ -1,5 +1,8 @@
 export = read;
-declare function read(ops: any): {
+/**
+ * @param {import("./main.js").FiiOptions & import("./main.js").InitializedOptions } ops
+ */
+declare function read(ops: import("./main.js").FiiOptions & import("./main.js").InitializedOptions): {
     AGGREGATE: ({ BUCKETS, FACETS, QUERY }: {
         BUCKETS: any;
         FACETS: any;
@@ -44,12 +47,24 @@ import tokenParser = require("./parseToken");
  */
 type EXPORT = (options?: RangeOptions) => Promise<KeyValueObject[]>;
 /**
- * Returns all object ids for objects that contain the given property, aggregated by object id.
+/**
+ * Returns all objects that match the query clause
  */
-type GET = (token: import("./parseToken").Token, pipeline?: AlterToken) => Promise<QueryObject[]>;
-type INTERSECTION = (token: import("./parseToken").Token, pipeline?: AlterToken) => Promise<QueryObject[]>;
-type SET_SUBTRACTION = (a: import("./parseToken").Token, b: import("./parseToken").Token) => Promise<QueryObject[]>;
-type UNION = (token: import("./parseToken").Token, pipeline?: AlterToken) => Promise<UnionQueryObject>;
+type GET = (token: import("./parseToken.js").Token, pipeline?: AlterToken) => Promise<QueryObject[]>;
+/**
+ * Returns objects that match every clause in the query
+ */
+type INTERSECTION = (tokens: import("./parseToken.js").Token[], pipeline?: AlterToken) => Promise<QueryObject[]>;
+/**
+ */
+/**
+ * Returns objects that are present in A, but not in B
+ */
+type SET_SUBTRACTION = (a: import("./parseToken.js").Token, b: import("./parseToken.js").Token) => Promise<QueryObject[]>;
+/**
+ * Returns objects that match one or more of the query clauses
+ */
+type UNION = (tokens: import("./parseToken.js").Token[], pipeline?: AlterToken) => Promise<UnionQueryObject>;
 type KeyValueObject = {
     key: any[];
     value: any;
@@ -58,15 +73,15 @@ type RangeOptions = import("level-read-stream").ReadStreamOptions & import("abst
 /**
  * Alters token
  */
-type AlterToken = (token: import("./parseToken").Token) => Promise<import("./parseToken").Token>;
+type AlterToken = (token: import("./parseToken.js").Token) => Promise<import("./parseToken.js").Token>;
 type MatchObject = {
     FIELD: string;
     VALUE: any;
     SCORE?: any;
 };
 type QueryObject = {
-    _id: string;
-    _matches: MatchObject[];
+    _id: any;
+    _match: MatchObject[];
 };
 type UnionQueryObject = {
     sumTokensMinusStopwords: number;
