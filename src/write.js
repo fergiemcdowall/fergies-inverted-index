@@ -15,9 +15,9 @@ const trav = require('traverse')
  */
 
 /**
- * Reads in an exported index
+ * Imports in an exported index
  * @callback IMPORT
- * @param {import("./read").KeyValueObject[]} index Index to import
+ * @param {import("./read").KeyValue[]} index Index to import
  * @returns {Promise<void>}
  */
 

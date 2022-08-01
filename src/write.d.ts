@@ -17,9 +17,9 @@ declare namespace write {
  */
 type DELETE = (ids: any[]) => Promise<Operation[]>;
 /**
- * Reads in an exported index
+ * Imports in an exported index
  */
-type IMPORT = (index: import("./read").KeyValueObject[]) => Promise<void>;
+type IMPORT = (index: import("./read").KeyValue[]) => Promise<void>;
 /**
  * Adds documents to index
  */
