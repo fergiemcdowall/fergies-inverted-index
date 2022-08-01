@@ -33,7 +33,7 @@ const charwise = require('charwise')
 
 /**
  * @typedef {Object} Fii
- * @property {import("./read.js").INTERSECTION} AND
+ * @property {import("./read.js").AND} AND
  * @property {import("./read.js").BUCKET} BUCKET
  * @property {import("./read.js").BUCKETS} BUCKETS
  * @property {import("./read.js").CREATED} CREATED
@@ -43,7 +43,10 @@ const charwise = require('charwise')
  * @property {import("./read.js").GET} GET
  * @property {import("./write.js").IMPORT} IMPORT
  * @property {import("./read.js").LAST_UPDATED} LAST_UPDATED
- * @property {import("./read.js").SET_SUBTRACTION} NOT
+ * @property {import("./read.js").MAX} MAX
+ * @property {import("./read.js").MIN} MIN
+ * @property {import("./read.js").NOT} NOT
+ * @property {import("./read.js").OBJECT} OBJECT
  * @property {OR} OR
  * @property {import("./write.js").PUT} PUT
  * @property {import("./write.js").TIMESTAMP_LAST_UPDATED} TIMESTAMP_LAST_UPDATED

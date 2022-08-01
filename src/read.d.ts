@@ -20,20 +20,20 @@ declare function read(ops: import("./main.js").FiiOptions & import("./main.js").
     EXIST: EXIST;
     EXPORT: EXPORT;
     FACETS: (...tokens: any[]) => Promise<any[]>;
-    FIELDS: AVAILABLE_FIELDS;
+    FIELDS: FIELDS;
     GET: GET;
-    INTERSECTION: INTERSECTION;
+    INTERSECTION: AND;
     LAST_UPDATED: LAST_UPDATED;
-    MAX: (fieldName: any) => Promise<any>;
-    MIN: (token: any, reverse: any) => Promise<any>;
-    OBJECT: (_ids: any) => Promise<any>;
-    SET_SUBTRACTION: SET_SUBTRACTION;
+    MAX: MAX;
+    MIN: MIN;
+    OBJECT: OBJECT;
+    SET_SUBTRACTION: NOT;
     SORT: (results: any) => Promise<any>;
     UNION: UNION;
     parseToken: (token: import("./parseToken.js").Token) => Promise<import("./parseToken.js").TokenObject>;
 };
 declare namespace read {
-    export { KeyValueObject, RangeOptions, EXPORT, AlterToken, MatchObject, QueryObject, GET, UnionQueryObject, UNION, INTERSECTION, SET_SUBTRACTION, AVAILABLE_FIELDS, CREATED, LAST_UPDATED, EXIST, BucketObject, BUCKET, BUCKETS };
+    export { KeyValueObject, RangeOptions, EXPORT, AlterToken, MatchObject, QueryObject, GET, UnionQueryObject, UNION, AND, NOT, FIELDS, CREATED, LAST_UPDATED, EXIST, BucketObject, BUCKET, BUCKETS, IDObject, ObjectObject, OBJECT, MAX, MIN };
 }
 type BUCKET = (token: import("./parseToken.js").Token) => Promise<BucketObject>;
 type BUCKETS = (...tokens: import("./parseToken.js").Token[]) => Promise<BucketObject[]>;
@@ -52,7 +52,7 @@ type EXPORT = (options?: RangeOptions) => Promise<KeyValueObject[]>;
 /**
  * Returns array of available fields in the index
  */
-type AVAILABLE_FIELDS = () => Promise<string[]>;
+type FIELDS = () => Promise<string[]>;
 /**
  * Returns all objects that match the query clause
  */
@@ -60,15 +60,21 @@ type GET = (token: import("./parseToken.js").Token, pipeline?: AlterToken) => Pr
 /**
  * Returns objects that match every clause in the query
  */
-type INTERSECTION = (tokens: import("./parseToken.js").Token[], pipeline?: AlterToken) => Promise<QueryObject[]>;
+type AND = (tokens: import("./parseToken.js").Token[], pipeline?: AlterToken) => Promise<QueryObject[]>;
 /**
  * Returns a timestamp indicating when the index was last updated
  */
 type LAST_UPDATED = () => Promise<number | undefined>;
+type MAX = (token: import("./parseToken").Token) => Promise<number>;
+type MIN = (token: import("./parseToken").Token, reverse: boolean) => Promise<number>;
+/**
+ * Extends object with document data
+ */
+type OBJECT = (ids: IDObject[]) => Promise<ObjectObject[]>;
 /**
  * Returns objects that are present in A, but not in B
  */
-type SET_SUBTRACTION = (a: import("./parseToken.js").Token, b: import("./parseToken.js").Token) => Promise<QueryObject[]>;
+type NOT = (a: import("./parseToken.js").Token, b: import("./parseToken.js").Token) => Promise<QueryObject[]>;
 /**
  * Returns objects that match one or more of the query clauses
  */
@@ -98,4 +104,11 @@ type UnionQueryObject = {
 type BucketObject = {
     _id: any[];
     VALUE: import("./parseToken.js").RangeObject;
+};
+type IDObject = {
+    _id: any;
+};
+type ObjectObject = {
+    _id: any;
+    _object: IDObject;
 };

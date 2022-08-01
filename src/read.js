@@ -62,7 +62,7 @@ const { EntryStream } = require('level-read-stream')
 
 /**
  * Returns objects that match every clause in the query
- * @callback INTERSECTION
+ * @callback AND
  * @param {import("./parseToken.js").Token[]} tokens
  * @param {AlterToken} [pipeline]
  * @returns {Promise<QueryObject[]>}
@@ -70,7 +70,7 @@ const { EntryStream } = require('level-read-stream')
 
 /**
  * Returns objects that are present in A, but not in B
- * @callback SET_SUBTRACTION
+ * @callback NOT
  * @param {import("./parseToken.js").Token} a
  * @param {import("./parseToken.js").Token} b
  * @returns {Promise<QueryObject[]>}
@@ -78,7 +78,7 @@ const { EntryStream } = require('level-read-stream')
 
 /**
  * Returns array of available fields in the index
- * @callback AVAILABLE_FIELDS
+ * @callback FIELDS
  * @returns {Promise<string[]>}
  */
 
@@ -118,6 +118,38 @@ const { EntryStream } = require('level-read-stream')
  * @param {...import("./parseToken.js").Token} tokens 
  * @returns {Promise<BucketObject[]>}
  */
+
+/**
+ * @typedef {Object} IDObject
+ * @property {any} _id
+ */
+
+/**
+ * @typedef {Object} ObjectObject
+ * @property {any} _id
+ * @property {IDObject} _object 
+ */
+
+/**
+ * Extends object with document data
+ * @callback OBJECT
+ * @param {IDObject[]} ids
+ * @returns {Promise<ObjectObject[]>}
+ */
+
+/**
+ * @callback MAX
+ * @param {import("./parseToken").Token} token 
+ * @returns {Promise<number>}
+ */
+
+/**
+ * @callback MIN
+ * @param {import("./parseToken").Token} token 
+ * @param {boolean} reverse 
+ * @returns {Promise<number>}
+ */
+
 
 const tokenParser = require('./parseToken.js')
 
@@ -246,9 +278,8 @@ const read = ops => {
       }
     })
 
-  // AND
   /**
-   * @type {INTERSECTION}
+   * @type {AND}
    */
   const INTERSECTION = (tokens, pipeline) =>
     UNION(tokens, pipeline).then(result =>
@@ -257,9 +288,8 @@ const read = ops => {
       )
     )
 
-  // NOT (set a minus set b)
   /**
-   * @type {SET_SUBTRACTION}
+   * @type {NOT}
    */
   const SET_SUBTRACTION = (a, b) =>
     Promise.all([isString(a) ? GET(a) : a, isString(b) ? GET(b) : b]).then(
@@ -330,7 +360,7 @@ const read = ops => {
     })
 
   /**
-   * @type {AVAILABLE_FIELDS}
+   * @type {FIELDS}
    */
   const AVAILABLE_FIELDS = () =>
     new Promise(resolve => {
@@ -413,6 +443,9 @@ const read = ops => {
       )
     )
 
+  /**
+   * @type {OBJECT}
+   */
   const OBJECT = _ids =>
     Promise.all(
       _ids.map(id => ops._db.get(['DOC', id._id]).catch(reason => null))
@@ -437,8 +470,14 @@ const read = ops => {
         .on('end', () => resolve(keys))
     })
 
+  /**
+   * @type {MAX}
+   */
   const MAX = fieldName => BOUNDING_VALUE(fieldName, true)
 
+  /**
+   * @type {MIN}
+   */
   const BOUNDING_VALUE = (token, reverse) =>
     parseToken(token)
       .then(token =>

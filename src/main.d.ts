@@ -44,7 +44,7 @@ type FiiOptions = {
     docExistsSpace?: string;
 };
 type Fii = {
-    AND: import("./read.js").INTERSECTION;
+    AND: import("./read.js").AND;
     BUCKET: import("./read.js").BUCKET;
     BUCKETS: import("./read.js").BUCKETS;
     CREATED: import("./read.js").CREATED;
@@ -54,7 +54,10 @@ type Fii = {
     GET: import("./read.js").GET;
     IMPORT: import("./write.js").IMPORT;
     LAST_UPDATED: import("./read.js").LAST_UPDATED;
-    NOT: import("./read.js").SET_SUBTRACTION;
+    MAX: import("./read.js").MAX;
+    MIN: import("./read.js").MIN;
+    NOT: import("./read.js").NOT;
+    OBJECT: import("./read.js").OBJECT;
     OR: OR;
     PUT: import("./write.js").PUT;
     TIMESTAMP_LAST_UPDATED: import("./write.js").TIMESTAMP_LAST_UPDATED;
