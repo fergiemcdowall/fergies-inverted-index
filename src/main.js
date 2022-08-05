@@ -33,6 +33,8 @@ const charwise = require('charwise')
 
 /**
  * @typedef {Object} Fii
+ * @property {import("./read.js").AGGREGATION_FILTER} AGGREGATION_FILTER
+ * @property {import("./read.js").AGGREGATE} AGGREGATE
  * @property {import("./read.js").AND} AND
  * @property {import("./read.js").BUCKET} BUCKET
  * @property {import("./read.js").BUCKETS} BUCKETS

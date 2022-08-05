@@ -104,6 +104,7 @@ const { EntryStream } = require('level-read-stream')
 /**
  * @typedef {Object} BucketObject
  * @property {any[]} _id
+ * @property {string[]} FIELD
  * @property {import("./parseToken.js").RangeObject} VALUE
  */
 
@@ -153,16 +154,22 @@ const { EntryStream } = require('level-read-stream')
  */
 
 /**
+ * @typedef {Object} DistinctObject
+ * @property {string} FIELD
+ * @property {any} VALUE
+ */
+
+/**
  * Returns every object in the db that is greater than equal to GTE and less than or equal to LTE (sorted alphabetically)
  * @callback DISTINCT
  * @param  {...import("./parseToken.js").Token} tokens 
- * @returns {Promise<KeyValueObject[]>}
+ * @returns {Promise<DistinctObject[]>}
  */
 
 /**
  * @typedef {Object} FacetObject
  * @property {any[]} _id
- * @property {any} KEY
+ * @property {string} FIELD
  * @property {any} VALUE
  */
 
@@ -180,6 +187,33 @@ const { EntryStream } = require('level-read-stream')
  * @returns {Promise<IDObject[]>}
  */
 
+/**
+ * The aggregation (either FACETS or BUCKETS) is filtered by the query
+ * @callback AGGREGATION_FILTER
+ * @param {FacetObject|BucketObject} aggregation 
+ * @param {IDObject[]} filterSet
+ * @returns {Promise<FacetObject[]|BucketObject[]>}
+ */
+
+/**
+ * @typedef {Object} AggregateOptions
+ * @property {Promise<BucketObject[]>|BucketObject[]} [BUCKETS]
+ * @property {Promise<FacetObject[]>|FacetObject[]} [FACETS]
+ * @property {Promise<IDObject[]>|IDObject[]} [QUERY]
+ */
+
+/**
+ * @typedef {Object} AggregateObject
+ * @property {Promise<BucketObject[]} BUCKETS
+ * @property {Promise<FacetObject[]} FACETS
+ * @property {Promise<IDObject[]} RESULT
+ */
+
+/**
+ * @callback AGGREGATE
+ * @param {AggregateOptions} options Aggregate params
+ * @returns {Promise<AggregateObject>}
+ */
 const tokenParser = require('./parseToken.js')
 
 // polyfill- HI and LO coming in next version of charwise
@@ -427,8 +461,9 @@ const read = ops => {
       }, [])
     )
 
-  // Given the results of an aggregation and the results of a query,
-  // return the filtered aggregation
+  /**
+   * @type {AGGREGATION_FILTER}
+   */
   const AGGREGATION_FILTER = (aggregation, filterSet) => {
     if (!filterSet || filterSet.length === 0) return aggregation
     filterSet = new Set(filterSet.map(item => item._id))
@@ -439,6 +474,9 @@ const read = ops => {
     )
   }
 
+  /**
+   * @type {AGGREGATE}
+   */
   const AGGREGATE = ({ BUCKETS, FACETS, QUERY }) =>
     Promise.all([BUCKETS, FACETS, QUERY]).then(
       ([bucketsResult = [], facetsResult = [], queryResult = []]) => ({

@@ -44,6 +44,8 @@ type FiiOptions = {
     docExistsSpace?: string;
 };
 type Fii = {
+    AGGREGATION_FILTER: import("./read.js").AGGREGATION_FILTER;
+    AGGREGATE: import("./read.js").AGGREGATE;
     AND: import("./read.js").AND;
     BUCKET: import("./read.js").BUCKET;
     BUCKETS: import("./read.js").BUCKETS;

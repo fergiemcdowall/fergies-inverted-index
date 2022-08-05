@@ -3,16 +3,8 @@ export = read;
  * @param {import("./main.js").FiiOptions & import("./main.js").InitializedOptions } ops
  */
 declare function read(ops: import("./main.js").FiiOptions & import("./main.js").InitializedOptions): {
-    AGGREGATE: ({ BUCKETS, FACETS, QUERY }: {
-        BUCKETS: any;
-        FACETS: any;
-        QUERY: any;
-    }) => Promise<{
-        BUCKETS: any;
-        FACETS: any;
-        RESULT: any;
-    }>;
-    AGGREGATION_FILTER: (aggregation: any, filterSet: any) => any;
+    AGGREGATE: AGGREGATE;
+    AGGREGATION_FILTER: AGGREGATION_FILTER;
     BUCKET: BUCKET;
     BUCKETS: BUCKETS;
     CREATED: CREATED;
@@ -33,8 +25,13 @@ declare function read(ops: import("./main.js").FiiOptions & import("./main.js").
     parseToken: (token: import("./parseToken.js").Token) => Promise<import("./parseToken.js").TokenObject>;
 };
 declare namespace read {
-    export { KeyValueObject, RangeOptions, EXPORT, AlterToken, MatchObject, QueryObject, GET, UnionQueryObject, OR, AND, NOT, FIELDS, CREATED, LAST_UPDATED, EXIST, BucketObject, BUCKET, BUCKETS, IDObject, ObjectObject, OBJECT, MAX, MIN, DISTINCT, FacetObject, FACETS, SORT };
+    export { KeyValueObject, RangeOptions, EXPORT, AlterToken, MatchObject, QueryObject, GET, UnionQueryObject, OR, AND, NOT, FIELDS, CREATED, LAST_UPDATED, EXIST, BucketObject, BUCKET, BUCKETS, IDObject, ObjectObject, OBJECT, MAX, MIN, DistinctObject, DISTINCT, FacetObject, FACETS, SORT, AGGREGATION_FILTER, AggregateOptions, AggregateObject, AGGREGATE };
 }
+type AGGREGATE = (options: AggregateOptions) => Promise<AggregateObject>;
+/**
+ * The aggregation (either FACETS or BUCKETS) is filtered by the query
+ */
+type AGGREGATION_FILTER = (aggregation: FacetObject | BucketObject, filterSet: IDObject[]) => Promise<FacetObject[] | BucketObject[]>;
 type BUCKET = (token: import("./parseToken.js").Token) => Promise<BucketObject>;
 type BUCKETS = (...tokens: import("./parseToken.js").Token[]) => Promise<BucketObject[]>;
 /**
@@ -44,7 +41,7 @@ type CREATED = () => Promise<number | undefined>;
 /**
  * Returns every object in the db that is greater than equal to GTE and less than or equal to LTE (sorted alphabetically)
  */
-type DISTINCT = (...tokens: import("./parseToken.js").Token[]) => Promise<KeyValueObject[]>;
+type DISTINCT = (...tokens: import("./parseToken.js").Token[]) => Promise<DistinctObject[]>;
 /**
  * Indicates whether documents with the given ids exist in the index
  */
@@ -121,6 +118,7 @@ type UnionQueryObject = {
 };
 type BucketObject = {
     _id: any[];
+    FIELD: string[];
     VALUE: import("./parseToken.js").RangeObject;
 };
 type IDObject = {
@@ -130,8 +128,22 @@ type ObjectObject = {
     _id: any;
     _object: IDObject;
 };
+type DistinctObject = {
+    FIELD: string;
+    VALUE: any;
+};
 type FacetObject = {
     _id: any[];
-    KEY: any;
+    FIELD: string;
     VALUE: any;
+};
+type AggregateOptions = {
+    BUCKETS?: Promise<BucketObject[]> | BucketObject[];
+    FACETS?: Promise<FacetObject[]> | FacetObject[];
+    QUERY?: Promise<IDObject[]> | IDObject[];
+};
+type AggregateObject = {
+    BUCKETS: Promise<BucketObject[]>;
+    FACETS: Promise<FacetObject[]>;
+    RESULT: Promise<IDObject[]>;
 };
