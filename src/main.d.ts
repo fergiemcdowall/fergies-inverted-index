@@ -49,8 +49,11 @@ type Fii = {
     BUCKETS: import("./read.js").BUCKETS;
     CREATED: import("./read.js").CREATED;
     DELETE: import("./write.js").DELETE;
+    DISTINCT: import("./read.js").DISTINCT;
     EXIST: import("./read.js").EXIST;
     EXPORT: import("./read.js").EXPORT;
+    FACETS: import("./read.js").FACETS;
+    FIELDS: import("./read.js").FIELDS;
     GET: import("./read.js").GET;
     IMPORT: import("./write.js").IMPORT;
     LAST_UPDATED: import("./read.js").LAST_UPDATED;
@@ -60,7 +63,10 @@ type Fii = {
     OBJECT: import("./read.js").OBJECT;
     OR: OR;
     PUT: import("./write.js").PUT;
+    SORT: import("./read.js").SORT;
+    STORE: import("abstract-level/types/abstract-level.js").AbstractLevel<any, string, string>;
     TIMESTAMP_LAST_UPDATED: import("./write.js").TIMESTAMP_LAST_UPDATED;
+    parseToken: import("./parseToken.js").PARSE;
 };
 type AbstractLevelConstructor = new <K, V>(name: string, options?: import("abstract-level").AbstractDatabaseOptions<K, V>) => import("abstract-level/types/abstract-level.js").AbstractLevel<any, K, V>;
 type InitializedOptions = {

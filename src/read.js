@@ -54,7 +54,7 @@ const { EntryStream } = require('level-read-stream')
 
 /**
  * Returns objects that match one or more of the query clauses
- * @callback UNION
+ * @callback OR
  * @param {import("./parseToken.js").Token[]} tokens
  * @param {AlterToken} [pipeline]
  * @returns {Promise<UnionQueryObject>}
@@ -138,18 +138,47 @@ const { EntryStream } = require('level-read-stream')
  */
 
 /**
+ * Get the highest alphabetical value in a given token
  * @callback MAX
  * @param {import("./parseToken").Token} token 
  * @returns {Promise<number>}
  */
 
 /**
+ * Get the lowest alphabetical value in a given token
  * @callback MIN
  * @param {import("./parseToken").Token} token 
  * @param {boolean} reverse 
  * @returns {Promise<number>}
  */
 
+/**
+ * Returns every object in the db that is greater than equal to GTE and less than or equal to LTE (sorted alphabetically)
+ * @callback DISTINCT
+ * @param  {...import("./parseToken.js").Token} tokens 
+ * @returns {Promise<KeyValueObject[]>}
+ */
+
+/**
+ * @typedef {Object} FacetObject
+ * @property {any[]} _id
+ * @property {any} KEY
+ * @property {any} VALUE
+ */
+
+/**
+ * Creates an aggregation for each value in the given range.
+ * @callback FACETS
+ * @param  {...import("./parseToken.js").Token} tokens 
+ * @returns {Promise<FacetObject[]>}
+ */
+
+/**
+ * Sorts results by `_id`
+ * @callback SORT
+ * @param {IDObject[]} results 
+ * @returns {Promise<IDObject[]>}
+ */
 
 const tokenParser = require('./parseToken.js')
 
@@ -260,7 +289,7 @@ const read = ops => {
 
   // OR
   /**
-   * @type {UNION}
+   * @type {OR}
    */
   const UNION = async (tokens, pipeline) =>
     Promise.all(tokens.map(token => GET(token, pipeline))).then(sets => {
@@ -493,6 +522,9 @@ const read = ops => {
       )
 
   // TODO remove if DISTINCT is no longer used
+  /**
+   * @type {DISTINCT}
+   */
   const DISTINCT = (...tokens) =>
     Promise.all(
       // if no tokens specified then get everything ('{}')
@@ -540,6 +572,9 @@ const read = ops => {
       )
       .then(result => result.flat())
 
+  /**
+   * @type {FACETS}
+   */
   const FACETS = (...tokens) =>
     Promise.all(
       // if no tokens specified then get everything ('{}')
@@ -582,6 +617,9 @@ const read = ops => {
     sensitivity: 'base'
   })
 
+  /**
+   * @type {SORT}
+   */
   const SORT = results =>
     new Promise(resolve =>
       resolve(results.sort((a, b) => collator.compare(a._id, b._id)))

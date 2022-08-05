@@ -49,16 +49,21 @@
  * @property {RangeObject} VALUE
  */
 
+/**
+ * Turns `key` into JSON object that is of the format `{FIELD: ..., VALUE: {GTE: ..., LTE ...}}`
+ * @callback PARSE
+ * @param {Token} token
+ * @param {string[]} [availableFields]
+ * @returns {Promise<TokenObject>} `token` parsed into JSON object
+ */
+
 // polyfill- HI and LO coming in next version of charwise
 const charwise = {}
 charwise.LO = null
 charwise.HI = undefined
 
 /**
- * Turns `key` into JSON object that is of the format `{FIELD: ..., VALUE: {GTE: ..., LTE ...}}`
- * @param {Token} token
- * @param {string[]} [availableFields]
- * @returns {Promise<TokenObject>} `token` parsed into JSON object
+ * @type {PARSE}
  */
 const parseToken = (token, availableFields) =>
   new Promise((resolve, reject) => {

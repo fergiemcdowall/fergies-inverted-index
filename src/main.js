@@ -1,7 +1,7 @@
 const charwise = require('charwise')
 
 /**
- * @typedef {{new<K, V>(name: string, options?: import('abstract-level').AbstractDatabaseOptions<K, V>): import('abstract-level').AbstractLevel<any, K, V>}} AbstractLevelConstructor
+ * @typedef {{new<K, V>(name: string, options?: import("abstract-level").AbstractDatabaseOptions<K, V>): import("abstract-level").AbstractLevel<any, K, V>}} AbstractLevelConstructor
  */
 
 /**
@@ -20,7 +20,7 @@ const charwise = require('charwise')
  */
 
 /**
- * @typedef {{_db: import('abstract-level').AbstractLevel}} InitializedOptions
+ * @typedef {{_db: import("abstract-level").AbstractLevel}} InitializedOptions
  */
 
 /**
@@ -38,8 +38,11 @@ const charwise = require('charwise')
  * @property {import("./read.js").BUCKETS} BUCKETS
  * @property {import("./read.js").CREATED} CREATED
  * @property {import("./write.js").DELETE} DELETE
+ * @property {import("./read.js").DISTINCT} DISTINCT
  * @property {import("./read.js").EXIST} EXIST
  * @property {import("./read.js").EXPORT} EXPORT
+ * @property {import("./read.js").FACETS} FACETS
+ * @property {import("./read.js").FIELDS} FIELDS
  * @property {import("./read.js").GET} GET
  * @property {import("./write.js").IMPORT} IMPORT
  * @property {import("./read.js").LAST_UPDATED} LAST_UPDATED
@@ -49,7 +52,10 @@ const charwise = require('charwise')
  * @property {import("./read.js").OBJECT} OBJECT
  * @property {OR} OR
  * @property {import("./write.js").PUT} PUT
+ * @property {import("./read.js").SORT} SORT
+ * @property {import("abstract-level").AbstractLevel} STORE
  * @property {import("./write.js").TIMESTAMP_LAST_UPDATED} TIMESTAMP_LAST_UPDATED
+ * @property {import("./parseToken.js").PARSE} parseToken
  */
 
 const read = require('./read.js')
