@@ -1,11 +1,71 @@
+/**
+ * @typedef {Object} AND
+ * @property {Token[]} AND
+ */
+
+/**
+ * @typedef {Object} NOT
+ * @property {Token} INCLUDE
+ * @property {Token} EXCLUDE
+ */
+
+/**
+ * @typedef {Object} OR
+ * @property {Token[]} OR
+ */
+
+/**
+ * @typedef {Object} SEARCH
+ * @property {Token[]} SEARCH
+ */
+
+/**
+ * @typedef {AND | NOT | OR | SEARCH} QueryVerb
+ */
+
+/**
+ * @typedef {string | string[]} Field
+ */
+
+/**
+ * @typedef {Object} RangeObject
+ * @property {string | number} GTE
+ * @property {string | number} LTE
+ */
+
+/**
+ * @typedef {Object} FieldValueObject
+ * @property {Field} FIELD
+ * @property {string | RangeObject} [VALUE]
+ */
+
+/**
+ * @typedef {Field | FieldValueObject | QueryVerb} Token
+ */
+
+/**
+ * @typedef {Object} TokenObject
+ * @property {Field} FIELD
+ * @property {RangeObject} VALUE
+ */
+
+/**
+ * Turns `key` into JSON object that is of the format `{FIELD: ..., VALUE: {GTE: ..., LTE ...}}`
+ * @callback PARSE
+ * @param {Token} token
+ * @param {string[]} [availableFields]
+ * @returns {Promise<TokenObject>} `token` parsed into JSON object
+ */
+
 // polyfill- HI and LO coming in next version of charwise
 const charwise = {}
 charwise.LO = null
 charwise.HI = undefined
-// key might be object or string like this
-// <fieldname>:<value>. Turn key into json object that is of the
-// format {FIELD: ..., VALUE: {GTE: ..., LTE ...}}
-module.exports = (token, availableFields) =>
+
+/**
+ * @type {PARSE}
+ */
+const parseToken = (token, availableFields) =>
   new Promise((resolve, reject) => {
     // case: <value>
     // case: <FIELD>:<VALUE>
@@ -106,3 +166,5 @@ module.exports = (token, availableFields) =>
 
     return resolve(token)
   })
+
+module.exports = parseToken

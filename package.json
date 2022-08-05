@@ -12,6 +12,7 @@
     "traverse": "^0.6.6"
   },
   "devDependencies": {
+    "abstract-level": "^1.0.3",
     "assert": "^2.0.0",
     "buffer": "^6.0.3",
     "diacritic": "^0.0.2",
@@ -24,14 +25,16 @@
     "stream-browserify": "^3.0.0",
     "tape": "^5.3.1",
     "tape-run": "^9.0.0",
+    "typescript": "^4.7.4",
     "webpack": "^5.62.2",
     "webpack-cli": "^4.9.1",
     "world-bank-dataset": "^1.0.0"
   },
   "scripts": {
     "build": "npm run empty-sandbox && webpack",
+    "types": "tsc",
     "empty-sandbox": "rm -rf test/sandbox && mkdir test/sandbox",
-    "lint": "standard --fix test/src/*.js src/*",
+    "lint": "standard --fix test/src/*.js src/*.js",
     "test": "npm run test-node && npm run test-browser && npm run lint",
     "test-browser": "npm run build && cat test/sandbox/browser-tests.js | tape-run",
     "test-node": "npm run empty-sandbox && tape test/src/*.js",

@@ -1,7 +1,12 @@
 const fii = require('./main.js')
 const { ClassicLevel } = require('classic-level')
 
-module.exports = ops =>
+/**
+ * Creates an inverted index using [`ClassicLevel`](https://github.com/Level/classic-level)
+ * @param {import("./main.js").FiiOptions} [ops] Options
+ * @returns {Promise<import("./main").Fii>}
+ */
+const node = ops =>
   fii(
     Object.assign(
       {
@@ -10,3 +15,5 @@ module.exports = ops =>
       ops
     )
   )
+
+module.exports = node

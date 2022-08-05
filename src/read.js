@@ -1,18 +1,240 @@
-const tokenParser = require('./parseToken.js')
 const charwise = require('charwise')
 const { EntryStream } = require('level-read-stream')
+
+/**
+ * @typedef {Object} KeyValueObject
+ * @property {any[]} key
+ * @property {any} value
+ */
+
+/**
+ * @typedef {import("level-read-stream").ReadStreamOptions & import("abstract-level").AbstractIteratorOptions<any, any>} RangeOptions
+ */
+
+/**
+ * Exports the index
+ * @callback EXPORT
+ * @param {RangeOptions} [options]
+ * @returns {Promise<KeyValueObject[]>}
+ */
+
+/**
+ * Alters token
+ * @callback AlterToken
+ * @param {import("./parseToken.js").Token} token Input token
+ * @returns {Promise<import("./parseToken.js").Token>} Altered token
+ */
+
+/**
+ * @typedef {Object} MatchObject
+ * @property {string} FIELD
+ * @property {any} VALUE
+ * @property {any} [SCORE]
+ */
+
+/**
+ * @typedef {Object} QueryObject
+ * @property {any} _id
+ * @property {MatchObject[]} _match
+ */
+
+/**
+ * Returns all objects that match the query clause
+ * @callback GET
+ * @param {import("./parseToken.js").Token} token
+ * @param {AlterToken} [pipeline]
+ * @returns {Promise<QueryObject[]>}
+ */
+
+/**
+ * @typedef {Object} UnionQueryObject
+ * @property {number} sumTokensMinusStopwords
+ * @property {QueryObject[]} union
+ */
+
+/**
+ * Returns objects that match one or more of the query clauses
+ * @callback OR
+ * @param {import("./parseToken.js").Token[]} tokens
+ * @param {AlterToken} [pipeline]
+ * @returns {Promise<UnionQueryObject>}
+ */
+
+/**
+ * Returns objects that match every clause in the query
+ * @callback AND
+ * @param {import("./parseToken.js").Token[]} tokens
+ * @param {AlterToken} [pipeline]
+ * @returns {Promise<QueryObject[]>}
+ */
+
+/**
+ * Returns objects that are present in A, but not in B
+ * @callback NOT
+ * @param {import("./parseToken.js").Token} a
+ * @param {import("./parseToken.js").Token} b
+ * @returns {Promise<QueryObject[]>}
+ */
+
+/**
+ * Returns array of available fields in the index
+ * @callback FIELDS
+ * @returns {Promise<string[]>}
+ */
+
+/**
+ * Returns the timestamp that indicates when the index was created
+ * @callback CREATED
+ * @returns {Promise<number|undefined>}
+ */
+
+/**
+ * Returns a timestamp indicating when the index was last updated
+ * @callback LAST_UPDATED
+ * @returns {Promise<number|undefined>}
+ */
+
+/**
+ * Indicates whether documents with the given ids exist in the index
+ * @callback EXIST
+ * @param {...any} ids
+ * @returns {Promise<any[]>}
+ */
+
+/**
+ * @typedef {Object} BucketObject
+ * @property {any[]} _id
+ * @property {string[]} FIELD
+ * @property {import("./parseToken.js").RangeObject} VALUE
+ */
+
+/**
+ * @callback BUCKET
+ * @param {import("./parseToken.js").Token} token 
+ * @returns {Promise<BucketObject>}
+ */
+
+/**
+ * @callback BUCKETS
+ * @param {...import("./parseToken.js").Token} tokens 
+ * @returns {Promise<BucketObject[]>}
+ */
+
+/**
+ * @typedef {Object} IDObject
+ * @property {any} _id
+ */
+
+/**
+ * @typedef {Object} ObjectObject
+ * @property {any} _id
+ * @property {IDObject} _object 
+ */
+
+/**
+ * Extends object with document data
+ * @callback OBJECT
+ * @param {IDObject[]} ids
+ * @returns {Promise<ObjectObject[]>}
+ */
+
+/**
+ * Get the highest alphabetical value in a given token
+ * @callback MAX
+ * @param {import("./parseToken").Token} token 
+ * @returns {Promise<number>}
+ */
+
+/**
+ * Get the lowest alphabetical value in a given token
+ * @callback MIN
+ * @param {import("./parseToken").Token} token 
+ * @param {boolean} reverse 
+ * @returns {Promise<number>}
+ */
+
+/**
+ * @typedef {Object} DistinctObject
+ * @property {string} FIELD
+ * @property {any} VALUE
+ */
+
+/**
+ * Returns every object in the db that is greater than equal to GTE and less than or equal to LTE (sorted alphabetically)
+ * @callback DISTINCT
+ * @param  {...import("./parseToken.js").Token} tokens 
+ * @returns {Promise<DistinctObject[]>}
+ */
+
+/**
+ * @typedef {Object} FacetObject
+ * @property {any[]} _id
+ * @property {string} FIELD
+ * @property {any} VALUE
+ */
+
+/**
+ * Creates an aggregation for each value in the given range.
+ * @callback FACETS
+ * @param  {...import("./parseToken.js").Token} tokens 
+ * @returns {Promise<FacetObject[]>}
+ */
+
+/**
+ * Sorts results by `_id`
+ * @callback SORT
+ * @param {IDObject[]} results 
+ * @returns {Promise<IDObject[]>}
+ */
+
+/**
+ * The aggregation (either FACETS or BUCKETS) is filtered by the query
+ * @callback AGGREGATION_FILTER
+ * @param {FacetObject|BucketObject} aggregation 
+ * @param {IDObject[]} filterSet
+ * @returns {Promise<FacetObject[]|BucketObject[]>}
+ */
+
+/**
+ * @typedef {Object} AggregateOptions
+ * @property {Promise<BucketObject[]>|BucketObject[]} [BUCKETS]
+ * @property {Promise<FacetObject[]>|FacetObject[]} [FACETS]
+ * @property {Promise<IDObject[]>|IDObject[]} [QUERY]
+ */
+
+/**
+ * @typedef {Object} AggregateObject
+ * @property {Promise<BucketObject[]} BUCKETS
+ * @property {Promise<FacetObject[]} FACETS
+ * @property {Promise<IDObject[]} RESULT
+ */
+
+/**
+ * @callback AGGREGATE
+ * @param {AggregateOptions} options Aggregate params
+ * @returns {Promise<AggregateObject>}
+ */
+const tokenParser = require('./parseToken.js')
 
 // polyfill- HI and LO coming in next version of charwise
 charwise.LO = null
 charwise.HI = undefined
 
-module.exports = ops => {
+/**
+ * @param {import("./main.js").FiiOptions & import("./main.js").InitializedOptions } ops
+ */
+const read = ops => {
   const isString = s => typeof s === 'string'
 
   // TODO: in order to account for query processing pipelines,
   // parseToken should probably be moved to search-index and fii
   // should only deal with nicely formatted query tokens (JSON
   // objects)
+  /**
+   * Turn key into json object that is of the format {FIELD: ..., VALUE: {GTE: ..., LTE ...}}
+   * @param {import("./parseToken.js").Token} token
+   * @returns {Promise<import("./parseToken.js").TokenObject>} `token` parsed into JSON object
+   */
   const parseToken = async token => tokenParser(token, await AVAILABLE_FIELDS())
 
   const queryReplace = token => {
@@ -55,10 +277,13 @@ module.exports = ops => {
   // If this token is a stopword then return 'undefined'
   const removeStopwords = token =>
     token.VALUE.GTE === token.VALUE.LTE &&
-    ops.stopwords.includes(token.VALUE.GTE)
+      ops.stopwords.includes(token.VALUE.GTE)
       ? undefined
       : token
 
+  /**
+   * @type {GET}
+   */
   const GET = async (
     token,
     pipeline = token => new Promise(resolve => resolve(token))
@@ -97,6 +322,9 @@ module.exports = ops => {
   }
 
   // OR
+  /**
+   * @type {OR}
+   */
   const UNION = async (tokens, pipeline) =>
     Promise.all(tokens.map(token => GET(token, pipeline))).then(sets => {
       const setObject = sets.flat(Infinity).reduce((acc, cur) => {
@@ -113,7 +341,9 @@ module.exports = ops => {
       }
     })
 
-  // AND
+  /**
+   * @type {AND}
+   */
   const INTERSECTION = (tokens, pipeline) =>
     UNION(tokens, pipeline).then(result =>
       result.union.filter(
@@ -121,13 +351,21 @@ module.exports = ops => {
       )
     )
 
-  // NOT (set a minus set b)
+  /**
+   * @type {NOT}
+   */
   const SET_SUBTRACTION = (a, b) =>
     Promise.all([isString(a) ? GET(a) : a, isString(b) ? GET(b) : b]).then(
       ([a, b]) =>
         a.filter(aItem => b.map(bItem => bItem._id).indexOf(aItem._id) === -1)
     )
 
+  /**
+   * @param {string} field 
+   * @param {any} value 
+   * @param {boolean} lte 
+   * @returns {['IDX', string, any[]]}
+   */
   const formatKey = (field, value, lte) => {
     const valueAndScore = []
     if (value !== undefined || typeof value === 'number') {
@@ -138,6 +376,10 @@ module.exports = ops => {
     return ['IDX', field, valueAndScore]
   }
 
+  /**
+   * @param {import("./parseToken.js").Token} token
+   * @returns {Promise<QueryObject[]>}
+   */
   const RANGE = token =>
     new Promise(resolve => {
       // If this token is undefined (stopword) then resolve 'undefined'
@@ -180,6 +422,9 @@ module.exports = ops => {
       )
     })
 
+  /**
+   * @type {FIELDS}
+   */
   const AVAILABLE_FIELDS = () =>
     new Promise(resolve => {
       const fieldNames = []
@@ -191,12 +436,21 @@ module.exports = ops => {
         .on('end', () => resolve(fieldNames))
     })
 
+  /**
+   * @type {CREATED}
+   */
   const CREATED = () => ops._db.get(['~CREATED'])
 
+  /**
+   * @type {LAST_UPDATED}
+   */
   const LAST_UPDATED = () => ops._db.get(['~LAST_UPDATED'])
 
   // takes an array of ids and determines if the corresponding
   // documents exist in the index.
+  /**
+   * @type {EXIST}
+   */
   const EXIST = (...ids) =>
     Promise.all(
       ids.map(id => ops._db.get([ops.docExistsSpace, id]).catch(e => null))
@@ -207,8 +461,9 @@ module.exports = ops => {
       }, [])
     )
 
-  // Given the results of an aggregation and the results of a query,
-  // return the filtered aggregation
+  /**
+   * @type {AGGREGATION_FILTER}
+   */
   const AGGREGATION_FILTER = (aggregation, filterSet) => {
     if (!filterSet || filterSet.length === 0) return aggregation
     filterSet = new Set(filterSet.map(item => item._id))
@@ -219,6 +474,9 @@ module.exports = ops => {
     )
   }
 
+  /**
+   * @type {AGGREGATE}
+   */
   const AGGREGATE = ({ BUCKETS, FACETS, QUERY }) =>
     Promise.all([BUCKETS, FACETS, QUERY]).then(
       ([bucketsResult = [], facetsResult = [], queryResult = []]) => ({
@@ -228,10 +486,16 @@ module.exports = ops => {
       })
     )
 
+  /**
+   * @type {BUCKETS}
+   */
   const BUCKETS = (...buckets) => Promise.all(buckets.map(BUCKET))
 
   // return a bucket of IDs. Key is an object like this:
   // {gte:..., lte:...} (gte/lte == greater/less than or equal)
+  /**
+   * @type {BUCKET}
+   */
   const BUCKET = async token =>
     parseToken(
       token // TODO: is parseToken needed her? Already called in GET
@@ -246,6 +510,9 @@ module.exports = ops => {
       )
     )
 
+  /**
+   * @type {OBJECT}
+   */
   const OBJECT = _ids =>
     Promise.all(
       _ids.map(id => ops._db.get(['DOC', id._id]).catch(reason => null))
@@ -257,6 +524,9 @@ module.exports = ops => {
     )
 
   // TODO: can this be replaced by RANGE?
+  /**
+   * @type {EXPORT}
+   */
   const getRange = rangeOps =>
     new Promise((resolve, reject) => {
       const keys = []
@@ -267,8 +537,14 @@ module.exports = ops => {
         .on('end', () => resolve(keys))
     })
 
+  /**
+   * @type {MAX}
+   */
   const MAX = fieldName => BOUNDING_VALUE(fieldName, true)
 
+  /**
+   * @type {MIN}
+   */
   const BOUNDING_VALUE = (token, reverse) =>
     parseToken(token)
       .then(token =>
@@ -284,6 +560,9 @@ module.exports = ops => {
       )
 
   // TODO remove if DISTINCT is no longer used
+  /**
+   * @type {DISTINCT}
+   */
   const DISTINCT = (...tokens) =>
     Promise.all(
       // if no tokens specified then get everything ('{}')
@@ -331,6 +610,9 @@ module.exports = ops => {
       )
       .then(result => result.flat())
 
+  /**
+   * @type {FACETS}
+   */
   const FACETS = (...tokens) =>
     Promise.all(
       // if no tokens specified then get everything ('{}')
@@ -373,6 +655,9 @@ module.exports = ops => {
     sensitivity: 'base'
   })
 
+  /**
+   * @type {SORT}
+   */
   const SORT = results =>
     new Promise(resolve =>
       resolve(results.sort((a, b) => collator.compare(a._id, b._id)))
@@ -407,3 +692,5 @@ module.exports = ops => {
     parseToken: parseToken
   }
 }
+
+module.exports = read
