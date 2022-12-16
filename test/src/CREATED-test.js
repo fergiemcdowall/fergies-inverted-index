@@ -1,4 +1,5 @@
 const fii = require('../../')
+const levelOptions = require('../../src/options.js')
 const test = require('tape')
 
 const sandbox = 'test/sandbox/'
@@ -16,7 +17,7 @@ test('create index', t => {
 
 test('timestamp was created', t => {
   t.plan(1)
-  global[indexName].STORE.get(['~CREATED'])
+  global[indexName].STORE.get(['~CREATED'], levelOptions)
     .then(created => {
       timestamp = created
       return t.pass('timestamp created')

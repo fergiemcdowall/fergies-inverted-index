@@ -3,9 +3,6 @@ const { MemoryLevel } = require('memory-level')
 const test = require('tape')
 const wbd = require('world-bank-dataset')
 
-const sandbox = 'test/sandbox/'
-const indexName = sandbox + 'memdown-test'
-
 const data = wbd.slice(0, 10).map(item => {
   return {
     _id: item._id.$oid,
@@ -22,8 +19,7 @@ const data = wbd.slice(0, 10).map(item => {
 test('create a fii with memory-level', t => {
   t.plan(2)
   fii({
-    db: MemoryLevel,
-    name: indexName
+    db: new MemoryLevel()
   }).then(db =>
     db
       .PUT(data)
