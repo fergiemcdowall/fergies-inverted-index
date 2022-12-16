@@ -283,7 +283,6 @@ module.exports = ops => {
         max.length ? JSON.parse(max.pop()._match.pop()).VALUE : null
       )
 
-  // TODO remove if DISTINCT is no longer used
   const DISTINCT = (...tokens) =>
     Promise.all(
       // if no tokens specified then get everything ('{}')
@@ -296,7 +295,6 @@ module.exports = ops => {
       ].map(JSON.parse)
     )
 
-  // TODO remove if DISTINCT is no longer used
   const DIST = token =>
     parseToken(token)
       .then(token =>

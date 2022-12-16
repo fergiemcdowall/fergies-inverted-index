@@ -36,16 +36,18 @@ module.exports = ops => {
       // deal with stopwords
       if (
         this.isLeaf &&
-        ops.stopwords.includes((this.node + '').split('#')[0])
+        ops.stopwords.includes((this.node + '').split('#')[0]) // TODO: is # still used?
       ) {
         searchable = false
       }
 
       if (searchable && this.isLeaf) {
         let key
+
         try {
           const parsedJSON = JSON.parse(this.node)
           if (!Array.isArray(parsedJSON)) throw new Error()
+          this.update(parsedJSON, true)
           key = JSON.stringify([fieldName, parsedJSON])
         } catch (e) {
           key = JSON.stringify([fieldName, [this.node]])
