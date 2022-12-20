@@ -145,41 +145,36 @@ module.exports = ops => {
 
       const rs = new Map() // resultset
       return Promise.all(
-        token.FIELD.map(fieldName => {
-          // console.log(token)
-          // console.log(formatKey(fieldName, token.VALUE.GTE))
-          // console.log(formatKey(fieldName, token.VALUE.LTE, true))
-
-          return new Promise(resolve =>
-            new EntryStream(ops._db, {
-              gte: formatKey(fieldName, token.VALUE.GTE),
-              lte: formatKey(fieldName, token.VALUE.LTE, true),
-              limit: token.LIMIT,
-              reverse: token.REVERSE
-            })
-              .on('data', token => {
-                return token.value.forEach(docId => {
-                  return rs.set(docId, [
-                    ...(rs.get(docId) || []),
-                    JSON.stringify({
-                      FIELD: token.key[1],
-                      VALUE: token.key[2][0],
-                      SCORE: token.key[2][1]
-                    })
-                  ])
-                })
+        token.FIELD.map(
+          fieldName =>
+            new Promise(resolve =>
+              new EntryStream(ops._db, {
+                gte: formatKey(fieldName, token.VALUE.GTE),
+                lte: formatKey(fieldName, token.VALUE.LTE, true),
+                limit: token.LIMIT,
+                reverse: token.REVERSE
               })
-              .on('end', resolve)
-          )
-        })
+                .on('data', token =>
+                  token.value.forEach(docId =>
+                    rs.set(docId, [
+                      ...(rs.get(docId) || []),
+                      JSON.stringify({
+                        FIELD: token.key[1],
+                        VALUE: token.key[2][0],
+                        SCORE: token.key[2][1]
+                      })
+                    ])
+                  )
+                )
+                .on('end', resolve)
+            )
+        )
       ).then(() =>
         resolve(
-          Array.from(rs.keys()).map(id => {
-            return {
-              _id: id,
-              _match: rs.get(id)
-            }
-          })
+          Array.from(rs.keys()).map(id => ({
+            _id: id,
+            _match: rs.get(id)
+          }))
         )
       )
     })

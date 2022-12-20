@@ -36,7 +36,7 @@ const initStore = (ops = {}) =>
         // be retrieved by using "boom". If tokenAppend wasnt used, then
         // {gte: 'boom', lte: 'boom'} would also return stuff like
         // boomness#1.00 etc
-        tokenAppend: '',
+        // tokenAppend: '',
         caseSensitive: true,
         isLeaf: item => typeof item === 'string' || typeof item === 'number',
         stopwords: [],
