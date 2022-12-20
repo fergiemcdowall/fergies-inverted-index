@@ -38,6 +38,7 @@ const initStore = (ops = {}) =>
         // boomness#1.00 etc
         tokenAppend: '',
         caseSensitive: true,
+        isLeaf: item => typeof item === 'string' || typeof item === 'number',
         stopwords: [],
         doNotIndexField: [],
         storeVectors: true,

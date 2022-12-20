@@ -5,14 +5,40 @@ module.exports = ops => {
   // TODO: set reset this to the max value every time the DB is restarted
   let incrementalId = 0
 
+  /*
+
+    How this should actually work:
+
+    1) search-index provides
+    - documents that are in JSON (not stringified)
+    - a function that determines if you have hit a leaf node (in this
+    case- is the node an array with length 2 where both items are
+    strings)
+    - "isLeaf" function is provided in ops
+    - see /search-index/src/tokenisationPipeline.js
+
+    2) invertDoc in fii uses ops.isLeaf to index and delete documents
+
+    3) Fii's default ops.isLeaf simply checks to see if the node is a
+    single string or integer
+
+  */
+
   // use trav lib to find all leaf nodes with corresponding paths
   const invertDoc = (obj, putOptions) => {
+    // console.log(JSON.stringify(obj._object, null, 2))
+
     if (obj._object == null) {
       return {
         _id: obj._id,
         keys: []
       }
     }
+
+    // const isSearchIndexLeaf = node =>
+    //   Array.isArray(node) &&
+    //   node.length == 2 &&
+    //   node.every(item => typeof item == 'string' || typeof item == 'number')
 
     const keys = []
     trav(obj._object).forEach(function (node) {
@@ -41,17 +67,20 @@ module.exports = ops => {
         searchable = false
       }
 
-      if (searchable && this.isLeaf) {
-        let key
+      // console.log(this.node)
+      // console.log(ops.isLeaf(this.node))
+      // console.log('  - - ')
 
-        try {
-          const parsedJSON = JSON.parse(this.node)
-          if (!Array.isArray(parsedJSON)) throw new Error()
-          this.update(parsedJSON, true)
-          key = JSON.stringify([fieldName, parsedJSON])
-        } catch (e) {
-          key = JSON.stringify([fieldName, [this.node]])
-        }
+      if (searchable && ops.isLeaf(this.node)) {
+        // try {
+        //   // const parsedJSON = JSON.parse(this.node)
+        //   // if (!Array.isArray(parsedJSON)) throw new Error()
+        //   // this.update(parsedJSON, true)
+        // } catch (e) {}
+
+        this.update(this.node, true)
+        const key = JSON.stringify([fieldName, [this.node].flat(Infinity)])
+        // console.log(key)
 
         // bump to lower case if not case sensitive
         keys.push(ops.caseSensitive ? key : key.toLowerCase())
@@ -99,6 +128,7 @@ module.exports = ops => {
           const newSet = [...new Set([...curSet].filter(x => !deltaSet.has(x)))]
           return {
             key: ['IDX', ...JSON.parse(indexKeys[i])],
+
             // if newSet is [] then simply remove the index entry
             // otherwise update
             type: newSet.length === 0 ? 'del' : 'put',

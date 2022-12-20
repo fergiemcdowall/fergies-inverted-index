@@ -146,6 +146,10 @@ module.exports = ops => {
       const rs = new Map() // resultset
       return Promise.all(
         token.FIELD.map(fieldName => {
+          // console.log(token)
+          // console.log(formatKey(fieldName, token.VALUE.GTE))
+          // console.log(formatKey(fieldName, token.VALUE.LTE, true))
+
           return new Promise(resolve =>
             new EntryStream(ops._db, {
               gte: formatKey(fieldName, token.VALUE.GTE),

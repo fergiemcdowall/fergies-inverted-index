@@ -9,7 +9,7 @@ const data = [
     _id: 0,
     make: 'BMW',
     colour: 'Blue',
-    year: JSON.stringify([2011, 'comment']),
+    year: [2011, 'comment'],
     price: 8398,
     model: '3-series',
     drivetrain: 'Hybrid'
@@ -18,7 +18,7 @@ const data = [
     _id: 1,
     make: 'Volvo',
     colour: 'Black',
-    year: JSON.stringify([2016, 'comment']),
+    year: [2016, 'comment'],
     price: 0,
     model: 'XC90',
     drivetrain: 'Petrol'
@@ -27,7 +27,7 @@ const data = [
     _id: 2,
     make: 'Volvo',
     colour: 'Silver',
-    year: JSON.stringify([2008, 'comment']),
+    year: [2008, 'comment'],
     price: 4,
     model: 'XC90',
     drivetrain: 'Hybrid'
@@ -36,7 +36,7 @@ const data = [
     _id: 3,
     make: 'Volvo',
     colour: 'Silver',
-    year: JSON.stringify([2007, 'comment']),
+    year: [2007, 'comment'],
     price: 4739100,
     model: 'XC60',
     drivetrain: 'Hybrid'
@@ -45,7 +45,7 @@ const data = [
     _id: 4,
     make: 'BMW',
     colour: 'Black',
-    year: JSON.stringify([2000, 'comment']),
+    year: [2000, 'comment'],
     price: 88652,
     model: '5-series',
     drivetrain: 'Diesel'
@@ -54,7 +54,7 @@ const data = [
     _id: 5,
     make: 'Tesla',
     colour: 'Red',
-    year: JSON.stringify([2014, 'comment']),
+    year: [2014, 'comment'],
     price: 10,
     model: 'X',
     drivetrain: 'Electric'
@@ -63,7 +63,7 @@ const data = [
     _id: 6,
     make: 'Tesla',
     colour: 'Blue',
-    year: JSON.stringify([2017, 'comment']),
+    year: [2017, 'comment'],
     price: 999,
     model: 'S',
     drivetrain: 'Electric'
@@ -72,7 +72,7 @@ const data = [
     _id: 7,
     make: 'BMW',
     colour: 'Black',
-    year: JSON.stringify([2019, 'comment']),
+    year: [2019, 'comment'],
     price: 111111111111111,
     model: '3-series',
     drivetrain: 'Petrol'
@@ -81,7 +81,7 @@ const data = [
     _id: 8,
     make: 'BMW',
     colour: 'Silver',
-    year: JSON.stringify([2015, 'comment']),
+    year: [2015, 'comment'],
     price: 81177,
     model: '3-series',
     drivetrain: 'Petrol'
@@ -90,7 +90,7 @@ const data = [
     _id: 9,
     make: 'Volvo',
     colour: 'White',
-    year: JSON.stringify([2004, 'comment']),
+    year: [2004, 'comment'],
     price: 37512,
     model: 'XC90',
     drivetrain: 'Hybrid'
@@ -99,7 +99,11 @@ const data = [
 
 test('create index', t => {
   t.plan(1)
-  fii({ name: indexName }).then(db => {
+  fii({
+    name: indexName,
+    isLeaf: item =>
+      typeof item === 'string' || typeof item === 'number' || Array.isArray(item)
+  }).then(db => {
     global[indexName] = db
     t.ok(db, !undefined)
   })

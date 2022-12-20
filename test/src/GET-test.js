@@ -45,7 +45,7 @@ const data = [
   {
     _id: 4,
     make: 'BMW',
-    colour: JSON.stringify(['Black', 999]),
+    colour: ['Black', 999],
     year: 2000,
     price: 10,
     model: '5-series',
@@ -99,7 +99,11 @@ const data = [
 ]
 
 test('some simple GETs', async function (t) {
-  const { GET, PUT } = await fii({ name: indexName })
+  const { GET, PUT } = await fii({
+    name: indexName,
+    isLeaf: item =>
+      typeof item === 'string' || typeof item === 'number' || Array.isArray(item)
+  })
   t.pass('db initialized')
 
   await PUT(data)

@@ -1,6 +1,0 @@
-test
-.travis.yml
-.git
-.gitignore
-rollup.config.js
-webpack.config.js
