@@ -35,7 +35,7 @@ jobs:
         run: npm install
 
       - name: Build
-        run: npm build
+        run: npm run build
 
       - run: sudo apt-get install xvfb
       - run: xvfb-run --auto-servernum npm test
