@@ -7,7 +7,7 @@ const indexName = sandbox + 'CREATED'
 
 let timestamp
 
-let opts = {}
+const opts = {}
 if (typeof window === 'undefined') {
   // hack to get around webpack issues with classic-level
   // eslint-disable-next-line no-eval
