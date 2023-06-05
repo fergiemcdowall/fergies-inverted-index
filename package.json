@@ -39,10 +39,10 @@
     "test-browser": "npm run build && cat test/sandbox/browser-tests.js | tape-run",
     "test-node": "npm run empty-sandbox && tape test/src/*.js",
     "test-script-tag-lib": "npm run build && open-cli test/src/index.html",
-    "version": "pnpm exec changeset version",
-    "version:snapshot": "pnpm exec changeset version --snapshot",
-    "publish": "pnpm publish -r --no-git-checks --access public",
-    "publish:beta": "pnpm publish -r --tag beta --no-git-checks --access public"
+    "version": "npx changeset version",
+    "version:snapshot": "npx changeset version --snapshot",
+    "publish": "npm publish -r --no-git-checks --access public",
+    "publish:beta": "npm publish -r --tag beta --no-git-checks --access public"
   },
   "repository": {
     "type": "git",
