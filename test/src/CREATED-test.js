@@ -11,7 +11,9 @@ const opts = {}
 if (typeof window === 'undefined') {
   // hack to get around webpack issues with classic-level
   // eslint-disable-next-line no-eval
-  eval('const { ClassicLevel } = require(\'classic-level\'); opts = { db: new ClassicLevel(indexName) }')
+  eval(
+    "const { ClassicLevel } = require('classic-level'); const opts = { db: new ClassicLevel(indexName) }"
+  )
 }
 
 test('create index', t => {
@@ -28,7 +30,8 @@ test('timestamp was created', t => {
     .then(created => {
       timestamp = created
       return t.pass('timestamp created')
-    }).catch(t.error)
+    })
+    .catch(t.error)
 })
 
 test('can read CREATED timestamp with API', t => {
