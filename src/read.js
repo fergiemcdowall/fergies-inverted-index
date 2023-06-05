@@ -1,6 +1,7 @@
 const tokenParser = require('./parseToken.js')
 const charwise = require('charwise')
 const { EntryStream } = require('level-read-stream')
+const levelOptions = require('./options.js')
 
 // polyfill- HI and LO coming in next version of charwise
 charwise.LO = null
@@ -55,7 +56,7 @@ module.exports = ops => {
   // If this token is a stopword then return 'undefined'
   const removeStopwords = token =>
     token.VALUE.GTE === token.VALUE.LTE &&
-    ops.stopwords.includes(token.VALUE.GTE)
+      ops.stopwords.includes(token.VALUE.GTE)
       ? undefined
       : token
 
@@ -152,7 +153,8 @@ module.exports = ops => {
                 gte: formatKey(fieldName, token.VALUE.GTE),
                 lte: formatKey(fieldName, token.VALUE.LTE, true),
                 limit: token.LIMIT,
-                reverse: token.REVERSE
+                reverse: token.REVERSE,
+                ...levelOptions
               })
                 .on('data', token =>
                   token.value.forEach(docId =>
@@ -184,21 +186,22 @@ module.exports = ops => {
       const fieldNames = []
       new EntryStream(ops._db, {
         gte: ['FIELD', charwise.LO],
-        lte: ['FIELD', charwise.HI]
+        lte: ['FIELD', charwise.HI],
+        ...levelOptions
       })
         .on('data', d => fieldNames.push(d.value))
         .on('end', () => resolve(fieldNames))
     })
 
-  const CREATED = () => ops._db.get(['~CREATED'])
+  const CREATED = () => ops._db.get(['~CREATED'], levelOptions)
 
-  const LAST_UPDATED = () => ops._db.get(['~LAST_UPDATED'])
+  const LAST_UPDATED = () => ops._db.get(['~LAST_UPDATED'], levelOptions)
 
   // takes an array of ids and determines if the corresponding
   // documents exist in the index.
   const EXIST = (...ids) =>
     Promise.all(
-      ids.map(id => ops._db.get([ops.docExistsSpace, id]).catch(e => null))
+      ids.map(id => ops._db.get([ops.docExistsSpace, id], levelOptions).catch(e => null))
     ).then(result =>
       result.reduce((acc, cur, i) => {
         if (cur != null) acc.push(ids[i])
@@ -247,7 +250,7 @@ module.exports = ops => {
 
   const OBJECT = _ids =>
     Promise.all(
-      _ids.map(id => ops._db.get(['DOC', id._id]).catch(reason => null))
+      _ids.map(id => ops._db.get(['DOC', id._id], levelOptions).catch(reason => null))
     ).then(_objects =>
       _ids.map((_id, i) => {
         _id._object = _objects[i]
@@ -259,7 +262,7 @@ module.exports = ops => {
   const getRange = rangeOps =>
     new Promise((resolve, reject) => {
       const keys = []
-      new EntryStream(ops._db, rangeOps)
+      new EntryStream(ops._db, { ...rangeOps, ...levelOptions })
         .on('data', data => {
           keys.push(data)
         })

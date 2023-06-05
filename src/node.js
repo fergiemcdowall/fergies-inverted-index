@@ -1,12 +1,7 @@
 const fii = require('./main.js')
-const { ClassicLevel } = require('classic-level')
+const { MemoryLevel } = require('memory-level')
 
-module.exports = ops =>
-  fii(
-    Object.assign(
-      {
-        db: ClassicLevel
-      },
-      ops
-    )
-  )
+module.exports = ({ name = 'fii', ...ops }) => fii({
+  db: new MemoryLevel(),
+  ...ops
+})

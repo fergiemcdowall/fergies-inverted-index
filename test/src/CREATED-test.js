@@ -1,4 +1,5 @@
 const fii = require('../../')
+const levelOptions = require('../../src/options.js')
 const test = require('tape')
 
 const sandbox = 'test/sandbox/'
@@ -6,9 +7,16 @@ const indexName = sandbox + 'CREATED'
 
 let timestamp
 
+let opts = {}
+if (typeof window === 'undefined') {
+  // hack to get around webpack issues with classic-level
+  // eslint-disable-next-line no-eval
+  eval('const { ClassicLevel } = require(\'classic-level\'); opts = { db: new ClassicLevel(indexName) }')
+}
+
 test('create index', t => {
   t.plan(1)
-  fii({ name: indexName }).then(db => {
+  fii({ name: indexName, ...opts }).then(db => {
     global[indexName] = db
     t.ok(db, !undefined)
   })
@@ -16,7 +24,7 @@ test('create index', t => {
 
 test('timestamp was created', t => {
   t.plan(1)
-  global[indexName].STORE.get(['~CREATED'])
+  global[indexName].STORE.get(['~CREATED'], levelOptions)
     .then(created => {
       timestamp = created
       return t.pass('timestamp created')
@@ -43,7 +51,7 @@ test('confirm index is closed', t => {
 
 test('recreate index', t => {
   t.plan(1)
-  fii({ name: indexName }).then(db => {
+  fii({ name: indexName, ...opts }).then(db => {
     global[indexName] = db
     t.ok(db, !undefined)
   })
