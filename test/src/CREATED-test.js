@@ -1,6 +1,7 @@
 const fii = require('../../')
 const levelOptions = require('../../src/options.js')
 const test = require('tape')
+const { ClassicLevel } = require('classic-level')
 
 const sandbox = 'test/sandbox/'
 const indexName = sandbox + 'CREATED'
@@ -9,7 +10,7 @@ let timestamp
 
 test('create index', t => {
   t.plan(1)
-  fii({ name: indexName }).then(db => {
+  fii({ name: indexName, db: new ClassicLevel(indexName) }).then(db => {
     global[indexName] = db
     t.ok(db, !undefined)
   })
@@ -44,7 +45,7 @@ test('confirm index is closed', t => {
 
 test('recreate index', t => {
   t.plan(1)
-  fii({ name: indexName }).then(db => {
+  fii({ name: indexName, db: new ClassicLevel(indexName) }).then(db => {
     global[indexName] = db
     t.ok(db, !undefined)
   })
