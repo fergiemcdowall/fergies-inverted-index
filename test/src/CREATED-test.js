@@ -27,7 +27,8 @@ test('timestamp was created', t => {
     .then(created => {
       timestamp = created
       return t.pass('timestamp created')
-    }).catch(t.error)
+    })
+    .catch(t.error)
 })
 
 test('can read CREATED timestamp with API', t => {

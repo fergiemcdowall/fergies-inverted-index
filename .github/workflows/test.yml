@@ -13,4 +13,3 @@ jobs:
       - run: npm install
       - run: sudo apt-get install xvfb
       - run: xvfb-run --auto-servernum npm test
-        
