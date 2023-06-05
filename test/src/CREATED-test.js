@@ -7,11 +7,10 @@ const indexName = sandbox + 'CREATED'
 
 let timestamp
 
-let opts = {}
+const opts = {}
 if (typeof window === 'undefined') {
-  // hack to get around webpack issues with classic-level
-  // eslint-disable-next-line no-eval
-  eval('const { ClassicLevel } = require(\'classic-level\'); opts = { db: new ClassicLevel(indexName) }')
+  const { ClassicLevel } = require('classic-level')
+  opts.db = new ClassicLevel(indexName)
 }
 
 test('create index', t => {
