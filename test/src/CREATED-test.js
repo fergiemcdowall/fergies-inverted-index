@@ -9,11 +9,8 @@ let timestamp
 
 const opts = {}
 if (typeof window === 'undefined') {
-  // hack to get around webpack issues with classic-level
-  // eslint-disable-next-line no-eval
-  eval(
-    "let { ClassicLevel } = require('classic-level'); opts = { db: new ClassicLevel(indexName) }"
-  )
+  const { ClassicLevel } = require('classic-level')
+  opts.db = new ClassicLevel(indexName)
 }
 
 test('create index', t => {
