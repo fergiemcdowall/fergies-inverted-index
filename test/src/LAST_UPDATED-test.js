@@ -31,8 +31,10 @@ test('can read LAST_UPDATED timestamp with API', t => {
 
 test('when adding a new doc, LAST_UPDATE increments', t => {
   t.plan(1)
-  global[indexName].PUT([{
-    text: 'this is a new doc'.split()
-  }]).then(global[indexName].LAST_UPDATED)
-    .then(newTimestamp => t.ok(newTimestamp > timestamp))
+  setTimeout(function () { // wait to ensure that newer timestamp is bigger
+    global[indexName].PUT([{
+      text: 'this is a new doc'.split()
+    }]).then(global[indexName].LAST_UPDATED)
+      .then(newTimestamp => t.ok(newTimestamp > timestamp))
+  }, 100)
 })
