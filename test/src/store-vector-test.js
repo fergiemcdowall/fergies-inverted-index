@@ -1,4 +1,5 @@
 const fii = require('../../')
+const levelOptions = require('../../src/options.js')
 const test = require('tape')
 const { EntryStream } = require('level-read-stream')
 
@@ -45,7 +46,7 @@ test('can verify store', t => {
     { key: ['IDX', 'text', ['this']], value: [0] }
   ]
   t.plan(entries.length + 1)
-  new EntryStream(global[indexName].STORE, { lt: ['~'] })
+  new EntryStream(global[indexName].STORE, { lt: ['~'], ...levelOptions })
     .on('data', d => t.deepEquals(d, entries.shift()))
     .on('end', resolve => t.pass('ended'))
 })

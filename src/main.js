@@ -1,7 +1,7 @@
-const charwise = require('charwise')
 // const level = require('level')
 const read = require('./read.js')
 const write = require('./write.js')
+const levelOptions = require('./options.js')
 
 // _match is nested by default so that AND and OR work correctly under
 // the bonnet. Flatten array before presenting to consumer
@@ -29,7 +29,6 @@ const initStore = (ops = {}) =>
   new Promise((resolve, reject) => {
     ops = Object.assign(
       {
-        name: 'fii',
         // TODO: is tokenAppens still needed?
         // tokenAppend can be used to create 'comment' spaces in
         // tokens. For example using '#' allows tokens like boom#1.00 to
@@ -46,12 +45,7 @@ const initStore = (ops = {}) =>
       },
       ops
     )
-
-    const DB = ops.db
-    const db = new DB(ops.name, {
-      keyEncoding: charwise,
-      valueEncoding: 'json'
-    })
+    const db = ops.db
     db.open(err =>
       err ? reject(err) : resolve(Object.assign(ops, { _db: db }))
     )
@@ -78,6 +72,7 @@ const makeAFii = ops => {
       r.GET(tokens, pipeline).then(flattenMatchArrayInResults),
     IMPORT: w.IMPORT,
     LAST_UPDATED: r.LAST_UPDATED,
+    LEVEL_OPTIONS: levelOptions,
     MAX: r.MAX,
     MIN: r.MIN,
     NOT: (...keys) =>

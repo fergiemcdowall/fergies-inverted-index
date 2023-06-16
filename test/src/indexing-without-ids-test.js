@@ -1,4 +1,5 @@
 const fii = require('../../')
+const levelOptions = require('../../src/options.js')
 const test = require('tape')
 const { EntryStream } = require('level-read-stream')
 
@@ -45,7 +46,7 @@ test('can GET with string', t => {
     { key: ['IDX', 'land', ['SCOTLAND']], value: [1] }
   ]
   t.plan(result.length)
-  new EntryStream(global[indexName].STORE, { lt: ['~'] }).on('data', d =>
+  new EntryStream(global[indexName].STORE, { lt: ['~'], ...levelOptions }).on('data', d =>
     t.deepEqual(d, result.shift())
   )
 })

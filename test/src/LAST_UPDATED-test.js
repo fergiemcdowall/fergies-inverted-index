@@ -1,4 +1,5 @@
 const fii = require('../../')
+const levelOptions = require('../../src/options.js')
 const test = require('tape')
 
 const sandbox = 'test/sandbox/'
@@ -16,7 +17,7 @@ test('create index', t => {
 
 test('LAST_UPDATED timestamp was created', t => {
   t.plan(1)
-  global[indexName].STORE.get(['~LAST_UPDATED'])
+  global[indexName].STORE.get(['~LAST_UPDATED'], levelOptions)
     .then(created => {
       timestamp = created
       return t.pass('LAST_UPDATED timestamp created ' + timestamp)
@@ -30,8 +31,10 @@ test('can read LAST_UPDATED timestamp with API', t => {
 
 test('when adding a new doc, LAST_UPDATE increments', t => {
   t.plan(1)
-  global[indexName].PUT([{
-    text: 'this is a new doc'.split()
-  }]).then(global[indexName].LAST_UPDATED)
-    .then(newTimestamp => t.ok(newTimestamp > timestamp))
+  setTimeout(function () { // wait to ensure that newer timestamp is bigger
+    global[indexName].PUT([{
+      text: 'this is a new doc'.split()
+    }]).then(global[indexName].LAST_UPDATED)
+      .then(newTimestamp => t.ok(newTimestamp > timestamp))
+  }, 100)
 })

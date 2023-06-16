@@ -1,4 +1,5 @@
 const fii = require('../../')
+const levelOptions = require('../../src/options.js')
 const test = require('tape')
 const { EntryStream } = require('level-read-stream')
 
@@ -84,7 +85,8 @@ test('fields are indexed correctly when there are nested arrays involved', t => 
   t.plan(expected.length)
   new EntryStream(global[indexName].STORE, {
     gte: ['FIELD', ''],
-    lte: ['FIELD', '￮']
+    lte: ['FIELD', '￮'],
+    ...levelOptions
   }).on('data', d => t.deepEqual(d, expected.shift()))
 })
 
@@ -122,6 +124,7 @@ test('tokens are indexed correctly when there are nested arrays involved', t => 
   t.plan(expected.length)
   new EntryStream(global[indexName].STORE, {
     gte: ['IDX'],
-    lte: ['IDX', '￮']
+    lte: ['IDX', '￮'],
+    ...levelOptions
   }).on('data', d => t.deepEqual(d, expected.shift()))
 })
