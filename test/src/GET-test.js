@@ -207,7 +207,7 @@ test('testing case sensitivity', async function (t) {
 test('testing stopwords, empty and non-existant tokens', async function (t) {
   const { GET, PUT } = await fii({
     name: indexName + '_4',
-    stopwords: sw.en
+    stopwords: sw.eng
   })
   t.pass('db initialized')
 

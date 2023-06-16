@@ -50,7 +50,7 @@ module.exports = ops => {
     return {
       // _id: obj._id + '', // cast to string
       _id: obj._id,
-      keys: keys
+      keys
     }
   }
 
@@ -181,7 +181,7 @@ module.exports = ops => {
                     return {
                       _id: doc._id,
                       operation: MODE,
-                      status: status
+                      status
                     }
                   })
                 )
@@ -195,7 +195,7 @@ module.exports = ops => {
   // deleted
   const DELETE = _ids =>
     reader(ops)
-      .OBJECT(_ids.map(_id => ({ _id: _id })))
+      .OBJECT(_ids.map(_id => ({ _id })))
       .then(docs => writer(docs, ops._db, 'del', 'DELETE', {}))
       .then(TIMESTAMP_LAST_UPDATED)
 
@@ -232,10 +232,10 @@ module.exports = ops => {
       )
 
   return {
-    DELETE: DELETE,
-    IMPORT: IMPORT,
-    PUT: PUT,
-    TIMESTAMP_CREATED: TIMESTAMP_CREATED,
-    TIMESTAMP_LAST_UPDATED: TIMESTAMP_LAST_UPDATED
+    DELETE,
+    IMPORT,
+    PUT,
+    TIMESTAMP_CREATED,
+    TIMESTAMP_LAST_UPDATED
   }
 }

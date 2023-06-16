@@ -379,31 +379,31 @@ module.exports = ops => {
     )
 
   return {
-    AGGREGATE: AGGREGATE, // TODO: remove
-    AGGREGATION_FILTER: AGGREGATION_FILTER,
-    BUCKET: BUCKET, // DEPRECATED, TODO: remove
+    AGGREGATE, // TODO: remove
+    AGGREGATION_FILTER,
+    BUCKET, // DEPRECATED, TODO: remove
     // TODO: change so that this takes an options object containing
     // facet command, flag for returning empty facets or not, and a
     // set of ids to filter on
-    BUCKETS: BUCKETS,
-    CREATED: CREATED,
-    DISTINCT: DISTINCT,
-    EXIST: EXIST,
+    BUCKETS,
+    CREATED,
+    DISTINCT,
+    EXIST,
     EXPORT: getRange,
     // TODO: change so that this takes an options object containing
     // facet command, flag for returning empty facets or not, and a
     // set of ids to filter on
-    FACETS: FACETS,
+    FACETS,
     FIELDS: AVAILABLE_FIELDS,
-    GET: GET,
-    INTERSECTION: INTERSECTION, // AND
-    LAST_UPDATED: LAST_UPDATED,
-    MAX: MAX,
+    GET,
+    INTERSECTION, // AND
+    LAST_UPDATED,
+    MAX,
     MIN: BOUNDING_VALUE,
-    OBJECT: OBJECT,
-    SET_SUBTRACTION: SET_SUBTRACTION, // NOT
-    SORT: SORT,
-    UNION: UNION, // OR,
-    parseToken: parseToken
+    OBJECT,
+    SET_SUBTRACTION, // NOT
+    SORT,
+    UNION, // OR,
+    parseToken
   }
 }
