@@ -1,6 +1,8 @@
-const fii = require('../../')
-const test = require('tape')
-const sw = require('stopword')
+const { InvertedIndex } = await import(
+  '../../src/' + process.env.FII_ENTRYPOINT
+)
+import test from 'tape'
+import sw from 'stopword'
 
 const sandbox = 'test/sandbox/'
 const indexName = sandbox + 'GET'
@@ -99,10 +101,12 @@ const data = [
 ]
 
 test('some simple GETs', async function (t) {
-  const { GET, PUT } = await fii({
+  const { GET, PUT } = await new InvertedIndex({
     name: indexName,
     isLeaf: item =>
-      typeof item === 'string' || typeof item === 'number' || Array.isArray(item)
+      typeof item === 'string' ||
+      typeof item === 'number' ||
+      Array.isArray(item)
   })
   t.pass('db initialized')
 
@@ -124,7 +128,7 @@ test('some simple GETs', async function (t) {
 })
 
 test('testing single query replacement', async function (t) {
-  const { GET, PUT } = await fii({
+  const { GET, PUT } = await new InvertedIndex({
     name: indexName + '_1',
     queryReplace: {
       swedemachine: ['Volvo']
@@ -151,7 +155,7 @@ test('testing single query replacement', async function (t) {
 })
 
 test('testing query with multiple replacements', async function (t) {
-  const { GET, PUT, OR } = await fii({
+  const { GET, PUT, OR } = await new InvertedIndex({
     name: indexName + '_2',
     queryReplace: {
       eurocars: ['Volvo', 'BMW', 'Opel']
@@ -186,7 +190,7 @@ test('testing query with multiple replacements', async function (t) {
 })
 
 test('testing case sensitivity', async function (t) {
-  const { GET, PUT } = await fii({
+  const { GET, PUT } = await new InvertedIndex({
     name: indexName + '_3',
     caseSensitive: true
   })
@@ -205,7 +209,7 @@ test('testing case sensitivity', async function (t) {
 })
 
 test('testing stopwords, empty and non-existant tokens', async function (t) {
-  const { GET, PUT } = await fii({
+  const { GET, PUT } = await new InvertedIndex({
     name: indexName + '_4',
     stopwords: sw.eng
   })

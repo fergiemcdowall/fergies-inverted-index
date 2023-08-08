@@ -1,6 +1,7 @@
-const fii = require('../../')
-const levelOptions = require('../../src/options.js')
-const test = require('tape')
+const { InvertedIndex } = await import(
+  '../../src/' + process.env.FII_ENTRYPOINT
+)
+import test from 'tape'
 
 const sandbox = 'test/sandbox/'
 const indexName = sandbox + 'LAST_UPDATED'
@@ -9,7 +10,7 @@ let timestamp
 
 test('create index', t => {
   t.plan(1)
-  fii({ name: indexName }).then(db => {
+  new InvertedIndex({ name: indexName }).then(db => {
     global[indexName] = db
     t.ok(db, !undefined)
   })
@@ -17,11 +18,10 @@ test('create index', t => {
 
 test('LAST_UPDATED timestamp was created', t => {
   t.plan(1)
-  global[indexName].STORE.get(['~LAST_UPDATED'], levelOptions)
-    .then(created => {
-      timestamp = created
-      return t.pass('LAST_UPDATED timestamp created ' + timestamp)
-    })
+  global[indexName].STORE.get(['~LAST_UPDATED']).then(created => {
+    timestamp = created
+    return t.pass('LAST_UPDATED timestamp created ' + timestamp)
+  })
 })
 
 test('can read LAST_UPDATED timestamp with API', t => {
@@ -31,10 +31,15 @@ test('can read LAST_UPDATED timestamp with API', t => {
 
 test('when adding a new doc, LAST_UPDATE increments', t => {
   t.plan(1)
-  setTimeout(function () { // wait to ensure that newer timestamp is bigger
-    global[indexName].PUT([{
-      text: 'this is a new doc'.split()
-    }]).then(global[indexName].LAST_UPDATED)
+  setTimeout(function () {
+    // wait to ensure that newer timestamp is bigger
+    global[indexName]
+      .PUT([
+        {
+          text: 'this is a new doc'.split()
+        }
+      ])
+      .then(global[indexName].LAST_UPDATED)
       .then(newTimestamp => t.ok(newTimestamp > timestamp))
   }, 100)
 })

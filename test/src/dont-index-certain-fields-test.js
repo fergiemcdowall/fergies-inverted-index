@@ -1,8 +1,9 @@
-const fii = require('../../')
-const levelOptions = require('../../src/options.js')
+const { InvertedIndex } = await import(
+  '../../src/' + process.env.FII_ENTRYPOINT
+)
 
-const test = require('tape')
-const { EntryStream } = require('level-read-stream')
+import test from 'tape'
+import { EntryStream } from 'level-read-stream'
 
 const sandbox = 'test/sandbox/'
 
@@ -10,7 +11,7 @@ const indexName = sandbox + 'dont-index-certain-fields'
 
 test('create index', t => {
   t.plan(1)
-  fii({ name: indexName }).then(db => {
+  new InvertedIndex({ name: indexName }).then(db => {
     global[indexName] = db
     t.ok(db, !undefined)
   })
@@ -92,7 +93,9 @@ test('analyse index', t => {
     { key: ['IDX', 'make', ['Tesla']], value: ['0', '2'] }
   ]
   t.plan(storeState.length)
-  const r = new EntryStream(global[indexName].STORE, { lt: ['~'], ...levelOptions })
+  const r = new EntryStream(global[indexName].STORE, {
+    lt: ['~']
+  })
   r.on('data', d => t.deepEqual(d, storeState.shift()))
 })
 
@@ -100,7 +103,7 @@ const indexName2 = sandbox + 'non-searchable-fields-test2'
 
 test('create another index', t => {
   t.plan(1)
-  fii({ name: indexName2 }).then(db => {
+  new InvertedIndex({ name: indexName2 }).then(db => {
     global[indexName2] = db
     t.ok(db, !undefined)
   })
@@ -180,6 +183,8 @@ test('analyse index', t => {
     { key: ['IDX', 'make', ['Tesla']], value: ['0', '2'] }
   ]
   t.plan(storeState.length)
-  const r = new EntryStream(global[indexName2].STORE, { lt: ['~'], ...levelOptions })
+  const r = new EntryStream(global[indexName2].STORE, {
+    lt: ['~']
+  })
   r.on('data', d => t.deepEqual(d, storeState.shift()))
 })

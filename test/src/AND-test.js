@@ -1,5 +1,7 @@
-const fii = require('../../')
-const test = require('tape')
+const { InvertedIndex } = await import(
+  '../../src/' + process.env.FII_ENTRYPOINT
+)
+import test from 'tape'
 
 const sandbox = 'test/sandbox/'
 const indexName = sandbox + 'AND'
@@ -99,7 +101,7 @@ const data = [
 
 test('create index', t => {
   t.plan(1)
-  fii({ name: indexName }).then(db => {
+  new InvertedIndex({ name: indexName }).then(db => {
     global[indexName] = db
     t.ok(db, !undefined)
   })

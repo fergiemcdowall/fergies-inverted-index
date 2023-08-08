@@ -1,14 +1,15 @@
-const fii = require('../../')
-const levelOptions = require('../../src/options.js')
-const test = require('tape')
-const { EntryStream } = require('level-read-stream')
+const { InvertedIndex } = await import(
+  '../../src/' + process.env.FII_ENTRYPOINT
+)
+import test from 'tape'
+import { EntryStream } from 'level-read-stream'
 
 const sandbox = 'test/sandbox/'
 const indexName = sandbox + 'indexing-without-ids-test'
 
 test('create another index', t => {
   t.plan(1)
-  fii({ name: indexName }).then(db => {
+  new InvertedIndex({ name: indexName }).then(db => {
     global[indexName] = db
     t.ok(db, !undefined)
   })
@@ -46,7 +47,7 @@ test('can GET with string', t => {
     { key: ['IDX', 'land', ['SCOTLAND']], value: [1] }
   ]
   t.plan(result.length)
-  new EntryStream(global[indexName].STORE, { lt: ['~'], ...levelOptions }).on('data', d =>
+  new EntryStream(global[indexName].STORE, { lt: ['~'] }).on('data', d =>
     t.deepEqual(d, result.shift())
   )
 })

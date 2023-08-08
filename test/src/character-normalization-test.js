@@ -1,11 +1,14 @@
-const fii = require('../../')
-const test = require('tape')
+const { InvertedIndex } = await import(
+  '../../src/' + process.env.FII_ENTRYPOINT
+)
+import test from 'tape'
+import diacritic from 'diacritic'
+
 const sandbox = 'test/sandbox/'
 const indexName = sandbox + 'charnorm'
-const diacritic = require('diacritic')
 
 test('some simple GETs', async function (t) {
-  const { GET, OR, PUT } = await fii({ name: indexName })
+  const { GET, OR, PUT } = await new InvertedIndex({ name: indexName })
   t.pass('db initialized')
 
   await PUT(

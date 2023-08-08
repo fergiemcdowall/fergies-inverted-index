@@ -1,13 +1,20 @@
-const tokenParser = require('./parseToken.js')
-const charwise = require('charwise')
-const { EntryStream } = require('level-read-stream')
-const levelOptions = require('./options.js')
+// const tokenParser = require('./parseToken.js')
+// const charwise = require('charwise')
+// const { EntryStream } = require('level-read-stream')
+// const levelOptions = require('./options.js')
+
+import tokenParser from './parseToken.js'
+import charwise from 'charwise'
+import { EntryStream } from 'level-read-stream'
+import levelOptions from './options.js'
 
 // polyfill- HI and LO coming in next version of charwise
 charwise.LO = null
 charwise.HI = undefined
 
-module.exports = ops => {
+// module.exports = ops => {
+
+export default function (ops) {
   const isString = s => typeof s === 'string'
 
   // TODO: in order to account for query processing pipelines,
@@ -56,7 +63,7 @@ module.exports = ops => {
   // If this token is a stopword then return 'undefined'
   const removeStopwords = token =>
     token.VALUE.GTE === token.VALUE.LTE &&
-      ops.stopwords.includes(token.VALUE.GTE)
+    ops.stopwords.includes(token.VALUE.GTE)
       ? undefined
       : token
 
@@ -84,7 +91,6 @@ module.exports = ops => {
         // testForBreak(token) // ?
         token = await queryReplace(token) // TODO: rename to replaceToken?
         testForBreak(token)
-
         token = await pipeline(token)
         testForBreak(token)
       } catch (e) {
@@ -201,7 +207,9 @@ module.exports = ops => {
   // documents exist in the index.
   const EXIST = (...ids) =>
     Promise.all(
-      ids.map(id => ops._db.get([ops.docExistsSpace, id], levelOptions).catch(e => null))
+      ids.map(id =>
+        ops._db.get([ops.docExistsSpace, id], levelOptions).catch(e => null)
+      )
     ).then(result =>
       result.reduce((acc, cur, i) => {
         if (cur != null) acc.push(ids[i])
@@ -250,7 +258,9 @@ module.exports = ops => {
 
   const OBJECT = _ids =>
     Promise.all(
-      _ids.map(id => ops._db.get(['DOC', id._id], levelOptions).catch(reason => null))
+      _ids.map(id =>
+        ops._db.get(['DOC', id._id], levelOptions).catch(reason => null)
+      )
     ).then(_objects =>
       _ids.map((_id, i) => {
         _id._object = _objects[i]

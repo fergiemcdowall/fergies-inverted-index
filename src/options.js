@@ -1,6 +1,6 @@
-const charwise = require('charwise')
+import charwise from 'charwise'
 
-module.exports = {
+export default {
   keyEncoding: charwise,
   valueEncoding: 'json'
 }

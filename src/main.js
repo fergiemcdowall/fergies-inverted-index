@@ -1,7 +1,9 @@
-// const level = require('level')
-const read = require('./read.js')
-const write = require('./write.js')
-const levelOptions = require('./options.js')
+// const read = require('./read.js')
+// const write = require('./write.js')
+// const levelOptions = require('./options.js')
+
+import read from './read.js'
+import write from './write.js'
 
 // _match is nested by default so that AND and OR work correctly under
 // the bonnet. Flatten array before presenting to consumer
@@ -9,21 +11,21 @@ const flattenMatchArrayInResults = results =>
   typeof results === 'undefined'
     ? undefined
     : results.map(result => {
-      // Sort _match consistently (FIELD -> VALUE -> SCORE)
-      result._match = result._match
-        .flat(Infinity)
-        .map(m => (typeof m === 'string' ? JSON.parse(m) : m))
-        .sort((a, b) => {
-          if (a.FIELD < b.FIELD) return -1
-          if (a.FIELD > b.FIELD) return 1
-          if (a.VALUE < b.VALUE) return -1
-          if (a.VALUE > b.VALUE) return 1
-          if (a.SCORE < b.SCORE) return -1
-          if (a.SCORE > b.SCORE) return 1
-          return 0
-        })
-      return result
-    })
+        // Sort _match consistently (FIELD -> VALUE -> SCORE)
+        result._match = result._match
+          .flat(Infinity)
+          .map(m => (typeof m === 'string' ? JSON.parse(m) : m))
+          .sort((a, b) => {
+            if (a.FIELD < b.FIELD) return -1
+            if (a.FIELD > b.FIELD) return 1
+            if (a.VALUE < b.VALUE) return -1
+            if (a.VALUE > b.VALUE) return 1
+            if (a.SCORE < b.SCORE) return -1
+            if (a.SCORE > b.SCORE) return 1
+            return 0
+          })
+        return result
+      })
 
 const initStore = (ops = {}) =>
   new Promise((resolve, reject) => {
@@ -72,7 +74,7 @@ const makeAFii = ops => {
       r.GET(tokens, pipeline).then(flattenMatchArrayInResults),
     IMPORT: w.IMPORT,
     LAST_UPDATED: r.LAST_UPDATED,
-    LEVEL_OPTIONS: levelOptions,
+    // LEVEL_OPTIONS: levelOptions,
     MAX: r.MAX,
     MIN: r.MIN,
     NOT: (...keys) =>
@@ -91,4 +93,8 @@ const makeAFii = ops => {
   }))
 }
 
-module.exports = ops => initStore(ops).then(makeAFii)
+export class Main {
+  constructor(ops) {
+    return initStore(ops).then(makeAFii)
+  }
+}

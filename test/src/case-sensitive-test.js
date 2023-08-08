@@ -1,5 +1,7 @@
-const fii = require('../../')
-const test = require('tape')
+const { InvertedIndex } = await import(
+  '../../src/' + process.env.FII_ENTRYPOINT
+)
+import test from 'tape'
 
 const sandbox = 'test/sandbox/'
 // TODO: why does 'case-sensitive-test' break everything here?
@@ -8,7 +10,7 @@ const caseInsensitiveIdx = sandbox + 'case-insensitive-test'
 
 test('create a case sensitive index', t => {
   t.plan(1)
-  fii({
+  new InvertedIndex({
     name: caseSensitiveIdx,
     caseSensitive: true
   }).then(db => {
@@ -19,7 +21,7 @@ test('create a case sensitive index', t => {
 
 test('create a case INsensitive index', t => {
   t.plan(1)
-  fii({
+  new InvertedIndex({
     name: caseInsensitiveIdx,
     caseSensitive: false
   }).then(db => {

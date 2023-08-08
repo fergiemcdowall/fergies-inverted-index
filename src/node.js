@@ -1,7 +1,12 @@
-const fii = require('./main.js')
-const { MemoryLevel } = require('memory-level')
+import levelOptions from './options.js'
+import { Main } from './main.js'
+import { ClassicLevel } from 'classic-level'
 
-module.exports = ({ name = 'fii', ...ops }) => fii({
-  db: new MemoryLevel(),
-  ...ops
-})
+export class InvertedIndex {
+  constructor(ops = {}) {
+    return new Main({
+      db: new ClassicLevel(ops.name || 'fii', levelOptions),
+      ...ops
+    })
+  }
+}

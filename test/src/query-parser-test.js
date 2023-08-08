@@ -1,13 +1,15 @@
-const fii = require('../../')
-const test = require('tape')
-const wbd = require('world-bank-dataset')
+const { InvertedIndex } = await import(
+  '../../src/' + process.env.FII_ENTRYPOINT
+)
+import test from 'tape'
+import wbd from 'world-bank-dataset'
 
 const sandbox = 'test/sandbox/'
 const indexName = sandbox + 'wb2'
 
 test('create index', t => {
   t.plan(1)
-  fii({ name: indexName }).then(db => {
+  new InvertedIndex({ name: indexName }).then(db => {
     global[indexName] = db
     t.ok(db, !undefined)
   })

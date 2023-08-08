@@ -1,5 +1,7 @@
-const fii = require('../../')
-const test = require('tape')
+const { InvertedIndex } = await import(
+  '../../src/' + process.env.FII_ENTRYPOINT
+)
+import test from 'tape'
 
 const sandbox = 'test/sandbox/'
 
@@ -97,7 +99,9 @@ const data = [
 ]
 
 test('simple OR', async t => {
-  const { AND, GET, PUT, OR } = await fii({ name: sandbox + 'OR' })
+  const { AND, GET, PUT, OR } = await new InvertedIndex({
+    name: sandbox + 'OR'
+  })
   t.deepEquals(await PUT(data), [
     { _id: 0, operation: 'PUT', status: 'CREATED' },
     { _id: 1, operation: 'PUT', status: 'CREATED' },

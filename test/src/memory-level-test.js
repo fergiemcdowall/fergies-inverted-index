@@ -1,7 +1,9 @@
-const fii = require('../../src/main')
-const { MemoryLevel } = require('memory-level')
-const test = require('tape')
-const wbd = require('world-bank-dataset')
+const { InvertedIndex } = await import(
+  '../../src/' + process.env.FII_ENTRYPOINT
+)
+import { MemoryLevel } from 'memory-level'
+import test from 'tape'
+import wbd from 'world-bank-dataset'
 
 const data = wbd.slice(0, 10).map(item => {
   return {
@@ -18,7 +20,7 @@ const data = wbd.slice(0, 10).map(item => {
 
 test('create a fii with memory-level', t => {
   t.plan(2)
-  fii({
+  new InvertedIndex({
     db: new MemoryLevel()
   }).then(db =>
     db

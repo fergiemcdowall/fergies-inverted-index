@@ -1,14 +1,15 @@
-const fii = require('../../')
-const levelOptions = require('../../src/options.js')
-const test = require('tape')
-const { EntryStream } = require('level-read-stream')
+const { InvertedIndex } = await import(
+  '../../src/' + process.env.FII_ENTRYPOINT
+)
+import test from 'tape'
+import { EntryStream } from 'level-read-stream'
 
 const sandbox = 'test/sandbox/'
 const indexName = sandbox + 'store-vector-test'
 
 test('create index', t => {
   t.plan(1)
-  fii({
+  new InvertedIndex({
     name: indexName
   }).then(db => {
     global[indexName] = db
@@ -46,7 +47,7 @@ test('can verify store', t => {
     { key: ['IDX', 'text', ['this']], value: [0] }
   ]
   t.plan(entries.length + 1)
-  new EntryStream(global[indexName].STORE, { lt: ['~'], ...levelOptions })
+  new EntryStream(global[indexName].STORE, { lt: ['~'] })
     .on('data', d => t.deepEquals(d, entries.shift()))
     .on('end', resolve => t.pass('ended'))
 })

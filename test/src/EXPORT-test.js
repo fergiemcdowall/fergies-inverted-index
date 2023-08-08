@@ -1,5 +1,7 @@
-const fii = require('../../')
-const test = require('tape')
+const { InvertedIndex } = await import(
+  '../../src/' + process.env.FII_ENTRYPOINT
+)
+import test from 'tape'
 
 const sandbox = 'test/sandbox/'
 const exportingIndexName = sandbox + 'EXPORT'
@@ -75,7 +77,7 @@ const data = [
 
 test('create an index for export', t => {
   t.plan(1)
-  fii({ name: exportingIndexName }).then(db => {
+  new InvertedIndex({ name: exportingIndexName }).then(db => {
     global[exportingIndexName] = db
     t.ok(db, !undefined)
   })
@@ -98,7 +100,7 @@ test('can export some data', t => {
 
 test('create an index for export', t => {
   t.plan(1)
-  fii({ name: importingIndexName }).then(db => {
+  new InvertedIndex({ name: importingIndexName }).then(db => {
     global[importingIndexName] = db
     t.ok(db, !undefined)
   })

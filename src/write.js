@@ -1,8 +1,12 @@
-const trav = require('traverse')
-const reader = require('./read.js')
-const levelOptions = require('./options.js')
+// const trav = require('traverse')
+// const reader = require('./read.js')
+// const levelOptions = require('./options.js')
 
-module.exports = ops => {
+import trav from 'traverse'
+import reader from './read.js'
+import levelOptions from './options.js'
+
+export default function (ops) {
   // TODO: set reset this to the max value every time the DB is restarted
   let incrementalId = 0
 
@@ -202,11 +206,12 @@ module.exports = ops => {
   // when importing, index is first cleared. This means that "merges"
   // are not currently supported
   const IMPORT = index =>
-    ops._db
-      .clear()
-      .then(() =>
-        ops._db.batch(index.map(entry => Object.assign(entry, { type: 'put' })), levelOptions)
+    ops._db.clear().then(() =>
+      ops._db.batch(
+        index.map(entry => Object.assign(entry, { type: 'put' })),
+        levelOptions
       )
+    )
 
   const PUT = (docs, putOptions = {}) =>
     writer(
@@ -221,14 +226,18 @@ module.exports = ops => {
     ).then(TIMESTAMP_LAST_UPDATED)
 
   const TIMESTAMP_LAST_UPDATED = passThrough =>
-    ops._db.put(['~LAST_UPDATED'], Date.now(), levelOptions).then(() => passThrough)
+    ops._db
+      .put(['~LAST_UPDATED'], Date.now(), levelOptions)
+      .then(() => passThrough)
 
   const TIMESTAMP_CREATED = () =>
     ops._db
       .get(['~CREATED'], levelOptions)
       .then(/* already created- do nothing */)
       .catch(e =>
-        ops._db.put(['~CREATED'], Date.now(), levelOptions).then(TIMESTAMP_LAST_UPDATED)
+        ops._db
+          .put(['~CREATED'], Date.now(), levelOptions)
+          .then(TIMESTAMP_LAST_UPDATED)
       )
 
   return {

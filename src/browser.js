@@ -1,7 +1,12 @@
-const fii = require('./main.js')
-const { BrowserLevel } = require('browser-level')
+// import levelOptions from './options.js'
+import { Main as MainInvertedIndex } from './main.js'
+import { BrowserLevel } from 'browser-level'
 
-module.exports = ({ name = 'fii', ...ops }) => fii({
-  db: new BrowserLevel(name),
-  ...ops
-})
+export class InvertedIndex {
+  constructor(ops = {}) {
+    return new MainInvertedIndex({
+      db: new BrowserLevel(ops.name || 'fii', { valueEncoding: 'json' }),
+      ...ops
+    })
+  }
+}

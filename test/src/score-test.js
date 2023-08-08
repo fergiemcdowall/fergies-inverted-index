@@ -1,5 +1,7 @@
-const fii = require('../../')
-const test = require('tape')
+const { InvertedIndex } = await import(
+  '../../src/' + process.env.FII_ENTRYPOINT
+)
+import test from 'tape'
 
 const sandbox = 'test/sandbox/'
 const indexName = sandbox + 'score'
@@ -106,10 +108,12 @@ const data = [
 
 test('create index', t => {
   t.plan(1)
-  fii({
+  new InvertedIndex({
     name: indexName,
     isLeaf: item =>
-      typeof item === 'string' || typeof item === 'number' || Array.isArray(item)
+      typeof item === 'string' ||
+      typeof item === 'number' ||
+      Array.isArray(item)
   }).then(db => {
     global[indexName] = db
     t.ok(db, !undefined)

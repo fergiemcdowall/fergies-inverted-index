@@ -1,7 +1,8 @@
-const fii = require('../../')
-const levelOptions = require('../../src/options.js')
-const test = require('tape')
-const { EntryStream } = require('level-read-stream')
+const { InvertedIndex } = await import(
+  '../../src/' + process.env.FII_ENTRYPOINT
+)
+import test from 'tape'
+import { EntryStream } from 'level-read-stream'
 
 const sandbox = 'test/sandbox/'
 const indexName = sandbox + 'indexing-arrays-test'
@@ -58,7 +59,7 @@ const data = [
 
 test('create index', t => {
   t.plan(1)
-  fii({ name: indexName }).then(db => {
+  new InvertedIndex({ name: indexName }).then(db => {
     global[indexName] = db
     t.ok(db, !undefined)
   })
@@ -85,8 +86,7 @@ test('fields are indexed correctly when there are nested arrays involved', t => 
   t.plan(expected.length)
   new EntryStream(global[indexName].STORE, {
     gte: ['FIELD', ''],
-    lte: ['FIELD', '￮'],
-    ...levelOptions
+    lte: ['FIELD', '￮']
   }).on('data', d => t.deepEqual(d, expected.shift()))
 })
 
@@ -124,7 +124,6 @@ test('tokens are indexed correctly when there are nested arrays involved', t => 
   t.plan(expected.length)
   new EntryStream(global[indexName].STORE, {
     gte: ['IDX'],
-    lte: ['IDX', '￮'],
-    ...levelOptions
+    lte: ['IDX', '￮']
   }).on('data', d => t.deepEqual(d, expected.shift()))
 })

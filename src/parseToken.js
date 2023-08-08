@@ -5,8 +5,9 @@ charwise.HI = undefined
 // key might be object or string like this
 // <fieldname>:<value>. Turn key into json object that is of the
 // format {FIELD: ..., VALUE: {GTE: ..., LTE ...}}
-module.exports = (token, availableFields) =>
-  new Promise((resolve, reject) => {
+// module.exports = (token, availableFields) =>
+export default function (token, availableFields) {
+  return new Promise((resolve, reject) => {
     // case: <value>
     // case: <FIELD>:<VALUE>
     // case: undefined
@@ -106,3 +107,4 @@ module.exports = (token, availableFields) =>
 
     return resolve(token)
   })
+}

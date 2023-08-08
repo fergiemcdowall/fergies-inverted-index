@@ -1,21 +1,17 @@
-const fii = require('../../')
-const levelOptions = require('../../src/options.js')
-const test = require('tape')
+const { InvertedIndex } = await import(
+  '../../src/' + process.env.FII_ENTRYPOINT
+)
+
+import test from 'tape'
 
 const sandbox = 'test/sandbox/'
 const indexName = sandbox + 'CREATED'
 
 let timestamp
 
-const opts = {}
-if (typeof window === 'undefined') {
-  const { ClassicLevel } = require('classic-level')
-  opts.db = new ClassicLevel(indexName)
-}
-
 test('create index', t => {
   t.plan(1)
-  fii({ name: indexName, ...opts }).then(db => {
+  new InvertedIndex({ name: indexName }).then(db => {
     global[indexName] = db
     t.ok(db, !undefined)
   })
@@ -23,7 +19,7 @@ test('create index', t => {
 
 test('timestamp was created', t => {
   t.plan(1)
-  global[indexName].STORE.get(['~CREATED'], levelOptions)
+  global[indexName].STORE.get(['~CREATED'])
     .then(created => {
       timestamp = created
       return t.pass('timestamp created')
@@ -51,7 +47,7 @@ test('confirm index is closed', t => {
 
 test('recreate index', t => {
   t.plan(1)
-  fii({ name: indexName, ...opts }).then(db => {
+  new InvertedIndex({ name: indexName }).then(db => {
     global[indexName] = db
     t.ok(db, !undefined)
   })
