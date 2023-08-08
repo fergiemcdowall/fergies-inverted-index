@@ -1,5 +1,4 @@
 import test from 'tape'
-import { EntryStream } from 'level-read-stream'
 import { InvertedIndex } from 'fergies-inverted-index'
 
 const sandbox = 'test/sandbox/'
@@ -33,24 +32,26 @@ test('can add some data', t => {
   global[indexName].PUT(data).then(t.pass)
 })
 
-test('can verify store', t => {
+test('can verify store', async t => {
   const entries = [
-    {
-      key: ['DOC', 0],
-      value: { _id: 0, text: ['this', 'is', 'a', 'sentence'] }
-    },
-    {
-      key: ['DOC', 1],
-      value: { _id: 1, text: ['a', 'sentence', 'that', 'is', 'interesting'] }
-    },
-    { key: ['FIELD', 'text'], value: 'text' },
-    { key: ['IDX', 'text', ['interesting']], value: [1] },
-    { key: ['IDX', 'text', ['sentence']], value: [0, 1] }
+    [['DOC', 0], { _id: 0, text: ['this', 'is', 'a', 'sentence'] }],
+    [
+      ['DOC', 1],
+      { _id: 1, text: ['a', 'sentence', 'that', 'is', 'interesting'] }
+    ],
+    [['FIELD', 'text'], 'text'],
+    [['IDX', 'text', ['interesting']], [1]],
+    [
+      ['IDX', 'text', ['sentence']],
+      [0, 1]
+    ]
   ]
-  t.plan(entries.length + 1)
-  new EntryStream(global[indexName].STORE, { lt: ['~'] })
-    .on('data', d => t.deepEquals(d, entries.shift()))
-    .on('end', resolve => t.pass('ended'))
+  t.plan(entries.length)
+  for await (const entry of global[indexName].STORE.iterator({
+    lt: ['~']
+  })) {
+    t.deepEquals(entry, entries.shift())
+  }
 })
 
 test('can read data ignoring stopwords', t => {

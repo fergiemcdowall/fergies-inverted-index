@@ -8,7 +8,6 @@
     "browser-level": "1.0.1",
     "charwise": "3.0.1",
     "memory-level": "1.0.0",
-    "level-read-stream": "1.1.0",
     "traverse": "0.6.7"
   },
   "directories": {

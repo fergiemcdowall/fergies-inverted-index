@@ -1,13 +1,9 @@
-import tokenParser from './parseToken.js'
 import charwise from 'charwise'
-import { EntryStream } from 'level-read-stream'
-import levelOptions from './options.js'
+import tokenParser from './parseToken.js'
 
 // polyfill- HI and LO coming in next version of charwise
 charwise.LO = null
 charwise.HI = undefined
-
-// module.exports = ops => {
 
 export default function (ops) {
   const isString = s => typeof s === 'string'
@@ -144,33 +140,28 @@ export default function (ops) {
     new Promise(resolve => {
       // If this token is undefined (stopword) then resolve 'undefined'
       if (typeof token === 'undefined') return resolve(undefined)
-
       const rs = new Map() // resultset
-      return Promise.all(
-        token.FIELD.map(
-          fieldName =>
-            new Promise(resolve =>
-              new EntryStream(ops._db, {
-                gte: formatKey(fieldName, token.VALUE.GTE),
-                lte: formatKey(fieldName, token.VALUE.LTE, true),
-                limit: token.LIMIT,
-                reverse: token.REVERSE,
-                ...levelOptions
-              })
-                .on('data', token =>
-                  token.value.forEach(docId =>
-                    rs.set(docId, [
-                      ...(rs.get(docId) || []),
-                      JSON.stringify({
-                        FIELD: token.key[1],
-                        VALUE: token.key[2][0],
-                        SCORE: token.key[2][1]
-                      })
-                    ])
-                  )
-                )
-                .on('end', resolve)
+      Promise.all(
+        token.FIELD.map(fieldName =>
+          getRange({
+            gte: formatKey(fieldName, token.VALUE.GTE),
+            lte: formatKey(fieldName, token.VALUE.LTE, true),
+            limit: token.LIMIT,
+            reverse: token.REVERSE
+          }).then(entries =>
+            entries.forEach(token =>
+              token.value.forEach(docId =>
+                rs.set(docId, [
+                  ...(rs.get(docId) || []),
+                  JSON.stringify({
+                    FIELD: token.key[1],
+                    VALUE: token.key[2][0],
+                    SCORE: token.key[2][1]
+                  })
+                ])
+              )
             )
+          )
         )
       ).then(() =>
         resolve(
@@ -183,28 +174,20 @@ export default function (ops) {
     })
 
   const AVAILABLE_FIELDS = () =>
-    new Promise(resolve => {
-      const fieldNames = []
-      new EntryStream(ops._db, {
-        gte: ['FIELD', charwise.LO],
-        lte: ['FIELD', charwise.HI],
-        ...levelOptions
-      })
-        .on('data', d => fieldNames.push(d.value))
-        .on('end', () => resolve(fieldNames))
-    })
+    getRange({
+      gte: ['FIELD', charwise.LO],
+      lte: ['FIELD', charwise.HI]
+    }).then(fields => fields.map(f => f.key[1]))
 
-  const CREATED = () => ops._db.get(['~CREATED'], levelOptions)
+  const CREATED = () => ops._db.get(['~CREATED'])
 
-  const LAST_UPDATED = () => ops._db.get(['~LAST_UPDATED'], levelOptions)
+  const LAST_UPDATED = () => ops._db.get(['~LAST_UPDATED'])
 
   // takes an array of ids and determines if the corresponding
   // documents exist in the index.
   const EXIST = (...ids) =>
     Promise.all(
-      ids.map(id =>
-        ops._db.get([ops.docExistsSpace, id], levelOptions).catch(e => null)
-      )
+      ids.map(id => ops._db.get([ops.docExistsSpace, id]).catch(e => null))
     ).then(result =>
       result.reduce((acc, cur, i) => {
         if (cur != null) acc.push(ids[i])
@@ -253,9 +236,7 @@ export default function (ops) {
 
   const OBJECT = _ids =>
     Promise.all(
-      _ids.map(id =>
-        ops._db.get(['DOC', id._id], levelOptions).catch(reason => null)
-      )
+      _ids.map(id => ops._db.get(['DOC', id._id]).catch(reason => null))
     ).then(_objects =>
       _ids.map((_id, i) => {
         _id._object = _objects[i]
@@ -265,14 +246,10 @@ export default function (ops) {
 
   // TODO: can this be replaced by RANGE?
   const getRange = rangeOps =>
-    new Promise((resolve, reject) => {
-      const keys = []
-      new EntryStream(ops._db, { ...rangeOps, ...levelOptions })
-        .on('data', data => {
-          keys.push(data)
-        })
-        .on('end', () => resolve(keys))
-    })
+    ops._db
+      .iterator(rangeOps)
+      .all()
+      .then(entries => entries.map(([key, value]) => ({ key, value })))
 
   const MAX = fieldName => BOUNDING_VALUE(fieldName, true)
 

@@ -1,3 +1,4 @@
+import levelOptions from '../../src/options.js'
 import test from 'tape'
 import wbd from 'world-bank-dataset'
 import { InvertedIndex } from 'fergies-inverted-index'
@@ -19,7 +20,7 @@ const data = wbd.slice(0, 10).map(item => {
 test('create a fii with memory-level', t => {
   t.plan(2)
   new InvertedIndex({
-    db: new MemoryLevel()
+    db: new MemoryLevel(levelOptions)
   }).then(db =>
     db
       .PUT(data)
