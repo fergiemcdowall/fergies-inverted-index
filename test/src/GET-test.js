@@ -1,8 +1,6 @@
-const { InvertedIndex } = await import(
-  '../../src/' + process.env.FII_ENTRYPOINT
-)
-import test from 'tape'
 import sw from 'stopword'
+import test from 'tape'
+import { InvertedIndex } from 'fergies-inverted-index'
 
 const sandbox = 'test/sandbox/'
 const indexName = sandbox + 'GET'

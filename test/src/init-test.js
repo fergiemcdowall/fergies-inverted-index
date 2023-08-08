@@ -1,46 +1,10 @@
 import test from 'tape'
-
-const { InvertedIndex } = await import(
-  '../../src/' + process.env.FII_ENTRYPOINT
-)
-
-// import { InvertedIndex } from '../../src/browser.js'
-
-console.log('boooooom')
+import { InvertedIndex } from 'fergies-inverted-index'
 
 const sandbox = 'test/sandbox/'
 const indexName = sandbox + 'init'
-const global = {}
 
-const data = [
-  {
-    _id: 'a',
-    title: 'quite a cool document',
-    body: {
-      text: 'this document is really cool cool cool',
-      metadata: 'coolness documentness'
-    },
-    importantNumber: 5000
-  },
-  {
-    _id: 'b',
-    title: 'quite a cool document',
-    body: {
-      text: 'this document is really cool bananas',
-      metadata: 'coolness documentness'
-    },
-    importantNumber: 500
-  },
-  {
-    _id: 'c',
-    title: 'something different',
-    body: {
-      text: 'something totally different',
-      metadata: 'coolness documentness'
-    },
-    importantNumber: 200
-  }
-]
+const global = {}
 
 test('create index', t => {
   t.plan(1)

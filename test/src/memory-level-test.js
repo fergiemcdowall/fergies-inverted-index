@@ -1,9 +1,7 @@
-const { InvertedIndex } = await import(
-  '../../src/' + process.env.FII_ENTRYPOINT
-)
-import { MemoryLevel } from 'memory-level'
 import test from 'tape'
 import wbd from 'world-bank-dataset'
+import { InvertedIndex } from 'fergies-inverted-index'
+import { MemoryLevel } from 'memory-level'
 
 const data = wbd.slice(0, 10).map(item => {
   return {

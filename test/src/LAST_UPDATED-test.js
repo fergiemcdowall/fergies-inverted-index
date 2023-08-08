@@ -1,10 +1,10 @@
-const { InvertedIndex } = await import(
-  '../../src/' + process.env.FII_ENTRYPOINT
-)
 import test from 'tape'
+import { InvertedIndex } from 'fergies-inverted-index'
 
 const sandbox = 'test/sandbox/'
 const indexName = sandbox + 'LAST_UPDATED'
+
+const global = {}
 
 let timestamp
 
@@ -18,10 +18,14 @@ test('create index', t => {
 
 test('LAST_UPDATED timestamp was created', t => {
   t.plan(1)
-  global[indexName].STORE.get(['~LAST_UPDATED']).then(created => {
-    timestamp = created
-    return t.pass('LAST_UPDATED timestamp created ' + timestamp)
-  })
+  global[indexName].STORE.get(['~LAST_UPDATED'])
+    .then(created => {
+      console.log('Boooooom')
+      timestamp = created
+      console.log('Boooooom')
+      return t.pass('LAST_UPDATED timestamp created ' + timestamp)
+    })
+    .catch(t.error)
 })
 
 test('can read LAST_UPDATED timestamp with API', t => {

@@ -1,11 +1,11 @@
-const { InvertedIndex } = await import(
-  '../../src/' + process.env.FII_ENTRYPOINT
-)
 import test from 'tape'
 import wbd from 'world-bank-dataset'
+import { InvertedIndex } from 'fergies-inverted-index'
 
 const sandbox = 'test/sandbox/'
 const indexName = sandbox + 'stress-test'
+
+const global = {}
 
 test('create index', t => {
   t.plan(1)

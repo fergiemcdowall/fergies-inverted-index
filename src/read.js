@@ -1,8 +1,3 @@
-// const tokenParser = require('./parseToken.js')
-// const charwise = require('charwise')
-// const { EntryStream } = require('level-read-stream')
-// const levelOptions = require('./options.js')
-
 import tokenParser from './parseToken.js'
 import charwise from 'charwise'
 import { EntryStream } from 'level-read-stream'

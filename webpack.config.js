@@ -47,7 +47,7 @@ export default [
   {
     ...config,
     mode: 'production',
-    entry: glob.sync('./test/src/test-test.js'),
+    entry: glob.sync('./test/src/*-test.js'),
     output: {
       path: path.resolve('test/sandbox'),
       filename: 'browser-tests.js'

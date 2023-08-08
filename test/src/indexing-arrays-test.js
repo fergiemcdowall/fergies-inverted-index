@@ -1,11 +1,10 @@
-const { InvertedIndex } = await import(
-  '../../src/' + process.env.FII_ENTRYPOINT
-)
 import test from 'tape'
-import { EntryStream } from 'level-read-stream'
+import { InvertedIndex } from 'fergies-inverted-index'
 
 const sandbox = 'test/sandbox/'
 const indexName = sandbox + 'indexing-arrays-test'
+
+const global = {}
 
 const data = [
   {
@@ -70,7 +69,7 @@ test('can add some data', t => {
   global[indexName].PUT(data).then(t.pass)
 })
 
-test('fields are indexed correctly when there are nested arrays involved', t => {
+test('fields are indexed correctly when there are nested arrays involved', async t => {
   const expected = [
     { key: ['FIELD', 'description'], value: 'description' },
     { key: ['FIELD', 'description.longer'], value: 'description.longer' },
@@ -84,13 +83,15 @@ test('fields are indexed correctly when there are nested arrays involved', t => 
     { key: ['FIELD', 'price'], value: 'price' }
   ]
   t.plan(expected.length)
-  new EntryStream(global[indexName].STORE, {
+  for await (const [key, value] of global[indexName].STORE.iterator({
     gte: ['FIELD', ''],
     lte: ['FIELD', '￮']
-  }).on('data', d => t.deepEqual(d, expected.shift()))
+  })) {
+    t.deepEqual({ key, value }, expected.shift())
+  }
 })
 
-test('tokens are indexed correctly when there are nested arrays involved', t => {
+test('tokens are indexed correctly when there are nested arrays involved', async t => {
   const expected = [
     { key: ['IDX', 'description', ['a']], value: [1, 2, 3] },
     { key: ['IDX', 'description', ['array']], value: [2] },
@@ -122,8 +123,10 @@ test('tokens are indexed correctly when there are nested arrays involved', t => 
     { key: ['IDX', 'price', [83988]], value: [0] }
   ]
   t.plan(expected.length)
-  new EntryStream(global[indexName].STORE, {
+  for await (const [key, value] of global[indexName].STORE.iterator({
     gte: ['IDX'],
     lte: ['IDX', '￮']
-  }).on('data', d => t.deepEqual(d, expected.shift()))
+  })) {
+    t.deepEqual({ key, value }, expected.shift())
+  }
 })

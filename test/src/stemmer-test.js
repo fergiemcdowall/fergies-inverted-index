@@ -1,15 +1,12 @@
-const { InvertedIndex } = await import(
-  '../../src/' + process.env.FII_ENTRYPOINT
-)
 import test from 'tape'
+import { InvertedIndex } from 'fergies-inverted-index'
+import { stemmer } from 'stemmer'
 
 const sandbox = 'test/sandbox/'
 const indexName = sandbox + 'stemmer'
 
 test('init fii and index data', async t => {
-  const { stemmer } = await import('stemmer')
-
-  const { DELETE, GET, PUT, QUERY_PIPELINE_STAGES } = await new InvertedIndex({
+  const { DELETE, GET, PUT } = await new InvertedIndex({
     name: indexName
   })
 

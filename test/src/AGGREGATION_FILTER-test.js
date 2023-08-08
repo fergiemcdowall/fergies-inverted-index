@@ -1,10 +1,10 @@
-const { InvertedIndex } = await import(
-  '../../src/' + process.env.FII_ENTRYPOINT
-)
+import { InvertedIndex } from 'fergies-inverted-index'
 import test from 'tape'
 
 const sandbox = 'test/sandbox/'
 const indexName = sandbox + 'AGGREGATION_FILTER'
+
+const global = {}
 
 const data = [
   {

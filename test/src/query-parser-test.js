@@ -1,18 +1,20 @@
-const { InvertedIndex } = await import(
-  '../../src/' + process.env.FII_ENTRYPOINT
-)
 import test from 'tape'
 import wbd from 'world-bank-dataset'
+import { InvertedIndex } from 'fergies-inverted-index'
 
 const sandbox = 'test/sandbox/'
 const indexName = sandbox + 'wb2'
 
+const global = {}
+
 test('create index', t => {
   t.plan(1)
-  new InvertedIndex({ name: indexName }).then(db => {
-    global[indexName] = db
-    t.ok(db, !undefined)
-  })
+  new InvertedIndex({ name: indexName })
+    .then(db => {
+      global[indexName] = db
+      t.ok(db, !undefined)
+    })
+    .catch(t.error)
 })
 
 test('can add some worldbank data', t => {
