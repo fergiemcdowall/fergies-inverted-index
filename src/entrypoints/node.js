@@ -1,11 +1,10 @@
-import levelOptions from './options.js'
-import { Main } from './main.js'
 import { ClassicLevel } from 'classic-level'
+import { Main } from '../main.js'
 
 export class InvertedIndex {
   constructor (ops = {}) {
     return new Main({
-      db: new ClassicLevel(ops.name || 'fii', levelOptions),
+      Level: ClassicLevel,
       ...ops
     })
   }

@@ -5,15 +5,22 @@ charwise.HI = undefined
 // key might be object or string like this
 // <fieldname>:<value>. Turn key into json object that is of the
 // format {FIELD: ..., VALUE: {GTE: ..., LTE ...}}
-// module.exports = (token, availableFields) =>
-export default function (token, availableFields) {
-  return new Promise((resolve, reject) => {
+export class TokenParser {
+  constructor (availableFields = []) {
+    this.setAvailableFields(availableFields)
+  }
+
+  setAvailableFields (availableFields) {
+    this.availableFields = availableFields
+  }
+
+  parse (token) {
     // case: <value>
     // case: <FIELD>:<VALUE>
     // case: undefined
 
     if (Array.isArray(token)) {
-      return reject(new Error('token cannot be Array'))
+      throw new Error('token cannot be Array')
     }
 
     if (typeof token === 'undefined') token = {}
@@ -23,23 +30,23 @@ export default function (token, availableFields) {
       // a part of the value. This accounts for occasions where the value itself
       // has a ':'.
       if (token.indexOf(':') === -1) {
-        return resolve({
-          FIELD: availableFields,
+        return {
+          FIELD: this.availableFields,
           VALUE: {
             GTE: token,
             LTE: token
           }
-        })
+        }
       }
 
       const [field, ...value] = token.split(':')
-      return resolve({
+      return {
         FIELD: [field],
         VALUE: {
           GTE: value.join(':'),
           LTE: value.join(':')
         }
-      })
+      }
     }
 
     if (typeof token === 'number') {
@@ -51,7 +58,7 @@ export default function (token, availableFields) {
       }
     }
 
-    // else not string so assume Object
+    // else not string or number so assume Object
     // {
     //   FIELD: [ fields ],
     //   VALUE: {
@@ -96,15 +103,14 @@ export default function (token, availableFields) {
 
     // parse object FIELD
     if (typeof token.FIELD === 'undefined') {
-      return resolve(
-        Object.assign(token, {
-          FIELD: availableFields
-        })
-      )
+      return {
+        FIELD: this.availableFields,
+        ...token
+      }
     }
     // Allow FIELD to be an array or a string
     token.FIELD = [token.FIELD].flat()
 
-    return resolve(token)
-  })
+    return token
+  }
 }

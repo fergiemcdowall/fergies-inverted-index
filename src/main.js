@@ -1,9 +1,7 @@
-// const read = require('./read.js')
-// const write = require('./write.js')
-// const levelOptions = require('./options.js')
-
+import charwise from 'charwise'
 import read from './read.js'
 import write from './write.js'
+import { TokenParser } from './parseToken.js'
 
 // _match is nested by default so that AND and OR work correctly under
 // the bonnet. Flatten array before presenting to consumer
@@ -27,33 +25,22 @@ const flattenMatchArrayInResults = results =>
       return result
     })
 
-const initStore = (ops = {}) =>
-  new Promise((resolve, reject) => {
-    ops = Object.assign(
-      {
-        // TODO: is tokenAppens still needed?
-        // tokenAppend can be used to create 'comment' spaces in
-        // tokens. For example using '#' allows tokens like boom#1.00 to
-        // be retrieved by using "boom". If tokenAppend wasnt used, then
-        // {gte: 'boom', lte: 'boom'} would also return stuff like
-        // boomness#1.00 etc
-        // tokenAppend: '',
-        caseSensitive: true,
-        isLeaf: item => typeof item === 'string' || typeof item === 'number',
-        stopwords: [],
-        doNotIndexField: [],
-        storeVectors: true,
-        docExistsSpace: 'DOC' // field used to verify that doc exists
-      },
-      ops
-    )
-    const db = ops.db
-    db.open(err =>
-      err ? reject(err) : resolve(Object.assign(ops, { _db: db }))
-    )
-  })
+const init = async (ops = {}) => {
+  ops = {
+    caseSensitive: true,
+    isLeaf: item => typeof item === 'string' || typeof item === 'number',
+    stopwords: [],
+    doNotIndexField: [],
+    storeVectors: true,
+    docExistsSpace: 'DOC', // the field used to verify that doc exists
+    db: await new ops.Level(ops.name, {
+      keyEncoding: charwise,
+      valueEncoding: 'json'
+    }),
+    tokenParser: new TokenParser(),
+    ...ops
+  }
 
-const makeAFii = ops => {
   const r = read(ops)
   const w = write(ops)
 
@@ -74,7 +61,6 @@ const makeAFii = ops => {
       r.GET(tokens, pipeline).then(flattenMatchArrayInResults),
     IMPORT: w.IMPORT,
     LAST_UPDATED: r.LAST_UPDATED,
-    // LEVEL_OPTIONS: levelOptions,
     MAX: r.MAX,
     MIN: r.MIN,
     NOT: (...keys) =>
@@ -87,14 +73,14 @@ const makeAFii = ops => {
         .then(flattenMatchArrayInResults),
     PUT: w.PUT,
     SORT: r.SORT,
-    STORE: ops._db,
+    STORE: ops.db,
     TIMESTAMP_LAST_UPDATED: w.TIMESTAMP_LAST_UPDATED,
-    parseToken: r.parseToken
+    TOKEN_PARSER: ops.tokenParser
   }))
 }
 
 export class Main {
   constructor (ops) {
-    return initStore(ops).then(makeAFii)
+    return init(ops)
   }
 }

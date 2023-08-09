@@ -37,7 +37,7 @@ export default [
   {
     ...config,
     mode: 'production',
-    entry: './src/browser.js',
+    entry: './src/entrypoints/browser.js',
     output: {
       path: path.resolve('dist'),
       filename: 'fergies-inverted-index.js',

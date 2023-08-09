@@ -1,10 +1,5 @@
-// const trav = require('traverse')
-// const reader = require('./read.js')
-// const levelOptions = require('./options.js')
-
 import trav from 'traverse'
 import reader from './read.js'
-import levelOptions from './options.js'
 
 export default function (ops) {
   // TODO: set reset this to the max value every time the DB is restarted
@@ -59,14 +54,14 @@ export default function (ops) {
   }
 
   // TODO: merging indexes needs a proper test
-  const createMergedReverseIndex = (index, _db, mode) => {
+  const createMergedReverseIndex = (index, db, mode) => {
     // does a wb.get that simply returns "[]" rather than rejecting the
     // promise so that you can do Promise.all without breaking on keys
     // that dont exist in the db
     const gracefullGet = key =>
       new Promise((resolve, reject) =>
-        _db
-          .get(key, levelOptions)
+        db
+          .get(key)
           .then(resolve)
           .catch(e => resolve([]))
       )
@@ -128,6 +123,7 @@ export default function (ops) {
     if (typeof id === 'number') return id
   }
 
+  // TODO: swap out with AVAILABLE_FIELDS()
   const availableFields = reverseIndex =>
     [...new Set(reverseIndex.map(item => item.key[1].split(':')[0]))].map(
       f => ({
@@ -138,7 +134,7 @@ export default function (ops) {
       })
     )
 
-  const writer = (docs, _db, mode, MODE, putOptions) =>
+  const writer = (docs, db, mode, MODE, putOptions) =>
     new Promise(resolve => {
       // check for _id field, autogenerate if necessary
       // TODO: get this back at some point, maybe "sanitize ID" that
@@ -157,14 +153,13 @@ export default function (ops) {
         .then(existingDocs =>
           createMergedReverseIndex(
             createDeltaReverseIndex(docs, putOptions),
-            _db,
+            db,
             mode
           ).then(mergedReverseIndex =>
-            _db.batch(
+            db.batch(
               mergedReverseIndex
                 .concat(putOptions.storeVectors ? objectIndex(docs, mode) : [])
                 .concat(availableFields(mergedReverseIndex)),
-              levelOptions,
               e =>
                 resolve(
                   docs.map(doc => {
@@ -200,16 +195,15 @@ export default function (ops) {
   const DELETE = _ids =>
     reader(ops)
       .OBJECT(_ids.map(_id => ({ _id })))
-      .then(docs => writer(docs, ops._db, 'del', 'DELETE', {}))
+      .then(docs => writer(docs, ops.db, 'del', 'DELETE', {}))
       .then(TIMESTAMP_LAST_UPDATED)
 
   // when importing, index is first cleared. This means that "merges"
   // are not currently supported
   const IMPORT = index =>
-    ops._db.clear().then(() =>
-      ops._db.batch(
-        index.map(entry => Object.assign(entry, { type: 'put' })),
-        levelOptions
+    ops.db.clear().then(() =>
+      ops.db.batch(
+        index.map(entry => Object.assign(entry, { type: 'put' })) // ,
       )
     )
 
@@ -219,25 +213,27 @@ export default function (ops) {
         _id: doc._id,
         _object: doc
       })),
-      ops._db,
+      ops.db,
       'put',
       'PUT',
       putOptions
-    ).then(TIMESTAMP_LAST_UPDATED)
+    )
+      .then(TIMESTAMP_LAST_UPDATED)
+      .then(async passThrough => {
+        // TODO: reader should not be inited here
+        ops.tokenParser.setAvailableFields(await reader(ops).FIELDS())
+        return passThrough
+      })
 
   const TIMESTAMP_LAST_UPDATED = passThrough =>
-    ops._db
-      .put(['~LAST_UPDATED'], Date.now(), levelOptions)
-      .then(() => passThrough)
+    ops.db.put(['~LAST_UPDATED'], Date.now()).then(() => passThrough)
 
   const TIMESTAMP_CREATED = () =>
-    ops._db
-      .get(['~CREATED'], levelOptions)
+    ops.db
+      .get(['~CREATED'])
       .then(/* already created- do nothing */)
       .catch(e =>
-        ops._db
-          .put(['~CREATED'], Date.now(), levelOptions)
-          .then(TIMESTAMP_LAST_UPDATED)
+        ops.db.put(['~CREATED'], Date.now()).then(TIMESTAMP_LAST_UPDATED)
       )
 
   return {

@@ -1,5 +1,4 @@
 import charwise from 'charwise'
-import tokenParser from './parseToken.js'
 
 // polyfill- HI and LO coming in next version of charwise
 charwise.LO = null
@@ -7,12 +6,6 @@ charwise.HI = undefined
 
 export default function (ops) {
   const isString = s => typeof s === 'string'
-
-  // TODO: in order to account for query processing pipelines,
-  // parseToken should probably be moved to search-index and fii
-  // should only deal with nicely formatted query tokens (JSON
-  // objects)
-  const parseToken = async token => tokenParser(token, await AVAILABLE_FIELDS())
 
   const queryReplace = token => {
     // for example stopwords create undefined token
@@ -74,7 +67,7 @@ export default function (ops) {
       try {
         testForBreak(token)
 
-        token = await parseToken(token)
+        token = ops.tokenParser.parse(token)
         // testForBreak(token) // ?
         token = await setCaseSensitivity(token)
         // testForBreak(token) // ?
@@ -179,15 +172,15 @@ export default function (ops) {
       lte: ['FIELD', charwise.HI]
     }).then(fields => fields.map(f => f.key[1]))
 
-  const CREATED = () => ops._db.get(['~CREATED'])
+  const CREATED = () => ops.db.get(['~CREATED'])
 
-  const LAST_UPDATED = () => ops._db.get(['~LAST_UPDATED'])
+  const LAST_UPDATED = () => ops.db.get(['~LAST_UPDATED'])
 
   // takes an array of ids and determines if the corresponding
   // documents exist in the index.
   const EXIST = (...ids) =>
     Promise.all(
-      ids.map(id => ops._db.get([ops.docExistsSpace, id]).catch(e => null))
+      ids.map(id => ops.db.get([ops.docExistsSpace, id]).catch(e => null))
     ).then(result =>
       result.reduce((acc, cur, i) => {
         if (cur != null) acc.push(ids[i])
@@ -220,23 +213,16 @@ export default function (ops) {
 
   // return a bucket of IDs. Key is an object like this:
   // {gte:..., lte:...} (gte/lte == greater/less than or equal)
-  const BUCKET = async token =>
-    parseToken(
-      token // TODO: is parseToken needed her? Already called in GET
-    ).then(token =>
-      GET(token).then(result =>
-        Object.assign(token, {
-          _id: [
-            ...result.reduce((acc, cur) => acc.add(cur._id), new Set())
-          ].sort(),
-          VALUE: token.VALUE
-        })
-      )
-    )
+  const BUCKET = token =>
+    GET(token).then(result => ({
+      _id: [...result.reduce((acc, cur) => acc.add(cur._id), new Set())].sort(),
+      VALUE: token.VALUE,
+      ...token
+    }))
 
   const OBJECT = _ids =>
     Promise.all(
-      _ids.map(id => ops._db.get(['DOC', id._id]).catch(reason => null))
+      _ids.map(id => ops.db.get(['DOC', id._id]).catch(reason => null))
     ).then(_objects =>
       _ids.map((_id, i) => {
         _id._object = _objects[i]
@@ -246,7 +232,7 @@ export default function (ops) {
 
   // TODO: can this be replaced by RANGE?
   const getRange = rangeOps =>
-    ops._db
+    ops.db
       .iterator(rangeOps)
       .all()
       .then(entries => entries.map(([key, value]) => ({ key, value })))
@@ -254,18 +240,13 @@ export default function (ops) {
   const MAX = fieldName => BOUNDING_VALUE(fieldName, true)
 
   const BOUNDING_VALUE = (token, reverse) =>
-    parseToken(token)
-      .then(token =>
-        RANGE(
-          Object.assign(token, {
-            LIMIT: 1,
-            REVERSE: reverse
-          })
-        )
-      )
-      .then(max =>
-        max.length ? JSON.parse(max.pop()._match.pop()).VALUE : null
-      )
+    RANGE({
+      ...ops.tokenParser.parse(token),
+      LIMIT: 1,
+      REVERSE: reverse
+    }).then(max =>
+      max.length ? JSON.parse(max.pop()._match.pop()).VALUE : null
+    )
 
   const DISTINCT = (...tokens) =>
     Promise.all(
@@ -279,39 +260,37 @@ export default function (ops) {
       ].map(JSON.parse)
     )
 
-  const DIST = token =>
-    parseToken(token)
-      .then(token =>
-        Promise.all(
-          token.FIELD.map(field => {
-            let lte = token.VALUE.LTE
-            if (
-              typeof token.VALUE.LTE !== 'undefined' &&
-              typeof token.VALUE.LTE !== 'number'
-            ) {
-              lte = lte + '￮'
-            }
+  const DIST = token => {
+    token = ops.tokenParser.parse(token)
+    return Promise.all(
+      token.FIELD.map(field => {
+        let lte = token.VALUE.LTE
+        if (
+          typeof token.VALUE.LTE !== 'undefined' &&
+          typeof token.VALUE.LTE !== 'number'
+        ) {
+          lte = lte + '￮'
+        }
 
-            let gte = token.VALUE.GTE
-            if (token.VALUE.GTE && typeof token.VALUE.GTE !== 'number') {
-              gte = gte + ' '
-            }
+        let gte = token.VALUE.GTE
+        if (token.VALUE.GTE && typeof token.VALUE.GTE !== 'number') {
+          gte = gte + ' '
+        }
 
-            return getRange({
-              gte: formatKey(field, gte),
-              lte: formatKey(field, lte, true),
-              keys: true,
-              values: false
-            }).then(items =>
-              items.map(({ key }) => ({
-                FIELD: key[1],
-                VALUE: key[2][0]
-              }))
-            )
-          })
+        return getRange({
+          gte: formatKey(field, gte),
+          lte: formatKey(field, lte, true),
+          keys: true,
+          values: false
+        }).then(items =>
+          items.map(({ key }) => ({
+            FIELD: key[1],
+            VALUE: key[2][0]
+          }))
         )
-      )
-      .then(result => result.flat())
+      })
+    ).then(result => result.flat())
+  }
 
   const FACETS = (...tokens) =>
     Promise.all(
@@ -329,25 +308,23 @@ export default function (ops) {
         ].map(JSON.parse)
     )
 
-  const FACET = token =>
-    parseToken(token)
-      .then(token =>
-        Promise.all(
-          token.FIELD.map(field =>
-            getRange({
-              gte: formatKey(field, token.VALUE.GTE),
-              lte: formatKey(field, token.VALUE.LTE, true)
-            }).then(items =>
-              items.map(item => ({
-                FIELD: item.key[1],
-                VALUE: item.key[2][0],
-                _id: item.value
-              }))
-            )
-          )
+  const FACET = token => {
+    token = ops.tokenParser.parse(token)
+    return Promise.all(
+      token.FIELD.map(field =>
+        getRange({
+          gte: formatKey(field, token.VALUE.GTE),
+          lte: formatKey(field, token.VALUE.LTE, true)
+        }).then(items =>
+          items.map(item => ({
+            FIELD: item.key[1],
+            VALUE: item.key[2][0],
+            _id: item.value
+          }))
         )
       )
-      .then(result => result.flat())
+    ).then(result => result.flat())
+  }
 
   // declare outside of loop as per https://stackoverflow.com/questions/14677060/400x-sorting-speedup-by-switching-a-localecompareb-to-ab-1ab10
   const collator = new Intl.Collator('en', {
@@ -385,7 +362,6 @@ export default function (ops) {
     OBJECT,
     SET_SUBTRACTION, // NOT
     SORT,
-    UNION, // OR,
-    parseToken
+    UNION // OR,
   }
 }
