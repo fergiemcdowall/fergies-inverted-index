@@ -1,7 +1,5 @@
 # Fergie's Inverted Index
 
-![tests](https://github.com/fergiemcdowall/fergies-inverted-index/actions/workflows/tests.yml/badge.svg)
-
 #### This is an inverted index library. There are many like it, but this one is Fergie's.
 
 Throw JavaScript objects at the index and they will become retrievable by their properties using promises and map-reduce ([see examples](https://github.com/fergiemcdowall/fergies-inverted-index/tree/master/test/src))
