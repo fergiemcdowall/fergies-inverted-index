@@ -228,7 +228,7 @@ export default function (ops) {
   const TIMESTAMP_LAST_UPDATED = passThrough =>
     ops.db.put(['~LAST_UPDATED'], Date.now()).then(() => passThrough)
 
-  const TIMESTAMP_CREATED = () =>
+  const TIMESTAMP = () =>
     ops.db
       .get(['~CREATED'])
       .then(/* already created- do nothing */)
@@ -240,7 +240,7 @@ export default function (ops) {
     DELETE,
     IMPORT,
     PUT,
-    TIMESTAMP_CREATED,
+    TIMESTAMP,
     TIMESTAMP_LAST_UPDATED
   }
 }

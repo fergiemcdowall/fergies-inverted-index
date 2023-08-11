@@ -108,16 +108,26 @@ const data = [
 
 test('create index', t => {
   t.plan(1)
-  new InvertedIndex({
-    name: indexName,
-    isLeaf: item =>
-      typeof item === 'string' ||
-      typeof item === 'number' ||
-      Array.isArray(item)
-  }).then(db => {
-    global[indexName] = db
-    t.ok(db, !undefined)
-  })
+  t.ok(
+    (global[indexName] = new InvertedIndex({
+      name: indexName,
+      isLeaf: item =>
+        typeof item === 'string' ||
+        typeof item === 'number' ||
+        Array.isArray(item)
+    })),
+    !undefined
+  )
+  // new InvertedIndex({
+  //   name: indexName,
+  //   isLeaf: item =>
+  //     typeof item === 'string' ||
+  //     typeof item === 'number' ||
+  //     Array.isArray(item)
+  // }).then(db => {
+  //   global[indexName] = db
+  //   t.ok(db, !undefined)
+  // })
 })
 
 test('can add some data', t => {

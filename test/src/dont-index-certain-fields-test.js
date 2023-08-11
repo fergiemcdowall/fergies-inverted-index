@@ -8,10 +8,7 @@ const global = {}
 
 test('create index', t => {
   t.plan(1)
-  new InvertedIndex({ name: indexName }).then(db => {
-    global[indexName] = db
-    t.ok(db, !undefined)
-  })
+  t.ok((global[indexName] = new InvertedIndex({ name: indexName })), !undefined)
 })
 
 test('can add data', t => {
@@ -107,10 +104,10 @@ const indexName2 = sandbox + 'non-searchable-fields-test2'
 
 test('create another index', t => {
   t.plan(1)
-  new InvertedIndex({ name: indexName2 }).then(db => {
-    global[indexName2] = db
-    t.ok(db, !undefined)
-  })
+  t.ok(
+    (global[indexName2] = new InvertedIndex({ name: indexName2 })),
+    !undefined
+  )
 })
 
 test('can add data', t => {

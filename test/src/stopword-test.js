@@ -8,13 +8,20 @@ const global = {}
 
 test('create index', t => {
   t.plan(1)
-  new InvertedIndex({
-    name: indexName,
-    stopwords: ['this', 'is', 'a', 'that', 'bananas']
-  }).then(db => {
-    global[indexName] = db
-    t.ok(db, !undefined)
-  })
+  t.ok(
+    (global[indexName] = new InvertedIndex({
+      name: indexName,
+      stopwords: ['this', 'is', 'a', 'that', 'bananas']
+    })),
+    !undefined
+  )
+  // new InvertedIndex({
+  //   name: indexName,
+  //   stopwords: ['this', 'is', 'a', 'that', 'bananas']
+  // }).then(db => {
+  //   global[indexName] = db
+  //   t.ok(db, !undefined)
+  // })
 })
 
 test('can add some data', t => {

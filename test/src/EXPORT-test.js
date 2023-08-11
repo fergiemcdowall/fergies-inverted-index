@@ -77,10 +77,12 @@ const data = [
 
 test('create an index for export', t => {
   t.plan(1)
-  new InvertedIndex({ name: exportingIndexName }).then(db => {
-    global[exportingIndexName] = db
-    t.ok(db, !undefined)
-  })
+  t.ok(
+    (global[exportingIndexName] = new InvertedIndex({
+      name: exportingIndexName
+    })),
+    !undefined
+  )
 })
 
 test('can add some data', t => {
@@ -100,10 +102,12 @@ test('can export some data', t => {
 
 test('create an index for export', t => {
   t.plan(1)
-  new InvertedIndex({ name: importingIndexName }).then(db => {
-    global[importingIndexName] = db
-    t.ok(db, !undefined)
-  })
+  t.ok(
+    (global[importingIndexName] = new InvertedIndex({
+      name: importingIndexName
+    })),
+    !undefined
+  )
 })
 
 test('added data will be overwritten by the import', t => {

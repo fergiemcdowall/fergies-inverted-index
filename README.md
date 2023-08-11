@@ -13,11 +13,11 @@ This lib will work in node and also in the browser
 ### Initialise and populate an index
 
 ```javascript
-import fii from 'fergies-inverted-index'
+import { InvertedIndex } from 'fergies-inverted-index'
 
-const db = fii()
+const { PUT, AND, BUCKETS, FACETS, OR, NOT, OBJECT, GET } = new InvertedIndex(ops)
 
-db.PUT([ /* my array of objects to be searched */ ]).then(doStuff)
+PUT([ /* my array of objects to be searched */ ]).then(doStuff)
 
 ```
 
@@ -28,10 +28,10 @@ db.PUT([ /* my array of objects to be searched */ ]).then(doStuff)
 // (given objects that contain: { land: <land>, colour: <colour>, population: <number> ... })
 
 // get all object IDs where land=SCOTLAND and colour=GREEN
-db.AND(|'land:SCOTLAND', 'colour:GREEN']).then(result)
+AND(|'land:SCOTLAND', 'colour:GREEN']).then(result)
 
 // the query strings above can alternatively be expressed using JSON objects
-db.AND([
+AND([
   {
     FIELD: 'land'
     VALUE: 'SCOTLAND'
@@ -42,26 +42,47 @@ db.AND([
 ]).then(result)
 
 // as above, but return whole objects
-db.AND(['land:SCOTLAND', 'colour:GREEN']).then(db.OBJECT).then(result)
+AND(['land:SCOTLAND', 'colour:GREEN']).then(OBJECT).then(result)
 
 // Get all object IDs where land=SCOTLAND, and those where land=IRELAND
-db.OR(['land:SCOTLAND', 'land:IRELAND']).then(result)
+OR(['land:SCOTLAND', 'land:IRELAND']).then(result)
 
 // queries can be embedded within each other
-db.AND([
+AND([
   'land:SCOTLAND',
-  db.OR(['colour:GREEN', 'colour:BLUE'])
+  OR(['colour:GREEN', 'colour:BLUE'])
 ]).then(result)
 
 // get all object IDs where land=SCOTLAND and colour is NOT GREEN
-db.NOT(
-  db.GET('land:SCOTLAND'),                 // everything in this set
-  db.GET('colour:GREEN', 'colour:RED').    // minus everything in this set
+NOT(
+  GET('land:SCOTLAND'),                 // everything in this set
+  GET('colour:GREEN', 'colour:RED').    // minus everything in this set
 ).then(result)
 
 // Get max population
-db.MAX('population').then(result)
+MAX('population').then(result)
 
+// Aggregate
+BUCKETS(
+  {
+    FIELD: ['year'],
+    VALUE: {
+      LTE: 2010
+    }
+  },
+  {
+    FIELD: ['year'],
+    VALUE: {
+      GTE: 2010
+    }
+  }
+).then(result)
+
+FACETS({
+  FIELD: 'year'
+}).then(result)
+
+//(see also AGGREGATION_FILTER)
 ```
 
 (See the [tests](https://github.com/fergiemcdowall/fergies-inverted-index/tree/master/test) for more examples.)
@@ -69,16 +90,17 @@ db.MAX('population').then(result)
 
 ## API
 
-- <a href="#open"><code><b>fii()</b></code></a>
+- <a href="#InvertedIndex"><code><b>new InvertedIndex(ops)</b></code></a>
 - <a href="#AGGREGATION_FILTER"><code>db.<b>AGGREGATION_FILTER()</b></code></a>
 - <a href="#AND"><code>db.<b>AND()</b></code></a>
+- <a href="#BUCKET"><code>db.<b>BUCKET()</b></code></a>
 - <a href="#BUCKETS"><code>db.<b>BUCKETS()</b></code></a>
 - <a href="#CREATED"><code>db.<b>CREATED()</b></code></a>
 - <a href="#DELETE"><code>db.<b>DELETE()</b></code></a>
 - <a href="#DISTINCT"><code>db.<b>DISTINCT()</b></code></a>
 - <a href="#EXIST"><code>db.<b>EXIST()</b></code></a>
 - <a href="#EXPORT"><code>db.<b>EXPORT()</b></code></a>
-- <a href="#FACET"><code>db.<b>FACET()</b></code></a>
+- <a href="#FACETS"><code>db.<b>FACETS()</b></code></a>
 - <a href="#FIELDS"><code>db.<b>FIELDS()</b></code></a>
 - <a href="#GET"><code>db.<b>GET()</b></code></a>
 - <a href="#IMPORT"><code>db.<b>IMPORT()</b></code></a>
@@ -94,31 +116,27 @@ db.MAX('population').then(result)
 - <a href="#TIMESTAMP_LAST_UPDATED"><code>db.<b>TIMESTAMP_LAST_UPDATED</b></code></a>
 
 
-<a name="fii"></a>
+<a name="InvertedIndex"></a>
 
-### `fii(options)`
+### `InvertedIndex(options)`
 
-Returns a promise
-
-```javascript
-import fii from 'fergies-inverted-index'
-
-// creates a DB called "myDB" using levelDB (node.js), or indexedDB (browser)
-const db = await fii({ name: 'myDB' })
-```
-
-In some cases you will want to start operating on the database
-instentaneously. In these cases you can wait for the callback:
+Returns an `InvertedIndex` instance
 
 ```javascript
-import fii from 'fergies-inverted-index'
+import { InvertedIndex } from 'fergies-inverted-index'
 
-// creates a DB called "myDB" using levelDB (node.js), or indexedDB (browser)
-fii({ name: 'myDB' }, (err, db) => {
-  // db is guaranteed to be open and available
-})
+const ii = await InvertedIndex({ name: 'myIndex' })
 ```
 
+#### `options`
+
+| options | default value | notes |
+| ------- | ------------- | ------------- |
+| `caseSensistive` | `true` | |
+| `stopwords` | `[]` | [stopwords](https://en.wikipedia.org/wiki/Stop_word) |
+| `doNotIndexField` | `[]` | All field names specified in this array will not be indexed. They will however still be present in the retrieved objects |
+| `storeVectors` |  `true` | Used for among other things deletion. Set to `false` if your index is read-only |
+| `Level` | Defaults to `ClassicLevel` for node and `BrowserLevel` for web | Specify any [`abstract-level`](https://www.npmjs.com/package/abstract-level?activeTab=dependents) compatible backend for your index. The defaults provide LevelDB for node environments and IndexedDB for browsers |
 
 <a name="AGGREGATION_FILTER"></a>
 
@@ -151,6 +169,23 @@ For example- get the set of objects where the `land` property is set
 to `scotland`, `year` is `1975` and `color` is `blue`
 ```javascript
 db.AND([ 'land:scotland', 'year:1975', 'color:blue' ]).then(result)
+```
+
+
+<a name="BUCKET"></a>
+
+### `db.BUCKET( token ).then(result)`
+
+Bucket returns all object ids for objects that contain the given token
+
+```javascript
+BUCKET(
+  {
+    FIELD: ['year'],
+    VALUE: {
+      LTE: 2010
+    }
+  }).then(result)
 ```
 
 

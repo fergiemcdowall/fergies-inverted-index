@@ -18,34 +18,30 @@ const data = wbd.slice(0, 10).map(item => {
 
 test('create a fii with memory-level', t => {
   t.plan(2)
-  new InvertedIndex({
-    Level: MemoryLevel
-  }).then(db =>
-    db
-      .PUT(data)
-      .then(() => {
-        t.pass('ok')
+  const db = new InvertedIndex({ Level: MemoryLevel })
+  db.PUT(data)
+    .then(() => {
+      t.pass('ok')
+    })
+    .then(() => {
+      db.GET({
+        FIELD: 'board_approval_month',
+        VALUE: 'November'
+      }).then(result => {
+        t.deepEqual(result, [
+          {
+            _id: '52b213b38594d8a2be17c780',
+            _match: [{ FIELD: 'board_approval_month', VALUE: 'November' }]
+          },
+          {
+            _id: '52b213b38594d8a2be17c781',
+            _match: [{ FIELD: 'board_approval_month', VALUE: 'November' }]
+          },
+          {
+            _id: '52b213b38594d8a2be17c782',
+            _match: [{ FIELD: 'board_approval_month', VALUE: 'November' }]
+          }
+        ])
       })
-      .then(() => {
-        db.GET({
-          FIELD: 'board_approval_month',
-          VALUE: 'November'
-        }).then(result => {
-          t.deepEqual(result, [
-            {
-              _id: '52b213b38594d8a2be17c780',
-              _match: [{ FIELD: 'board_approval_month', VALUE: 'November' }]
-            },
-            {
-              _id: '52b213b38594d8a2be17c781',
-              _match: [{ FIELD: 'board_approval_month', VALUE: 'November' }]
-            },
-            {
-              _id: '52b213b38594d8a2be17c782',
-              _match: [{ FIELD: 'board_approval_month', VALUE: 'November' }]
-            }
-          ])
-        })
-      })
-  )
+    })
 })

@@ -10,24 +10,24 @@ const global = {}
 
 test('create a case sensitive index', t => {
   t.plan(1)
-  new InvertedIndex({
-    name: caseSensitiveIdx,
-    caseSensitive: true
-  }).then(db => {
-    global[caseSensitiveIdx] = db
-    t.ok(db, !undefined)
-  })
+  t.ok(
+    (global[caseSensitiveIdx] = new InvertedIndex({
+      name: caseSensitiveIdx,
+      caseSensitive: true
+    })),
+    !undefined
+  )
 })
 
 test('create a case INsensitive index', t => {
   t.plan(1)
-  new InvertedIndex({
-    name: caseInsensitiveIdx,
-    caseSensitive: false
-  }).then(db => {
-    global[caseInsensitiveIdx] = db
-    t.ok(db, !undefined)
-  })
+  t.ok(
+    (global[caseInsensitiveIdx] = new InvertedIndex({
+      name: caseInsensitiveIdx,
+      caseSensitive: false
+    })),
+    !undefined
+  )
 })
 
 test('can add some data', t => {

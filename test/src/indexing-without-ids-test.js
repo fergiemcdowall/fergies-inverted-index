@@ -8,10 +8,7 @@ const global = {}
 
 test('create another index', t => {
   t.plan(1)
-  new InvertedIndex({ name: indexName }).then(db => {
-    global[indexName] = db
-    t.ok(db, !undefined)
-  })
+  t.ok((global[indexName] = new InvertedIndex({ name: indexName })), !undefined)
 })
 
 test('can add some worldbank data', t => {

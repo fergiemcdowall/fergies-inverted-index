@@ -10,10 +10,14 @@ let timestamp
 
 test('create index', t => {
   t.plan(1)
-  new InvertedIndex({ name: indexName }).then(db => {
-    global[indexName] = db
-    t.ok(db, !undefined)
-  })
+  t.ok((global[indexName] = new InvertedIndex({ name: indexName })), !undefined)
+})
+
+test('a little pause here since timestamping is asynchronous', t => {
+  t.plan(1)
+  setTimeout(() => {
+    t.ok(true)
+  }, 100)
 })
 
 test('LAST_UPDATED timestamp was created', t => {
