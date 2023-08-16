@@ -88,8 +88,8 @@ export default function (ops) {
   }
 
   // OR
-  const UNION = async (tokens, pipeline) =>
-    Promise.all(tokens.map(token => GET(token, pipeline))).then(sets => {
+  const UNION = async (tokens, pipeline) => {
+    return Promise.all(tokens.map(token => GET(token, pipeline))).then(sets => {
       const setObject = sets.flat(Infinity).reduce((acc, cur) => {
         // cur will be undefined if stopword
         if (cur) acc.set(cur._id, [...(acc.get(cur._id) || []), cur._match])
@@ -103,14 +103,16 @@ export default function (ops) {
         }))
       }
     })
+  }
 
   // AND
-  const INTERSECTION = (tokens, pipeline) =>
-    UNION(tokens, pipeline).then(result =>
-      result.union.filter(
+  const INTERSECTION = (tokens, pipeline) => {
+    return UNION(tokens, pipeline).then(result => {
+      return result.union.filter(
         item => item._match.length === result.sumTokensMinusStopwords
       )
-    )
+    })
+  }
 
   // NOT (set a minus set b)
   const SET_SUBTRACTION = (a, b) =>
@@ -213,12 +215,14 @@ export default function (ops) {
 
   // return a bucket of IDs. Key is an object like this:
   // {gte:..., lte:...} (gte/lte == greater/less than or equal)
-  const BUCKET = token =>
-    GET(token).then(result => ({
+  const BUCKET = token => {
+    token = ops.tokenParser.parse(token)
+    return GET(token).then(result => ({
       _id: [...result.reduce((acc, cur) => acc.add(cur._id), new Set())].sort(),
       VALUE: token.VALUE,
       ...token
     }))
+  }
 
   const OBJECT = _ids =>
     Promise.all(

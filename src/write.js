@@ -7,8 +7,6 @@ export default function (ops) {
 
   // use trav lib to find all leaf nodes with corresponding paths
   const invertDoc = (obj, putOptions) => {
-    // console.log(JSON.stringify(obj._object, null, 2))
-
     if (obj._object == null) {
       return {
         _id: obj._id,
