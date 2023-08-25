@@ -134,3 +134,37 @@ test('can export previously imported data. Index looks ok', t => {
     exportedIndex = exported
   })
 })
+
+test('fields have been made available in imported index', t => {
+  t.plan(1)
+  global[importingIndexName]
+    .FIELDS()
+    .then(fields =>
+      t.deepEqual(fields, [
+        'colour',
+        'drivetrain',
+        'make',
+        'model',
+        'price',
+        'year'
+      ])
+    )
+})
+
+test('can search in imported index', t => {
+  t.plan(1)
+  global[importingIndexName]
+    .GET('make:BMW')
+    .then(res =>
+      t.deepEqual(res, [{ _id: 0, _match: [{ FIELD: 'make', VALUE: 'BMW' }] }])
+    )
+})
+
+test('can search in imported index (without specifying fields names)', t => {
+  t.plan(1)
+  global[importingIndexName]
+    .GET('BMW')
+    .then(res =>
+      t.deepEqual(res, [{ _id: 0, _match: [{ FIELD: 'make', VALUE: 'BMW' }] }])
+    )
+})
