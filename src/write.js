@@ -199,11 +199,15 @@ export default function (ops) {
   // when importing, index is first cleared. This means that "merges"
   // are not currently supported
   const IMPORT = index =>
-    ops.db.clear().then(() =>
-      ops.db.batch(
-        index.map(entry => Object.assign(entry, { type: 'put' })) // ,
+    ops.db
+      .clear()
+      .then(() =>
+        ops.db.batch(
+          index.map(entry => Object.assign(entry, { type: 'put' })) // ,
+        )
       )
-    )
+      .then(() => reader(ops).FIELDS())
+      .then(fields => ops.tokenParser.setAvailableFields(fields))
 
   const PUT = (docs, putOptions = {}) =>
     writer(
