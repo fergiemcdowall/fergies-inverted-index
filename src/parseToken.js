@@ -6,12 +6,27 @@ charwise.HI = undefined
 // <fieldname>:<value>. Turn key into json object that is of the
 // format {FIELD: ..., VALUE: {GTE: ..., LTE ...}}
 export class TokenParser {
-  constructor (availableFields = []) {
-    this.setAvailableFields(availableFields)
+  availableFields = []
+  #caseSensitive
+
+  constructor (caseSensitive) {
+    this.#caseSensitive = caseSensitive
   }
 
-  setAvailableFields (availableFields) {
+  setAvailableFields = availableFields => {
     this.availableFields = availableFields
+  }
+
+  #setCaseSensitivity = token => {
+    const setCase = str =>
+      this.#caseSensitive || typeof str !== 'string' ? str : str.toLowerCase()
+    return {
+      FIELD: token.FIELD.map(setCase),
+      VALUE: {
+        GTE: setCase(token.VALUE.GTE),
+        LTE: setCase(token.VALUE.LTE)
+      }
+    }
   }
 
   parse (token) {
@@ -30,23 +45,23 @@ export class TokenParser {
       // a part of the value. This accounts for occasions where the value itself
       // has a ':'.
       if (token.indexOf(':') === -1) {
-        return {
+        return this.#setCaseSensitivity({
           FIELD: this.availableFields,
           VALUE: {
             GTE: token,
             LTE: token
           }
-        }
+        })
       }
 
       const [field, ...value] = token.split(':')
-      return {
+      return this.#setCaseSensitivity({
         FIELD: [field],
         VALUE: {
           GTE: value.join(':'),
           LTE: value.join(':')
         }
-      }
+      })
     }
 
     if (typeof token === 'number') {
@@ -103,14 +118,14 @@ export class TokenParser {
 
     // parse object FIELD
     if (typeof token.FIELD === 'undefined') {
-      return {
+      return this.#setCaseSensitivity({
         FIELD: this.availableFields,
         ...token
-      }
+      })
     }
     // Allow FIELD to be an array or a string
     token.FIELD = [token.FIELD].flat()
 
-    return token
+    return this.#setCaseSensitivity(token)
   }
 }

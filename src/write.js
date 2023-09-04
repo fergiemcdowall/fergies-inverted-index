@@ -1,7 +1,7 @@
 import trav from 'traverse'
 import reader from './read.js'
 
-export default function (ops) {
+export default function (ops, tokenParser) {
   // TODO: set reset this to the max value every time the DB is restarted
   let incrementalId = 0
 
@@ -32,7 +32,13 @@ export default function (ops) {
             if (!ops.stopwords.includes(this.node)) {
               const key = JSON.stringify([
                 fieldName,
-                [this.node].flat(Infinity)
+                [this.node]
+                  .flat(Infinity)
+                  .map(item =>
+                    typeof item === 'string' && !ops.caseSensitive
+                      ? item.toLowerCase()
+                      : item
+                  )
               ])
               // bump to lower case if not case sensitive
               keys.push(ops.caseSensitive ? key : key.toLowerCase())
@@ -207,7 +213,7 @@ export default function (ops) {
         )
       )
       .then(() => reader(ops).FIELDS())
-      .then(fields => ops.tokenParser.setAvailableFields(fields))
+      .then(fields => tokenParser.setAvailableFields(fields))
 
   const PUT = (docs, putOptions = {}) =>
     writer(
@@ -223,7 +229,7 @@ export default function (ops) {
       .then(TIMESTAMP_LAST_UPDATED)
       .then(async passThrough => {
         // TODO: reader should not be inited here
-        ops.tokenParser.setAvailableFields(await reader(ops).FIELDS())
+        tokenParser.setAvailableFields(await reader(ops).FIELDS())
         return passThrough
       })
 

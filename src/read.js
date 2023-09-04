@@ -4,7 +4,7 @@ import charwise from 'charwise'
 charwise.LO = null
 charwise.HI = undefined
 
-export default function (ops) {
+export default function (ops, tokenParser) {
   const isString = s => typeof s === 'string'
 
   const queryReplace = token => {
@@ -32,18 +32,6 @@ export default function (ops) {
     return token
   }
 
-  const setCaseSensitivity = token => {
-    const setCase = str =>
-      ops.caseSensitive || typeof str !== 'string' ? str : str.toLowerCase()
-    return {
-      FIELD: token.FIELD.map(setCase),
-      VALUE: {
-        GTE: setCase(token.VALUE.GTE),
-        LTE: setCase(token.VALUE.LTE)
-      }
-    }
-  }
-
   // If this token is a stopword then return 'undefined'
   const removeStopwords = token =>
     token.VALUE.GTE === token.VALUE.LTE &&
@@ -67,9 +55,10 @@ export default function (ops) {
       try {
         testForBreak(token)
 
-        token = ops.tokenParser.parse(token)
+        token = tokenParser.parse(token)
+
         // testForBreak(token) // ?
-        token = await setCaseSensitivity(token)
+        //        token = await setCaseSensitivity(token)
         // testForBreak(token) // ?
         token = await removeStopwords(token)
         // testForBreak(token) // ?
@@ -216,7 +205,7 @@ export default function (ops) {
   // return a bucket of IDs. Key is an object like this:
   // {gte:..., lte:...} (gte/lte == greater/less than or equal)
   const BUCKET = token => {
-    token = ops.tokenParser.parse(token)
+    token = tokenParser.parse(token)
     return GET(token).then(result => ({
       _id: [...result.reduce((acc, cur) => acc.add(cur._id), new Set())].sort(),
       VALUE: token.VALUE,
@@ -245,7 +234,7 @@ export default function (ops) {
 
   const BOUNDING_VALUE = (token, reverse) =>
     RANGE({
-      ...ops.tokenParser.parse(token),
+      ...tokenParser.parse(token),
       LIMIT: 1,
       REVERSE: reverse
     }).then(max =>
@@ -265,7 +254,7 @@ export default function (ops) {
     )
 
   const DIST = token => {
-    token = ops.tokenParser.parse(token)
+    token = tokenParser.parse(token)
     return Promise.all(
       token.FIELD.map(field => {
         let lte = token.VALUE.LTE
@@ -313,7 +302,7 @@ export default function (ops) {
     )
 
   const FACET = token => {
-    token = ops.tokenParser.parse(token)
+    token = tokenParser.parse(token)
     return Promise.all(
       token.FIELD.map(field =>
         getRange({

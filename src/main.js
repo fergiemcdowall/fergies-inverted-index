@@ -17,12 +17,13 @@ export class Main {
         keyEncoding: charwise,
         valueEncoding: 'json'
       }),
-      tokenParser: new TokenParser(),
       ...ops
     }
 
-    const r = read(ops)
-    const w = write(ops)
+    const tokenParser = new TokenParser(ops.caseSensitive)
+
+    const r = read(ops, tokenParser)
+    const w = write(ops, tokenParser)
 
     // timestamp with time of creation (if not created already)
     // note: async, so this is "fire and forget"
@@ -58,7 +59,7 @@ export class Main {
     this.SORT = r.SORT
     this.STORE = ops.db
     this.TIMESTAMP_LAST_UPDATED = w.TIMESTAMP_LAST_UPDATED
-    this.TOKEN_PARSER = ops.tokenParser
+    this.TOKEN_PARSER = tokenParser
   }
 
   flattenMatchArrayInResults (results) {
