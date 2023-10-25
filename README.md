@@ -137,9 +137,10 @@ const ii = await InvertedIndex({ name: 'myIndex' })
 
 <a name="AGGREGATION_FILTER"></a>
 
-### `AGGREGATION_FILTER(aggregation, query).then(result)`
+### `AGGREGATION_FILTER(aggregation, query, trimEmpty).then(result)`
 
-The aggregation (either FACETS or BUCKETS) is filtered by the query
+The aggregation (either FACETS or BUCKETS) is filtered by the
+query. Use boolean `trimEmpty` to show or hide empty buckets
 
 ```javascript
 Promise.all([

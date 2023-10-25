@@ -109,6 +109,21 @@ test('can add some data', t => {
   global[indexName].PUT(data).then(t.pass)
 })
 
+test('use AGGREGATION_FILTER with FACETS, 0-hit query', t => {
+  t.plan(1)
+  const { FACETS, AGGREGATION_FILTER, AND } = global[indexName]
+  Promise.all([
+    FACETS({
+      FIELD: ['year']
+    }),
+    AND([37512, 'colour:White'])
+  ]).then(([facetResult, queryResult]) => {
+    t.deepEqual(AGGREGATION_FILTER(facetResult, queryResult), [
+      { FIELD: 'year', VALUE: 2004, _id: [9] }
+    ])
+  })
+})
+
 test('use AGGREGATION_FILTER with FACETS', t => {
   t.plan(1)
   const { FACETS, AGGREGATION_FILTER, AND } = global[indexName]
@@ -118,18 +133,50 @@ test('use AGGREGATION_FILTER with FACETS', t => {
     }),
     AND(['colour:Black'])
   ]).then(([facetResult, queryResult]) => {
-    t.deepEqual(
-      AGGREGATION_FILTER(facetResult, queryResult).filter(
-        item => item._id.length
-      ),
-      [
-        { FIELD: 'drivetrain', VALUE: 'Diesel', _id: [4] },
-        { FIELD: 'drivetrain', VALUE: 'Petrol', _id: [1, 7] },
-        { FIELD: 'model', VALUE: '3-series', _id: [7] },
-        { FIELD: 'model', VALUE: '5-series', _id: [4] },
-        { FIELD: 'model', VALUE: 'XC90', _id: [1] }
-      ]
-    )
+    t.deepEqual(AGGREGATION_FILTER(facetResult, queryResult), [
+      { FIELD: 'drivetrain', VALUE: 'Diesel', _id: [4] },
+      { FIELD: 'drivetrain', VALUE: 'Petrol', _id: [1, 7] },
+      { FIELD: 'model', VALUE: '3-series', _id: [7] },
+      { FIELD: 'model', VALUE: '5-series', _id: [4] },
+      { FIELD: 'model', VALUE: 'XC90', _id: [1] }
+    ])
+  })
+})
+
+test('use AGGREGATION_FILTER with FACETS, keep empty facets', t => {
+  t.plan(1)
+  const { FACETS, AGGREGATION_FILTER, AND } = global[indexName]
+  Promise.all([
+    FACETS({
+      FIELD: ['drivetrain', 'model']
+    }),
+    AND(['Tesla'])
+  ]).then(([facetResult, queryResult]) => {
+    t.deepEqual(AGGREGATION_FILTER(facetResult, queryResult, false), [
+      { FIELD: 'drivetrain', VALUE: 'Diesel', _id: [] },
+      { FIELD: 'drivetrain', VALUE: 'Electric', _id: [5, 6] },
+      { FIELD: 'drivetrain', VALUE: 'Hybrid', _id: [] },
+      { FIELD: 'drivetrain', VALUE: 'Petrol', _id: [] },
+      { FIELD: 'model', VALUE: '3-series', _id: [] },
+      { FIELD: 'model', VALUE: '5-series', _id: [] },
+      { FIELD: 'model', VALUE: 'S', _id: [6] },
+      { FIELD: 'model', VALUE: 'X', _id: [5] },
+      { FIELD: 'model', VALUE: 'XC60', _id: [] },
+      { FIELD: 'model', VALUE: 'XC90', _id: [] }
+    ])
+  })
+})
+
+test('use AGGREGATION_FILTER with FACETS, 0-hit query', t => {
+  t.plan(1)
+  const { FACETS, AGGREGATION_FILTER, AND } = global[indexName]
+  Promise.all([
+    FACETS({
+      FIELD: ['drivetrain', 'model']
+    }),
+    AND(['colour:Black', 'colour:Diesel'])
+  ]).then(([facetResult, queryResult]) => {
+    t.deepEqual(AGGREGATION_FILTER(facetResult, queryResult), [])
   })
 })
 
@@ -163,6 +210,29 @@ test('use AGGREGATION_FILTER with BUCKETS', t => {
         FIELD: ['year'],
         VALUE: { GTE: 2010, LTE: undefined },
         _id: [1, 7]
+      }
+    ])
+  })
+})
+
+test('use AGGREGATION_FILTER with BUCKETS', t => {
+  t.plan(1)
+  const { BUCKETS, AGGREGATION_FILTER, AND } = global[indexName]
+  Promise.all([
+    BUCKETS({
+      FIELD: ['year'],
+      VALUE: {
+        GTE: 3000,
+        LTE: 3010
+      }
+    }),
+    AND(['colour:Black'])
+  ]).then(([facetResult, queryResult]) => {
+    t.deepEqual(AGGREGATION_FILTER(facetResult, queryResult, false), [
+      {
+        FIELD: ['year'],
+        VALUE: { GTE: 3000, LTE: 3010 },
+        _id: []
       }
     ])
   })

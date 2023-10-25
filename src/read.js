@@ -181,13 +181,24 @@ export default function (ops, tokenParser) {
 
   // Given the results of an aggregation and the results of a query,
   // return the filtered aggregation
-  const AGGREGATION_FILTER = (aggregation, filterSet) => {
-    if (!filterSet || filterSet.length === 0) return aggregation
+  const AGGREGATION_FILTER = (aggregation, filterSet, trimEmpty = true) => {
+    // console.log(aggregation)
+    // console.log(JSON.stringify(filterSet, null, 2))
+
+    if (!filterSet) return aggregation // no filter provided- return everything
+    if (filterSet.length === 0) return [] // search returned no results
+
     filterSet = new Set(filterSet.map(item => item._id))
-    return aggregation.map(bucket =>
-      Object.assign(bucket, {
-        _id: [...new Set([...bucket._id].filter(x => filterSet.has(x)))]
-      })
+
+    return (
+      aggregation
+        .map(bucket =>
+          Object.assign(bucket, {
+            _id: [...new Set([...bucket._id].filter(x => filterSet.has(x)))]
+          })
+        )
+        // remove empty buckets
+        .filter(facet => (trimEmpty ? facet._id.length : true))
     )
   }
 
