@@ -150,7 +150,7 @@ Promise.all([
   AND(['colour:Black'])
 ])
   .then(([facetResult, queryResult]) =>
-    AGGREGATION_FILTER(facetResult, queryResult)
+    AGGREGATION_FILTER(facetResult, queryResult, true)
   )
   .then(result)
 
