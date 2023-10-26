@@ -122,7 +122,7 @@ Returns an `InvertedIndex` instance
 ```javascript
 import { InvertedIndex } from 'fergies-inverted-index'
 
-const ii = await InvertedIndex({ name: 'myIndex' })
+const ii = InvertedIndex({ name: 'myIndex' })
 ```
 
 #### `options`
