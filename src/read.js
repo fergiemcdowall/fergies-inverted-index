@@ -252,6 +252,8 @@ export default function (ops, tokenParser) {
       max.length ? JSON.parse(max.pop()._match.pop()).VALUE : null
     )
 
+  // TODO: this should just take one token with a limits on total hits and total
+  // values (as in DICTIONARY). Maybe (token, reduceFunc, limit)
   const DISTINCT = (...tokens) =>
     Promise.all(
       // if no tokens specified then get everything ('{}')
