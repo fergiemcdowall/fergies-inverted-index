@@ -233,15 +233,17 @@ export default function (ops, tokenParser) {
         return passThrough
       })
 
+  const timestamp = () => new Date().toISOString()
+
   const TIMESTAMP_LAST_UPDATED = passThrough =>
-    ops.db.put(['~LAST_UPDATED'], Date.now()).then(() => passThrough)
+    ops.db.put(['~LAST_UPDATED'], timestamp()).then(() => passThrough)
 
   const TIMESTAMP = () =>
     ops.db
       .get(['~CREATED'])
       .then(/* already created- do nothing */)
       .catch(e =>
-        ops.db.put(['~CREATED'], Date.now()).then(TIMESTAMP_LAST_UPDATED)
+        ops.db.put(['~CREATED'], timestamp()).then(TIMESTAMP_LAST_UPDATED)
       )
 
   return {
