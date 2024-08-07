@@ -1,8 +1,10 @@
-const fii = require('../../')
-const test = require('tape')
+import test from 'tape'
+import { InvertedIndex } from 'fergies-inverted-index'
 
 const sandbox = 'test/sandbox/'
 const indexName = sandbox + 'MAXMIN'
+
+const global = {}
 
 const data = [
   {
@@ -99,14 +101,16 @@ const data = [
 
 test('create index', t => {
   t.plan(1)
-  fii({
-    name: indexName,
-    isLeaf: item =>
-      typeof item === 'string' || typeof item === 'number' || Array.isArray(item)
-  }).then(db => {
-    global[indexName] = db
-    t.ok(db, !undefined)
-  })
+  t.ok(
+    (global[indexName] = new InvertedIndex({
+      name: indexName,
+      isLeaf: item =>
+        typeof item === 'string' ||
+        typeof item === 'number' ||
+        Array.isArray(item)
+    })),
+    !undefined
+  )
 })
 
 test('can add some data', t => {

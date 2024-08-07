@@ -1,19 +1,14 @@
-const fii = require('../../')
-const levelOptions = require('../../src/options.js')
-
-const test = require('tape')
-const { EntryStream } = require('level-read-stream')
+import test from 'tape'
+import { InvertedIndex } from 'fergies-inverted-index'
 
 const sandbox = 'test/sandbox/'
-
 const indexName = sandbox + 'dont-index-certain-fields'
+
+const global = {}
 
 test('create index', t => {
   t.plan(1)
-  fii({ name: indexName }).then(db => {
-    global[indexName] = db
-    t.ok(db, !undefined)
-  })
+  t.ok((global[indexName] = new InvertedIndex({ name: indexName })), !undefined)
 })
 
 test('can add data', t => {
@@ -59,51 +54,60 @@ test('can add data', t => {
     )
 })
 
-test('analyse index', t => {
-  const storeState = [
-    {
-      key: ['DOC', '0'],
-      value: {
+test('analyse index', async t => {
+  const entries = [
+    [
+      ['DOC', '0'],
+      {
         _id: '0',
         make: 'Tesla',
         info: { manufacturer: 'Volvo', brand: 'Volvo' }
       }
-    },
-    {
-      key: ['DOC', '1'],
-      value: {
+    ],
+    [
+      ['DOC', '1'],
+      {
         _id: '1',
         make: 'BMW',
         info: { manufacturer: 'Volvo', brand: 'Volvo' }
       }
-    },
-    {
-      key: ['DOC', '2'],
-      value: {
+    ],
+    [
+      ['DOC', '2'],
+      {
         _id: '2',
         make: 'Tesla',
         info: { manufacturer: 'Tesla', brand: 'Volvo' }
       }
-    },
-    { key: ['FIELD', 'info.brand'], value: 'info.brand' },
-    { key: ['FIELD', 'make'], value: 'make' },
-    { key: ['IDX', 'info.brand', ['Volvo']], value: ['0', '1', '2'] },
-    { key: ['IDX', 'make', ['BMW']], value: ['1'] },
-    { key: ['IDX', 'make', ['Tesla']], value: ['0', '2'] }
+    ],
+    [['FIELD', 'info.brand'], 'info.brand'],
+    [['FIELD', 'make'], 'make'],
+    [
+      ['IDX', 'info.brand', ['Volvo']],
+      ['0', '1', '2']
+    ],
+    [['IDX', 'make', ['BMW']], ['1']],
+    [
+      ['IDX', 'make', ['Tesla']],
+      ['0', '2']
+    ]
   ]
-  t.plan(storeState.length)
-  const r = new EntryStream(global[indexName].STORE, { lt: ['~'], ...levelOptions })
-  r.on('data', d => t.deepEqual(d, storeState.shift()))
+  t.plan(entries.length)
+  for await (const entry of global[indexName].STORE.iterator({
+    lt: ['~']
+  })) {
+    t.deepEquals(entry, entries.shift())
+  }
 })
 
 const indexName2 = sandbox + 'non-searchable-fields-test2'
 
 test('create another index', t => {
   t.plan(1)
-  fii({ name: indexName2 }).then(db => {
-    global[indexName2] = db
-    t.ok(db, !undefined)
-  })
+  t.ok(
+    (global[indexName2] = new InvertedIndex({ name: indexName2 })),
+    !undefined
+  )
 })
 
 test('can add data', t => {
@@ -144,42 +148,54 @@ test('can add data', t => {
     )
 })
 
-test('analyse index', t => {
-  const storeState = [
-    {
-      key: ['DOC', '0'],
-      value: {
+test('analyse index', async t => {
+  const entries = [
+    [
+      ['DOC', '0'],
+      {
         _id: '0',
         make: 'Tesla',
         info: { manufacturer: 'Volvo', brand: 'Volvo' }
       }
-    },
-    {
-      key: ['DOC', '1'],
-      value: {
+    ],
+    [
+      ['DOC', '1'],
+      {
         _id: '1',
         make: 'BMW',
         info: { manufacturer: 'Volvo', brand: 'Volvo' }
       }
-    },
-    {
-      key: ['DOC', '2'],
-      value: {
+    ],
+    [
+      ['DOC', '2'],
+      {
         _id: '2',
         make: 'Tesla',
         info: { manufacturer: 'Tesla', brand: 'Volvo' }
       }
-    },
-    { key: ['FIELD', 'info.brand'], value: 'info.brand' },
-    { key: ['FIELD', 'info.manufacturer'], value: 'info.manufacturer' },
-    { key: ['FIELD', 'make'], value: 'make' },
-    { key: ['IDX', 'info.brand', ['Volvo']], value: ['0', '1', '2'] },
-    { key: ['IDX', 'info.manufacturer', ['Tesla']], value: ['2'] },
-    { key: ['IDX', 'info.manufacturer', ['Volvo']], value: ['0', '1'] },
-    { key: ['IDX', 'make', ['BMW']], value: ['1'] },
-    { key: ['IDX', 'make', ['Tesla']], value: ['0', '2'] }
+    ],
+    [['FIELD', 'info.brand'], 'info.brand'],
+    [['FIELD', 'info.manufacturer'], 'info.manufacturer'],
+    [['FIELD', 'make'], 'make'],
+    [
+      ['IDX', 'info.brand', ['Volvo']],
+      ['0', '1', '2']
+    ],
+    [['IDX', 'info.manufacturer', ['Tesla']], ['2']],
+    [
+      ['IDX', 'info.manufacturer', ['Volvo']],
+      ['0', '1']
+    ],
+    [['IDX', 'make', ['BMW']], ['1']],
+    [
+      ['IDX', 'make', ['Tesla']],
+      ['0', '2']
+    ]
   ]
-  t.plan(storeState.length)
-  const r = new EntryStream(global[indexName2].STORE, { lt: ['~'], ...levelOptions })
-  r.on('data', d => t.deepEqual(d, storeState.shift()))
+  t.plan(entries.length)
+  for await (const entry of global[indexName2].STORE.iterator({
+    lt: ['~']
+  })) {
+    t.deepEquals(entry, entries.shift())
+  }
 })

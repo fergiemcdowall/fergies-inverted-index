@@ -1,31 +1,33 @@
-const fii = require('../../')
-const test = require('tape')
+import test from 'tape'
+import { InvertedIndex } from 'fergies-inverted-index'
 
 const sandbox = 'test/sandbox/'
 // TODO: why does 'case-sensitive-test' break everything here?
 const caseSensitiveIdx = sandbox + 'case-sensitive-testx'
 const caseInsensitiveIdx = sandbox + 'case-insensitive-test'
 
+const global = {}
+
 test('create a case sensitive index', t => {
   t.plan(1)
-  fii({
-    name: caseSensitiveIdx,
-    caseSensitive: true
-  }).then(db => {
-    global[caseSensitiveIdx] = db
-    t.ok(db, !undefined)
-  })
+  t.ok(
+    (global[caseSensitiveIdx] = new InvertedIndex({
+      name: caseSensitiveIdx,
+      caseSensitive: true
+    })),
+    !undefined
+  )
 })
 
 test('create a case INsensitive index', t => {
   t.plan(1)
-  fii({
-    name: caseInsensitiveIdx,
-    caseSensitive: false
-  }).then(db => {
-    global[caseInsensitiveIdx] = db
-    t.ok(db, !undefined)
-  })
+  t.ok(
+    (global[caseInsensitiveIdx] = new InvertedIndex({
+      name: caseInsensitiveIdx,
+      caseSensitive: false
+    })),
+    !undefined
+  )
 })
 
 test('can add some data', t => {

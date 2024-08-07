@@ -1,13 +1,12 @@
-const fii = require('../../')
-const test = require('tape')
+import test from 'tape'
+import { InvertedIndex } from 'fergies-inverted-index'
+import { stemmer } from 'stemmer'
 
 const sandbox = 'test/sandbox/'
 const indexName = sandbox + 'stemmer'
 
 test('init fii and index data', async t => {
-  const { stemmer } = await import('stemmer')
-
-  const { DELETE, GET, PUT, QUERY_PIPELINE_STAGES } = await fii({
+  const { DELETE, GET, PUT } = await new InvertedIndex({
     name: indexName
   })
 
@@ -18,7 +17,6 @@ test('init fii and index data', async t => {
     'I am running away',
     'I ran up the stairs'
   ].map(s => s.split(' '))
-  //    .map(line => line.map(stemmer))
 
   t.deepEquals(await PUT(data), [
     { _id: 1, operation: 'PUT', status: 'CREATED' },
@@ -60,16 +58,11 @@ test('init fii and index data', async t => {
   ])
 
   t.deepEquals(
-    await GET('walked', [
-      ({ token, ops }) => {
-        token.VALUE.GTE = stemmer(token.VALUE.GTE)
-        token.VALUE.LTE = stemmer(token.VALUE.LTE)
-        return {
-          token,
-          ops
-        }
-      }
-    ]),
+    await GET('walked', token => {
+      token.VALUE.GTE = stemmer(token.VALUE.GTE)
+      token.VALUE.LTE = stemmer(token.VALUE.LTE)
+      return token
+    }),
     [
       { _id: 6, _match: [{ FIELD: '', VALUE: 'walk' }] },
       { _id: 7, _match: [{ FIELD: '', VALUE: 'walk' }] },

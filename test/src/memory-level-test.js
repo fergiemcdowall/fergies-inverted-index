@@ -1,7 +1,7 @@
-const fii = require('../../src/main')
-const { MemoryLevel } = require('memory-level')
-const test = require('tape')
-const wbd = require('world-bank-dataset')
+import test from 'tape'
+import wbd from 'world-bank-dataset'
+import { InvertedIndex } from 'fergies-inverted-index'
+import { MemoryLevel } from 'memory-level'
 
 const data = wbd.slice(0, 10).map(item => {
   return {
@@ -18,34 +18,30 @@ const data = wbd.slice(0, 10).map(item => {
 
 test('create a fii with memory-level', t => {
   t.plan(2)
-  fii({
-    db: new MemoryLevel()
-  }).then(db =>
-    db
-      .PUT(data)
-      .then(() => {
-        t.pass('ok')
+  const db = new InvertedIndex({ Level: MemoryLevel })
+  db.PUT(data)
+    .then(() => {
+      t.pass('ok')
+    })
+    .then(() => {
+      db.GET({
+        FIELD: 'board_approval_month',
+        VALUE: 'November'
+      }).then(result => {
+        t.deepEqual(result, [
+          {
+            _id: '52b213b38594d8a2be17c780',
+            _match: [{ FIELD: 'board_approval_month', VALUE: 'November' }]
+          },
+          {
+            _id: '52b213b38594d8a2be17c781',
+            _match: [{ FIELD: 'board_approval_month', VALUE: 'November' }]
+          },
+          {
+            _id: '52b213b38594d8a2be17c782',
+            _match: [{ FIELD: 'board_approval_month', VALUE: 'November' }]
+          }
+        ])
       })
-      .then(() => {
-        db.GET({
-          FIELD: 'board_approval_month',
-          VALUE: 'November'
-        }).then(result => {
-          t.deepEqual(result, [
-            {
-              _id: '52b213b38594d8a2be17c780',
-              _match: [{ FIELD: 'board_approval_month', VALUE: 'November' }]
-            },
-            {
-              _id: '52b213b38594d8a2be17c781',
-              _match: [{ FIELD: 'board_approval_month', VALUE: 'November' }]
-            },
-            {
-              _id: '52b213b38594d8a2be17c782',
-              _match: [{ FIELD: 'board_approval_month', VALUE: 'November' }]
-            }
-          ])
-        })
-      })
-  )
+    })
 })

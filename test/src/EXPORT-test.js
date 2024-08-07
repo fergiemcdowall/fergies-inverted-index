@@ -1,9 +1,11 @@
-const fii = require('../../')
-const test = require('tape')
+import test from 'tape'
+import { InvertedIndex } from 'fergies-inverted-index'
 
 const sandbox = 'test/sandbox/'
 const exportingIndexName = sandbox + 'EXPORT'
 const importingIndexName = sandbox + 'IMPORT'
+
+const global = {}
 
 const exportedIndexIdeal = [
   {
@@ -75,10 +77,12 @@ const data = [
 
 test('create an index for export', t => {
   t.plan(1)
-  fii({ name: exportingIndexName }).then(db => {
-    global[exportingIndexName] = db
-    t.ok(db, !undefined)
-  })
+  t.ok(
+    (global[exportingIndexName] = new InvertedIndex({
+      name: exportingIndexName
+    })),
+    !undefined
+  )
 })
 
 test('can add some data', t => {
@@ -98,10 +102,12 @@ test('can export some data', t => {
 
 test('create an index for export', t => {
   t.plan(1)
-  fii({ name: importingIndexName }).then(db => {
-    global[importingIndexName] = db
-    t.ok(db, !undefined)
-  })
+  t.ok(
+    (global[importingIndexName] = new InvertedIndex({
+      name: importingIndexName
+    })),
+    !undefined
+  )
 })
 
 test('added data will be overwritten by the import', t => {
@@ -127,4 +133,38 @@ test('can export previously imported data. Index looks ok', t => {
     t.deepEqual(exported, exportedIndexIdeal)
     exportedIndex = exported
   })
+})
+
+test('fields have been made available in imported index', t => {
+  t.plan(1)
+  global[importingIndexName]
+    .FIELDS()
+    .then(fields =>
+      t.deepEqual(fields, [
+        'colour',
+        'drivetrain',
+        'make',
+        'model',
+        'price',
+        'year'
+      ])
+    )
+})
+
+test('can search in imported index', t => {
+  t.plan(1)
+  global[importingIndexName]
+    .GET('make:BMW')
+    .then(res =>
+      t.deepEqual(res, [{ _id: 0, _match: [{ FIELD: 'make', VALUE: 'BMW' }] }])
+    )
+})
+
+test('can search in imported index (without specifying fields names)', t => {
+  t.plan(1)
+  global[importingIndexName]
+    .GET('BMW')
+    .then(res =>
+      t.deepEqual(res, [{ _id: 0, _match: [{ FIELD: 'make', VALUE: 'BMW' }] }])
+    )
 })

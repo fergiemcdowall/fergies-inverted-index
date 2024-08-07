@@ -1,27 +1,33 @@
-const fii = require('../../')
-const levelOptions = require('../../src/options.js')
-const test = require('tape')
+import test from 'tape'
+import { InvertedIndex } from 'fergies-inverted-index'
 
 const sandbox = 'test/sandbox/'
 const indexName = sandbox + 'LAST_UPDATED'
+
+const global = {}
 
 let timestamp
 
 test('create index', t => {
   t.plan(1)
-  fii({ name: indexName }).then(db => {
-    global[indexName] = db
-    t.ok(db, !undefined)
-  })
+  t.ok((global[indexName] = new InvertedIndex({ name: indexName })), !undefined)
+})
+
+test('a little pause here since timestamping is asynchronous', t => {
+  t.plan(1)
+  setTimeout(() => {
+    t.ok(true)
+  }, 100)
 })
 
 test('LAST_UPDATED timestamp was created', t => {
   t.plan(1)
-  global[indexName].STORE.get(['~LAST_UPDATED'], levelOptions)
+  global[indexName].STORE.get(['~LAST_UPDATED'])
     .then(created => {
       timestamp = created
       return t.pass('LAST_UPDATED timestamp created ' + timestamp)
     })
+    .catch(t.error)
 })
 
 test('can read LAST_UPDATED timestamp with API', t => {
@@ -31,10 +37,15 @@ test('can read LAST_UPDATED timestamp with API', t => {
 
 test('when adding a new doc, LAST_UPDATE increments', t => {
   t.plan(1)
-  setTimeout(function () { // wait to ensure that newer timestamp is bigger
-    global[indexName].PUT([{
-      text: 'this is a new doc'.split()
-    }]).then(global[indexName].LAST_UPDATED)
+  setTimeout(function () {
+    // wait to ensure that newer timestamp is bigger
+    global[indexName]
+      .PUT([
+        {
+          text: 'this is a new doc'.split()
+        }
+      ])
+      .then(global[indexName].LAST_UPDATED)
       .then(newTimestamp => t.ok(newTimestamp > timestamp))
   }, 100)
 })

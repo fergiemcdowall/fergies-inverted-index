@@ -1,10 +1,10 @@
-const fii = require('../../')
-const levelOptions = require('../../src/options.js')
-const test = require('tape')
-const { EntryStream } = require('level-read-stream')
+import test from 'tape'
+import { InvertedIndex } from 'fergies-inverted-index'
 
 const sandbox = 'test/sandbox/'
 const indexName = sandbox + 'indexing-arrays-test'
+
+const global = {}
 
 const data = [
   {
@@ -58,10 +58,7 @@ const data = [
 
 test('create index', t => {
   t.plan(1)
-  fii({ name: indexName }).then(db => {
-    global[indexName] = db
-    t.ok(db, !undefined)
-  })
+  t.ok((global[indexName] = new InvertedIndex({ name: indexName })), !undefined)
 })
 
 test('can add some data', t => {
@@ -69,7 +66,7 @@ test('can add some data', t => {
   global[indexName].PUT(data).then(t.pass)
 })
 
-test('fields are indexed correctly when there are nested arrays involved', t => {
+test('fields are indexed correctly when there are nested arrays involved', async t => {
   const expected = [
     { key: ['FIELD', 'description'], value: 'description' },
     { key: ['FIELD', 'description.longer'], value: 'description.longer' },
@@ -83,14 +80,15 @@ test('fields are indexed correctly when there are nested arrays involved', t => 
     { key: ['FIELD', 'price'], value: 'price' }
   ]
   t.plan(expected.length)
-  new EntryStream(global[indexName].STORE, {
+  for await (const [key, value] of global[indexName].STORE.iterator({
     gte: ['FIELD', ''],
-    lte: ['FIELD', '￮'],
-    ...levelOptions
-  }).on('data', d => t.deepEqual(d, expected.shift()))
+    lte: ['FIELD', '￮']
+  })) {
+    t.deepEqual({ key, value }, expected.shift())
+  }
 })
 
-test('tokens are indexed correctly when there are nested arrays involved', t => {
+test('tokens are indexed correctly when there are nested arrays involved', async t => {
   const expected = [
     { key: ['IDX', 'description', ['a']], value: [1, 2, 3] },
     { key: ['IDX', 'description', ['array']], value: [2] },
@@ -122,9 +120,10 @@ test('tokens are indexed correctly when there are nested arrays involved', t => 
     { key: ['IDX', 'price', [83988]], value: [0] }
   ]
   t.plan(expected.length)
-  new EntryStream(global[indexName].STORE, {
+  for await (const [key, value] of global[indexName].STORE.iterator({
     gte: ['IDX'],
-    lte: ['IDX', '￮'],
-    ...levelOptions
-  }).on('data', d => t.deepEqual(d, expected.shift()))
+    lte: ['IDX', '￮']
+  })) {
+    t.deepEqual({ key, value }, expected.shift())
+  }
 })

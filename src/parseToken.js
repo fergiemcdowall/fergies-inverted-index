@@ -5,14 +5,37 @@ charwise.HI = undefined
 // key might be object or string like this
 // <fieldname>:<value>. Turn key into json object that is of the
 // format {FIELD: ..., VALUE: {GTE: ..., LTE ...}}
-module.exports = (token, availableFields) =>
-  new Promise((resolve, reject) => {
+export class TokenParser {
+  availableFields = []
+  #caseSensitive
+
+  constructor (caseSensitive) {
+    this.#caseSensitive = caseSensitive
+  }
+
+  setAvailableFields = availableFields => {
+    this.availableFields = availableFields
+  }
+
+  #setCaseSensitivity = token => {
+    const setCase = str =>
+      this.#caseSensitive || typeof str !== 'string' ? str : str.toLowerCase()
+    return {
+      FIELD: token.FIELD.map(setCase),
+      VALUE: {
+        GTE: setCase(token.VALUE.GTE),
+        LTE: setCase(token.VALUE.LTE)
+      }
+    }
+  }
+
+  parse (token) {
     // case: <value>
     // case: <FIELD>:<VALUE>
     // case: undefined
 
     if (Array.isArray(token)) {
-      return reject(new Error('token cannot be Array'))
+      throw new Error('token cannot be Array')
     }
 
     if (typeof token === 'undefined') token = {}
@@ -22,8 +45,8 @@ module.exports = (token, availableFields) =>
       // a part of the value. This accounts for occasions where the value itself
       // has a ':'.
       if (token.indexOf(':') === -1) {
-        return resolve({
-          FIELD: availableFields,
+        return this.#setCaseSensitivity({
+          FIELD: this.availableFields,
           VALUE: {
             GTE: token,
             LTE: token
@@ -32,7 +55,7 @@ module.exports = (token, availableFields) =>
       }
 
       const [field, ...value] = token.split(':')
-      return resolve({
+      return this.#setCaseSensitivity({
         FIELD: [field],
         VALUE: {
           GTE: value.join(':'),
@@ -50,7 +73,7 @@ module.exports = (token, availableFields) =>
       }
     }
 
-    // else not string so assume Object
+    // else not string or number so assume Object
     // {
     //   FIELD: [ fields ],
     //   VALUE: {
@@ -95,14 +118,14 @@ module.exports = (token, availableFields) =>
 
     // parse object FIELD
     if (typeof token.FIELD === 'undefined') {
-      return resolve(
-        Object.assign(token, {
-          FIELD: availableFields
-        })
-      )
+      return this.#setCaseSensitivity({
+        FIELD: this.availableFields,
+        ...token
+      })
     }
     // Allow FIELD to be an array or a string
     token.FIELD = [token.FIELD].flat()
 
-    return resolve(token)
-  })
+    return this.#setCaseSensitivity(token)
+  }
+}

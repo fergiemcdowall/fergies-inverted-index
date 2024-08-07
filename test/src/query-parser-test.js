@@ -1,16 +1,15 @@
-const fii = require('../../')
-const test = require('tape')
-const wbd = require('world-bank-dataset')
+import test from 'tape'
+import wbd from 'world-bank-dataset'
+import { InvertedIndex } from 'fergies-inverted-index'
 
 const sandbox = 'test/sandbox/'
 const indexName = sandbox + 'wb2'
 
+const global = {}
+
 test('create index', t => {
   t.plan(1)
-  fii({ name: indexName }).then(db => {
-    global[indexName] = db
-    t.ok(db, !undefined)
-  })
+  t.ok((global[indexName] = new InvertedIndex({ name: indexName })), !undefined)
 })
 
 test('can add some worldbank data', t => {

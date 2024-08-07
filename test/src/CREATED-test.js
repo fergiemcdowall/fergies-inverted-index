@@ -1,29 +1,29 @@
-const fii = require('../../')
-const levelOptions = require('../../src/options.js')
-const test = require('tape')
+import { InvertedIndex } from 'fergies-inverted-index'
+
+import test from 'tape'
 
 const sandbox = 'test/sandbox/'
 const indexName = sandbox + 'CREATED'
 
-let timestamp
+const global = {}
 
-const opts = {}
-if (typeof window === 'undefined') {
-  const { ClassicLevel } = require('classic-level')
-  opts.db = new ClassicLevel(indexName)
-}
+let timestamp
 
 test('create index', t => {
   t.plan(1)
-  fii({ name: indexName, ...opts }).then(db => {
-    global[indexName] = db
-    t.ok(db, !undefined)
-  })
+  t.ok((global[indexName] = new InvertedIndex({ name: indexName })), !undefined)
+})
+
+test('a little pause here since timestamping is asynchronous', t => {
+  t.plan(1)
+  setTimeout(() => {
+    t.ok(true)
+  }, 100)
 })
 
 test('timestamp was created', t => {
   t.plan(1)
-  global[indexName].STORE.get(['~CREATED'], levelOptions)
+  global[indexName].STORE.get(['~CREATED'])
     .then(created => {
       timestamp = created
       return t.pass('timestamp created')
@@ -51,10 +51,7 @@ test('confirm index is closed', t => {
 
 test('recreate index', t => {
   t.plan(1)
-  fii({ name: indexName, ...opts }).then(db => {
-    global[indexName] = db
-    t.ok(db, !undefined)
-  })
+  t.ok((global[indexName] = new InvertedIndex({ name: indexName })), !undefined)
 })
 
 test('CREATED timestamp is unchanged after db is closed and reopened', t => {

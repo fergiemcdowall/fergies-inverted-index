@@ -1,19 +1,14 @@
-const fii = require('../../')
-const levelOptions = require('../../src/options.js')
-const test = require('tape')
-const { EntryStream } = require('level-read-stream')
+import test from 'tape'
+import { InvertedIndex } from 'fergies-inverted-index'
 
 const sandbox = 'test/sandbox/'
 const indexName = sandbox + 'store-vector-test'
 
+const global = {}
+
 test('create index', t => {
   t.plan(1)
-  fii({
-    name: indexName
-  }).then(db => {
-    global[indexName] = db
-    t.ok(db, !undefined)
-  })
+  t.ok((global[indexName] = new InvertedIndex({ name: indexName })), !undefined)
 })
 
 test('can add some data', t => {
@@ -35,20 +30,31 @@ test('can add some data', t => {
     .then(t.pass)
 })
 
-test('can verify store', t => {
+test('can verify store', async t => {
   const entries = [
-    { key: ['FIELD', 'text'], value: 'text' },
-    { key: ['IDX', 'text', ['a']], value: [0, 1] },
-    { key: ['IDX', 'text', ['interesting']], value: [1] },
-    { key: ['IDX', 'text', ['is']], value: [0, 1] },
-    { key: ['IDX', 'text', ['sentence']], value: [0, 1] },
-    { key: ['IDX', 'text', ['that']], value: [1] },
-    { key: ['IDX', 'text', ['this']], value: [0] }
+    [['FIELD', 'text'], 'text'],
+    [
+      ['IDX', 'text', ['a']],
+      [0, 1]
+    ],
+    [['IDX', 'text', ['interesting']], [1]],
+    [
+      ['IDX', 'text', ['is']],
+      [0, 1]
+    ],
+    [
+      ['IDX', 'text', ['sentence']],
+      [0, 1]
+    ],
+    [['IDX', 'text', ['that']], [1]],
+    [['IDX', 'text', ['this']], [0]]
   ]
-  t.plan(entries.length + 1)
-  new EntryStream(global[indexName].STORE, { lt: ['~'], ...levelOptions })
-    .on('data', d => t.deepEquals(d, entries.shift()))
-    .on('end', resolve => t.pass('ended'))
+  t.plan(entries.length)
+  for await (const entry of global[indexName].STORE.iterator({
+    lt: ['~']
+  })) {
+    t.deepEquals(entry, entries.shift())
+  }
 })
 
 test('can read data ignoring stopwords', t => {
