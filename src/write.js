@@ -1,7 +1,7 @@
 import trav from 'traverse'
 import reader from './read.js'
 
-export default function (ops, tokenParser) {
+export default function (ops, tokenParser, events) {
   // TODO: set reset this to the max value every time the DB is restarted
   let incrementalId = 0
 
@@ -243,7 +243,10 @@ export default function (ops, tokenParser) {
       .get(['~CREATED'])
       .then(/* already created- do nothing */)
       .catch(e =>
-        ops.db.put(['~CREATED'], timestamp()).then(TIMESTAMP_LAST_UPDATED)
+        ops.db
+          .put(['~CREATED'], timestamp())
+          .then(TIMESTAMP_LAST_UPDATED)
+          .then(() => events.emit('ready'))
       )
 
   return {

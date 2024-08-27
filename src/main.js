@@ -1,3 +1,4 @@
+import EventEmitter from 'events'
 import charwise from 'charwise'
 import read from './read.js'
 import write from './write.js'
@@ -22,8 +23,10 @@ export class Main {
 
     const tokenParser = new TokenParser(ops.caseSensitive)
 
+    const events = new EventEmitter()
+
     const r = read(ops, tokenParser)
-    const w = write(ops, tokenParser)
+    const w = write(ops, tokenParser, events)
 
     // timestamp with time of creation (if not created already)
     // note: async, so this is "fire and forget"
@@ -37,6 +40,7 @@ export class Main {
     this.CREATED = r.CREATED
     this.DELETE = w.DELETE
     this.DISTINCT = r.DISTINCT
+    this.EVENTS = events
     this.EXIST = r.EXIST
     this.EXPORT = r.EXPORT
     this.FACETS = r.FACETS
