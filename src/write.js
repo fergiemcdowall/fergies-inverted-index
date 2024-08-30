@@ -241,13 +241,14 @@ export default function (ops, tokenParser, events) {
   const TIMESTAMP = () =>
     ops.db
       .get(['~CREATED'])
-      .then(/* already created- do nothing */)
-      .catch(e =>
+      .then(() => events.emit('ready'))
+      .catch(e => {
+        /* if no timestamp exists, create a new one before emitting 'ready' */
         ops.db
           .put(['~CREATED'], timestamp())
           .then(TIMESTAMP_LAST_UPDATED)
           .then(() => events.emit('ready'))
-      )
+      })
 
   return {
     DELETE,
