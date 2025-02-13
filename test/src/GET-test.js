@@ -1,4 +1,4 @@
-import sw from 'stopword'
+import { eng } from 'stopword'
 import test from 'tape'
 import { InvertedIndex } from 'fergies-inverted-index'
 
@@ -209,7 +209,7 @@ test('testing case sensitivity', async function (t) {
 test('testing stopwords, empty and non-existant tokens', async function (t) {
   const { GET, PUT } = await new InvertedIndex({
     name: indexName + '_4',
-    stopwords: sw.eng
+    stopwords: eng
   })
   t.pass('db initialized')
 

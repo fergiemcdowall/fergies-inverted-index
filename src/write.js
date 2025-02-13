@@ -79,7 +79,6 @@ export default function (ops, tokenParser, events) {
         const curSet = new Set(cur)
         // set of keys in delta index that is being merged in
         const deltaSet = new Set(index[indexKeys[i]])
-
         if (mode === 'put') {
           return {
             key: ['IDX', ...JSON.parse(indexKeys[i])],
@@ -159,37 +158,41 @@ export default function (ops, tokenParser, events) {
             createDeltaReverseIndex(docs, putOptions),
             db,
             mode
-          ).then(mergedReverseIndex =>
-            db.batch(
-              mergedReverseIndex
-                .concat(putOptions.storeVectors ? objectIndex(docs, mode) : [])
-                .concat(availableFields(mergedReverseIndex)),
-              e =>
-                resolve(
-                  docs.map(doc => {
-                    let status
-                    if (mode === 'put') {
-                      if (existingDocs.includes(doc._id)) {
-                        status = 'UPDATED'
-                      } else {
-                        status = 'CREATED'
-                      }
-                    } else if (mode === 'del') {
-                      if (doc._object === null) {
-                        status = 'FAILED'
-                      } else {
-                        status = 'DELETED'
-                      }
-                    }
-                    return {
-                      _id: doc._id,
-                      operation: MODE,
-                      status
-                    }
-                  })
-                )
-            )
           )
+            .then(mergedReverseIndex =>
+              db.batch(
+                mergedReverseIndex
+                  .concat(
+                    putOptions.storeVectors ? objectIndex(docs, mode) : []
+                  )
+                  .concat(availableFields(mergedReverseIndex))
+              )
+            )
+            .then(() =>
+              resolve(
+                docs.map(doc => {
+                  let status
+                  if (mode === 'put') {
+                    if (existingDocs.includes(doc._id)) {
+                      status = 'UPDATED'
+                    } else {
+                      status = 'CREATED'
+                    }
+                  } else if (mode === 'del') {
+                    if (doc._object === undefined) {
+                      status = 'FAILED'
+                    } else {
+                      status = 'DELETED'
+                    }
+                  }
+                  return {
+                    _id: doc._id,
+                    operation: MODE,
+                    status
+                  }
+                })
+              )
+            )
         )
     })
 
@@ -241,14 +244,12 @@ export default function (ops, tokenParser, events) {
   const TIMESTAMP = () =>
     ops.db
       .get(['~CREATED'])
+      .then(created =>
+        created
+          ? true // just pass through
+          : ops.db.put(['~CREATED'], timestamp()).then(TIMESTAMP_LAST_UPDATED)
+      )
       .then(() => events.emit('ready'))
-      .catch(e => {
-        /* if no timestamp exists, create a new one before emitting 'ready' */
-        ops.db
-          .put(['~CREATED'], timestamp())
-          .then(TIMESTAMP_LAST_UPDATED)
-          .then(() => events.emit('ready'))
-      })
 
   return {
     DELETE,
