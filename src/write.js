@@ -121,9 +121,9 @@ export default function (ops, tokenParser, events) {
     docs.map(doc => invertDoc(doc, putOptions)).reduce(reverseIndex, {})
 
   const sanitizeID = id => {
-    if (id === undefined) return ++incrementalId
     if (typeof id === 'string') return id
     if (typeof id === 'number') return id
+    return ++incrementalId
   }
 
   // TODO: swap out with AVAILABLE_FIELDS()
@@ -242,14 +242,11 @@ export default function (ops, tokenParser, events) {
     ops.db.put(['~LAST_UPDATED'], timestamp()).then(() => passThrough)
 
   const TIMESTAMP = () =>
-    ops.db
-      .get(['~CREATED'])
-      .then(created =>
-        created
-          ? true // just pass through
-          : ops.db.put(['~CREATED'], timestamp()).then(TIMESTAMP_LAST_UPDATED)
-      )
-      .then(() => events.emit('ready'))
+    ops.db.get(['~CREATED']).then(created =>
+      created
+        ? true // just pass through
+        : ops.db.put(['~CREATED'], timestamp()).then(TIMESTAMP_LAST_UPDATED)
+    )
 
   return {
     DELETE,

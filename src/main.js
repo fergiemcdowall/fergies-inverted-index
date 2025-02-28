@@ -28,9 +28,11 @@ export class Main {
     const r = read(ops, tokenParser)
     const w = write(ops, tokenParser, events)
 
-    // timestamp with time of creation (if not created already)
-    // note: async, so this is "fire and forget"
-    w.TIMESTAMP()
+    r.FIELDS()
+      .then(fields => tokenParser.setAvailableFields(fields))
+      // timestamp with time of creation (if not created already)
+      .then(() => w.TIMESTAMP())
+      .then(() => events.emit('ready'))
 
     this.AGGREGATION_FILTER = r.AGGREGATION_FILTER
     this.AND = (tokens, pipeline) =>

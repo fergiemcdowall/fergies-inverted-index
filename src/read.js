@@ -77,8 +77,8 @@ export default function (ops, tokenParser) {
   }
 
   // OR
-  const UNION = async (tokens, pipeline) => {
-    return Promise.all(tokens.map(token => GET(token, pipeline))).then(sets => {
+  const UNION = async (tokens, pipeline) =>
+    Promise.all(tokens.map(token => GET(token, pipeline))).then(sets => {
       const setObject = sets.flat(Infinity).reduce((acc, cur) => {
         // cur will be undefined if stopword
         if (cur) acc.set(cur._id, [...(acc.get(cur._id) || []), cur._match])
@@ -92,7 +92,6 @@ export default function (ops, tokenParser) {
         }))
       }
     })
-  }
 
   // AND
   const INTERSECTION = (tokens, pipeline) => {
@@ -182,9 +181,6 @@ export default function (ops, tokenParser) {
   // Given the results of an aggregation and the results of a query,
   // return the filtered aggregation
   const AGGREGATION_FILTER = (aggregation, filterSet, trimEmpty = true) => {
-    // console.log(aggregation)
-    // console.log(JSON.stringify(filterSet, null, 2))
-
     if (!filterSet) return aggregation // no filter provided- return everything
     if (filterSet.length === 0) return [] // search returned no results
 
