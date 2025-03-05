@@ -34,6 +34,8 @@ export class TokenParser {
     // case: <FIELD>:<VALUE>
     // case: undefined
 
+    if (token instanceof Promise) return token
+
     if (Array.isArray(token)) {
       throw new Error('token cannot be Array')
     }

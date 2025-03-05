@@ -36,7 +36,9 @@ export class Main {
 
     this.AGGREGATION_FILTER = r.AGGREGATION_FILTER
     this.AND = (tokens, pipeline) =>
-      r.INTERSECTION(tokens, pipeline).then(this.flattenMatchArrayInResults)
+      r
+        .INTERSECTION(tokens.map(token => this.GET(token, pipeline)))
+        .then(this.flattenMatchArrayInResults)
     this.BUCKET = r.BUCKET
     this.BUCKETS = r.BUCKETS
     this.CREATED = r.CREATED
@@ -58,7 +60,7 @@ export class Main {
     this.OBJECT = r.OBJECT
     this.OR = (tokens, pipeline) =>
       r
-        .UNION(tokens, pipeline)
+        .UNION(tokens.map(token => this.GET(token, pipeline)))
         .then(result => result.union)
         .then(this.flattenMatchArrayInResults)
     this.PUT = w.PUT
