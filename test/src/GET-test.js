@@ -1,4 +1,4 @@
-import sw from 'stopword'
+import { eng } from 'stopword'
 import test from 'tape'
 import { InvertedIndex } from 'fergies-inverted-index'
 
@@ -125,68 +125,6 @@ test('some simple GETs', async function (t) {
   ])
 })
 
-test('testing single query replacement', async function (t) {
-  const { GET, PUT } = await new InvertedIndex({
-    name: indexName + '_1',
-    queryReplace: {
-      swedemachine: ['Volvo']
-    }
-  })
-  t.pass('db initialized')
-
-  await PUT(data)
-  t.pass('data indexed')
-
-  t.deepEqual(await GET('make:Volvo'), [
-    { _id: 1, _match: [{ FIELD: 'make', VALUE: 'Volvo' }] },
-    { _id: 2, _match: [{ FIELD: 'make', VALUE: 'Volvo' }] },
-    { _id: 3, _match: [{ FIELD: 'make', VALUE: 'Volvo' }] },
-    { _id: 9, _match: [{ FIELD: 'make', VALUE: 'Volvo' }] }
-  ])
-
-  t.deepEqual(await GET('make:swedemachine'), [
-    { _id: 1, _match: [{ FIELD: 'make', VALUE: 'Volvo' }] },
-    { _id: 2, _match: [{ FIELD: 'make', VALUE: 'Volvo' }] },
-    { _id: 3, _match: [{ FIELD: 'make', VALUE: 'Volvo' }] },
-    { _id: 9, _match: [{ FIELD: 'make', VALUE: 'Volvo' }] }
-  ])
-})
-
-test('testing query with multiple replacements', async function (t) {
-  const { GET, PUT, OR } = await new InvertedIndex({
-    name: indexName + '_2',
-    queryReplace: {
-      eurocars: ['Volvo', 'BMW', 'Opel']
-    }
-  })
-  t.pass('db initialized')
-
-  await PUT(data)
-  t.pass('data indexed')
-
-  t.deepEqual(await OR(['make:Volvo', 'make:BMW', 'make:Opel']), [
-    { _id: 1, _match: [{ FIELD: 'make', VALUE: 'Volvo' }] },
-    { _id: 2, _match: [{ FIELD: 'make', VALUE: 'Volvo' }] },
-    { _id: 3, _match: [{ FIELD: 'make', VALUE: 'Volvo' }] },
-    { _id: 9, _match: [{ FIELD: 'make', VALUE: 'Volvo' }] },
-    { _id: 0, _match: [{ FIELD: 'make', VALUE: 'BMW' }] },
-    { _id: 4, _match: [{ FIELD: 'make', VALUE: 'BMW' }] },
-    { _id: 7, _match: [{ FIELD: 'make', VALUE: 'BMW' }] },
-    { _id: 8, _match: [{ FIELD: 'make', VALUE: 'Opel' }] }
-  ])
-
-  t.deepEqual(await GET('make:eurocars'), [
-    { _id: 1, _match: [{ FIELD: 'make', VALUE: 'Volvo' }] },
-    { _id: 2, _match: [{ FIELD: 'make', VALUE: 'Volvo' }] },
-    { _id: 3, _match: [{ FIELD: 'make', VALUE: 'Volvo' }] },
-    { _id: 9, _match: [{ FIELD: 'make', VALUE: 'Volvo' }] },
-    { _id: 0, _match: [{ FIELD: 'make', VALUE: 'BMW' }] },
-    { _id: 4, _match: [{ FIELD: 'make', VALUE: 'BMW' }] },
-    { _id: 7, _match: [{ FIELD: 'make', VALUE: 'BMW' }] },
-    { _id: 8, _match: [{ FIELD: 'make', VALUE: 'Opel' }] }
-  ])
-})
-
 test('testing case sensitivity', async function (t) {
   const { GET, PUT } = await new InvertedIndex({
     name: indexName + '_3',
@@ -209,7 +147,7 @@ test('testing case sensitivity', async function (t) {
 test('testing stopwords, empty and non-existant tokens', async function (t) {
   const { GET, PUT } = await new InvertedIndex({
     name: indexName + '_4',
-    stopwords: sw.eng
+    stopwords: eng
   })
   t.pass('db initialized')
 

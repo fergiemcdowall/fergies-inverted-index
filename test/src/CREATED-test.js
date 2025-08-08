@@ -38,7 +38,7 @@ test('can read CREATED timestamp with API', t => {
 
 test('closing instance', t => {
   t.plan(1)
-  global[indexName].STORE.close(() => {
+  global[indexName].STORE.close().then(() => {
     global[indexName] = null
     t.ok('closed')
   })

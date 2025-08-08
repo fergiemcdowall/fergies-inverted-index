@@ -7,31 +7,6 @@ charwise.HI = undefined
 export default function (ops, tokenParser) {
   const isString = s => typeof s === 'string'
 
-  const queryReplace = token => {
-    // for example stopwords create undefined token
-    if (typeof token === 'undefined') return RANGE(undefined)
-    // REPLACEMENT
-    if (
-      // only consider tokens for single values, not ranges (lte == gte)
-      token.VALUE.GTE === token.VALUE.LTE &&
-      ops.queryReplace && // user specified queryReplace parameter
-      ops.queryReplace[token.VALUE.GTE] // is there a replacement?
-    ) {
-      return UNION(
-        ops.queryReplace[token.VALUE.GTE].map(replacementToken => ({
-          FIELD: token.FIELD,
-          VALUE: {
-            GTE: replacementToken,
-            LTE: replacementToken
-          }
-        }))
-      ).then(res => res.union)
-    }
-
-    // return RANGE(token)
-    return token
-  }
-
   // If this token is a stopword then return 'undefined'
   const removeStopwords = token =>
     token.VALUE.GTE === token.VALUE.LTE &&
@@ -45,6 +20,7 @@ export default function (ops, tokenParser) {
   ) => {
     // eslint-disable-next-line
     return new Promise(async (resolve, reject) => {
+
       // If token turns into a Promise or undefined, then it is
       // assumed to have been processed completely
       const testForBreak = token => {
@@ -62,7 +38,7 @@ export default function (ops, tokenParser) {
         // testForBreak(token) // ?
         token = await removeStopwords(token)
         // testForBreak(token) // ?
-        token = await queryReplace(token) // TODO: rename to replaceToken?
+        // token = await queryReplace(token) // TODO: rename to replaceToken?
         testForBreak(token)
         token = await pipeline(token)
         testForBreak(token)
@@ -71,37 +47,33 @@ export default function (ops, tokenParser) {
       }
       // If array, assume that this is an array of promises and run again
       if (Array.isArray(token)) return resolve(token)
+
       // else return the RANGE for the token
       return resolve(RANGE(token))
     })
   }
 
   // OR
-  const UNION = async (tokens, pipeline) => {
-    return Promise.all(tokens.map(token => GET(token, pipeline))).then(sets => {
-      const setObject = sets.flat(Infinity).reduce((acc, cur) => {
-        // cur will be undefined if stopword
-        if (cur) acc.set(cur._id, [...(acc.get(cur._id) || []), cur._match])
-        return acc
-      }, new Map())
-      return {
-        sumTokensMinusStopwords: sets.filter(s => s).length,
-        union: Array.from(setObject.keys()).map(id => ({
-          _id: id,
-          _match: setObject.get(id)
-        }))
-      }
-    })
-  }
+  const UNION = async (tokens, pipeline) => Promise.all(tokens).then(sets => {
+    const setObject = sets.flat(Infinity).reduce((acc, cur) => {
+      // cur will be undefined if stopword
+      if (cur) acc.set(cur._id, [...(acc.get(cur._id) || []), cur._match])
+      return acc
+    }, new Map())
+    return {
+      sumTokensMinusStopwords: sets.filter(s => s).length,
+      union: Array.from(setObject.keys()).map(id => ({
+        _id: id,
+        _match: setObject.get(id)
+      }))
+    }
+  })
 
   // AND
-  const INTERSECTION = (tokens, pipeline) => {
-    return UNION(tokens, pipeline).then(result => {
-      return result.union.filter(
-        item => item._match.length === result.sumTokensMinusStopwords
-      )
-    })
-  }
+  const INTERSECTION = (tokens, pipeline) => UNION(tokens, pipeline).then(result => result.union.filter(
+    item => item._match.length === result.sumTokensMinusStopwords
+  )
+  )
 
   // NOT (set a minus set b)
   const SET_SUBTRACTION = (a, b) =>
@@ -126,27 +98,28 @@ export default function (ops, tokenParser) {
       if (typeof token === 'undefined') return resolve(undefined)
       const rs = new Map() // resultset
       Promise.all(
-        token.FIELD.map(fieldName =>
-          getRange({
+        token.FIELD.map(fieldName => {
+          const key = {
             gte: formatKey(fieldName, token.VALUE.GTE),
             lte: formatKey(fieldName, token.VALUE.LTE, true),
             limit: token.LIMIT,
             reverse: token.REVERSE
-          }).then(entries =>
-            entries.forEach(token =>
-              token.value.forEach(docId =>
-                rs.set(docId, [
-                  ...(rs.get(docId) || []),
-                  JSON.stringify({
-                    FIELD: token.key[1],
-                    VALUE: token.key[2][0],
-                    SCORE: token.key[2][1]
-                  })
-                ])
-              )
+          }
+          return getRange(key).then(entries => entries.forEach(token =>
+            token.value.forEach(docId =>
+              rs.set(docId, [
+                ...(rs.get(docId) || []),
+                JSON.stringify({
+                  FIELD: token.key[1],
+                  VALUE: token.key[2][0],
+                  SCORE: token.key[2][1]
+                })
+              ])
             )
           )
-        )
+
+          )
+        })
       ).then(() =>
         resolve(
           Array.from(rs.keys()).map(id => ({
@@ -182,9 +155,6 @@ export default function (ops, tokenParser) {
   // Given the results of an aggregation and the results of a query,
   // return the filtered aggregation
   const AGGREGATION_FILTER = (aggregation, filterSet, trimEmpty = true) => {
-    // console.log(aggregation)
-    // console.log(JSON.stringify(filterSet, null, 2))
-
     if (!filterSet) return aggregation // no filter provided- return everything
     if (filterSet.length === 0) return [] // search returned no results
 

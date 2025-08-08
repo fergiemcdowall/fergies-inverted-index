@@ -1,3 +1,4 @@
+import EventEmitter from 'events'
 import charwise from 'charwise'
 import read from './read.js'
 import write from './write.js'
@@ -22,21 +23,28 @@ export class Main {
 
     const tokenParser = new TokenParser(ops.caseSensitive)
 
-    const r = read(ops, tokenParser)
-    const w = write(ops, tokenParser)
+    const events = new EventEmitter()
 
-    // timestamp with time of creation (if not created already)
-    // note: async, so this is "fire and forget"
-    w.TIMESTAMP()
+    const r = read(ops, tokenParser)
+    const w = write(ops, tokenParser, events)
+
+    r.FIELDS()
+      .then(fields => tokenParser.setAvailableFields(fields))
+      // timestamp with time of creation (if not created already)
+      .then(() => w.TIMESTAMP())
+      .then(() => events.emit('ready'))
 
     this.AGGREGATION_FILTER = r.AGGREGATION_FILTER
     this.AND = (tokens, pipeline) =>
-      r.INTERSECTION(tokens, pipeline).then(this.flattenMatchArrayInResults)
+      r
+        .INTERSECTION(tokens.map(token => this.GET(token, pipeline)))
+        .then(this.flattenMatchArrayInResults)
     this.BUCKET = r.BUCKET
     this.BUCKETS = r.BUCKETS
     this.CREATED = r.CREATED
     this.DELETE = w.DELETE
     this.DISTINCT = r.DISTINCT
+    this.EVENTS = events
     this.EXIST = r.EXIST
     this.EXPORT = r.EXPORT
     this.FACETS = r.FACETS
@@ -52,7 +60,7 @@ export class Main {
     this.OBJECT = r.OBJECT
     this.OR = (tokens, pipeline) =>
       r
-        .UNION(tokens, pipeline)
+        .UNION(tokens.map(token => this.GET(token, pipeline)))
         .then(result => result.union)
         .then(this.flattenMatchArrayInResults)
     this.PUT = w.PUT

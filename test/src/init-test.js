@@ -23,7 +23,7 @@ test('can add some data', t => {
         drivetrain: 'Diesel'
       }
     ])
-    .then(t.pass)
+    .then(() => t.pass())
 })
 
 test('get simple AND', t => {

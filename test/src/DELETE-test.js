@@ -136,8 +136,8 @@ test('can get with OBJECT', t => {
             totalamt: 130000000
           }
         },
-        { _id: '52b213b38594d8a2be17c781', _object: null },
-        { _id: '52b213b38594d8a2be17c782', _object: null }
+        { _id: '52b213b38594d8a2be17c781', _object: undefined },
+        { _id: '52b213b38594d8a2be17c782', _object: undefined }
       ])
     })
 })

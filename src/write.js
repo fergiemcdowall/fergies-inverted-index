@@ -1,7 +1,7 @@
 import trav from 'traverse'
 import reader from './read.js'
 
-export default function (ops, tokenParser) {
+export default function (ops, tokenParser, events) {
   // TODO: set reset this to the max value every time the DB is restarted
   let incrementalId = 0
 
@@ -79,7 +79,6 @@ export default function (ops, tokenParser) {
         const curSet = new Set(cur)
         // set of keys in delta index that is being merged in
         const deltaSet = new Set(index[indexKeys[i]])
-
         if (mode === 'put') {
           return {
             key: ['IDX', ...JSON.parse(indexKeys[i])],
@@ -122,9 +121,9 @@ export default function (ops, tokenParser) {
     docs.map(doc => invertDoc(doc, putOptions)).reduce(reverseIndex, {})
 
   const sanitizeID = id => {
-    if (id === undefined) return ++incrementalId
     if (typeof id === 'string') return id
     if (typeof id === 'number') return id
+    return ++incrementalId
   }
 
   // TODO: swap out with AVAILABLE_FIELDS()
@@ -159,37 +158,41 @@ export default function (ops, tokenParser) {
             createDeltaReverseIndex(docs, putOptions),
             db,
             mode
-          ).then(mergedReverseIndex =>
-            db.batch(
-              mergedReverseIndex
-                .concat(putOptions.storeVectors ? objectIndex(docs, mode) : [])
-                .concat(availableFields(mergedReverseIndex)),
-              e =>
-                resolve(
-                  docs.map(doc => {
-                    let status
-                    if (mode === 'put') {
-                      if (existingDocs.includes(doc._id)) {
-                        status = 'UPDATED'
-                      } else {
-                        status = 'CREATED'
-                      }
-                    } else if (mode === 'del') {
-                      if (doc._object === null) {
-                        status = 'FAILED'
-                      } else {
-                        status = 'DELETED'
-                      }
-                    }
-                    return {
-                      _id: doc._id,
-                      operation: MODE,
-                      status
-                    }
-                  })
-                )
-            )
           )
+            .then(mergedReverseIndex =>
+              db.batch(
+                mergedReverseIndex
+                  .concat(
+                    putOptions.storeVectors ? objectIndex(docs, mode) : []
+                  )
+                  .concat(availableFields(mergedReverseIndex))
+              )
+            )
+            .then(() =>
+              resolve(
+                docs.map(doc => {
+                  let status
+                  if (mode === 'put') {
+                    if (existingDocs.includes(doc._id)) {
+                      status = 'UPDATED'
+                    } else {
+                      status = 'CREATED'
+                    }
+                  } else if (mode === 'del') {
+                    if (doc._object === undefined) {
+                      status = 'FAILED'
+                    } else {
+                      status = 'DELETED'
+                    }
+                  }
+                  return {
+                    _id: doc._id,
+                    operation: MODE,
+                    status
+                  }
+                })
+              )
+            )
         )
     })
 
@@ -239,12 +242,11 @@ export default function (ops, tokenParser) {
     ops.db.put(['~LAST_UPDATED'], timestamp()).then(() => passThrough)
 
   const TIMESTAMP = () =>
-    ops.db
-      .get(['~CREATED'])
-      .then(/* already created- do nothing */)
-      .catch(e =>
-        ops.db.put(['~CREATED'], timestamp()).then(TIMESTAMP_LAST_UPDATED)
-      )
+    ops.db.get(['~CREATED']).then(created =>
+      created
+        ? true // just pass through
+        : ops.db.put(['~CREATED'], timestamp()).then(TIMESTAMP_LAST_UPDATED)
+    )
 
   return {
     DELETE,
