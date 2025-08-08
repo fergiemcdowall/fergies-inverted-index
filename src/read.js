@@ -20,7 +20,6 @@ export default function (ops, tokenParser) {
   ) => {
     // eslint-disable-next-line
     return new Promise(async (resolve, reject) => {
-
       // If token turns into a Promise or undefined, then it is
       // assumed to have been processed completely
       const testForBreak = token => {
@@ -54,26 +53,29 @@ export default function (ops, tokenParser) {
   }
 
   // OR
-  const UNION = async (tokens, pipeline) => Promise.all(tokens).then(sets => {
-    const setObject = sets.flat(Infinity).reduce((acc, cur) => {
-      // cur will be undefined if stopword
-      if (cur) acc.set(cur._id, [...(acc.get(cur._id) || []), cur._match])
-      return acc
-    }, new Map())
-    return {
-      sumTokensMinusStopwords: sets.filter(s => s).length,
-      union: Array.from(setObject.keys()).map(id => ({
-        _id: id,
-        _match: setObject.get(id)
-      }))
-    }
-  })
+  const UNION = async (tokens, pipeline) =>
+    Promise.all(tokens).then(sets => {
+      const setObject = sets.flat(Infinity).reduce((acc, cur) => {
+        // cur will be undefined if stopword
+        if (cur) acc.set(cur._id, [...(acc.get(cur._id) || []), cur._match])
+        return acc
+      }, new Map())
+      return {
+        sumTokensMinusStopwords: sets.filter(s => s).length,
+        union: Array.from(setObject.keys()).map(id => ({
+          _id: id,
+          _match: setObject.get(id)
+        }))
+      }
+    })
 
   // AND
-  const INTERSECTION = (tokens, pipeline) => UNION(tokens, pipeline).then(result => result.union.filter(
-    item => item._match.length === result.sumTokensMinusStopwords
-  )
-  )
+  const INTERSECTION = (tokens, pipeline) =>
+    UNION(tokens, pipeline).then(result =>
+      result.union.filter(
+        item => item._match.length === result.sumTokensMinusStopwords
+      )
+    )
 
   // NOT (set a minus set b)
   const SET_SUBTRACTION = (a, b) =>
@@ -105,19 +107,19 @@ export default function (ops, tokenParser) {
             limit: token.LIMIT,
             reverse: token.REVERSE
           }
-          return getRange(key).then(entries => entries.forEach(token =>
-            token.value.forEach(docId =>
-              rs.set(docId, [
-                ...(rs.get(docId) || []),
-                JSON.stringify({
-                  FIELD: token.key[1],
-                  VALUE: token.key[2][0],
-                  SCORE: token.key[2][1]
-                })
-              ])
+          return getRange(key).then(entries =>
+            entries.forEach(token =>
+              token.value.forEach(docId =>
+                rs.set(docId, [
+                  ...(rs.get(docId) || []),
+                  JSON.stringify({
+                    FIELD: token.key[1],
+                    VALUE: token.key[2][0],
+                    SCORE: token.key[2][1]
+                  })
+                ])
+              )
             )
-          )
-
           )
         })
       ).then(() =>
