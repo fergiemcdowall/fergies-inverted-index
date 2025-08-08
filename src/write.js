@@ -228,7 +228,7 @@ export default function (ops, tokenParser) {
     )
       .then(TIMESTAMP_LAST_UPDATED)
       .then(async passThrough => {
-        // TODO: reader should not be inited here
+        // cache any new fieldnames
         tokenParser.setAvailableFields(await reader(ops).FIELDS())
         return passThrough
       })
